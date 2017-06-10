@@ -196,8 +196,8 @@
     async function player(video) {
 
       // Load some shaders
-      const vertexShaderText = await (await fetch("./video.vert")).text();
-      const fragmentShaderText = await (await fetch("./video.frag")).text();
+      const vertexShaderText = await (await fetch("./color.vert")).text();
+      const fragmentShaderText = await (await fetch("./color.frag")).text();
 
       let videoTexture = null;
 
@@ -242,68 +242,104 @@
         // Position & color
         const vertex = [];
         // Vertex order
-        const indicies = [];
+        const indices = [];
 
-        const { PI, sin, cos } = Math;
+        const { PI, sin, cos, asin, atan2 } = Math;
         const PI2 = 2 * PI;
 
-        for (let s = 0; s < segments; ++s)
-          {
-            const theta = 0;
-            const phi = s * 2 * PI / segments;
-            const sinTheta = sin(theta);
-            const sinPhi = sin(phi);
-            const cosTheta = cos(theta);
-            const cosPhi = cos(phi);
-            vertex.push(radius * cosPhi * sinTheta);
-            vertex.push(radius * sinPhi * sinTheta);
-            vertex.push(radius * cosTheta);
-
-            const u = s / segments;
-            vertex.push(u, 0);
-
-          }
-          for (let l = 0; l <= rows; ++l)
+        for (let r = 0; r <= rows; ++r)
           {
             for (let s = 0; s < segments; ++s)
             {
-              let theta = (l * PI / rows) + ((PI * s) / (segments * rows));
-              if (l == rows)
-              {
-                theta = PI;
-              }
-              const phi = s * 2 * PI / segments;
+              const rr = r / rows;
+              // Ensure last element rese
+              const sr = (s / (segments - 1)) ;
+              const theta = r * PI / rows; // angle of z axis
+              const phi = s * 2 * PI / segments; // angle of y axis
               const sinTheta = sin(theta);
               const sinPhi = sin(phi);
               const cosTheta = cos(theta);
               const cosPhi = cos(phi);
-              vertex.push(radius * cosPhi * sinTheta);
-              vertex.push(radius * sinPhi * sinTheta);
-              vertex.push(radius * cosTheta);
+              const x = cosPhi * sinTheta;
+              const y = cosTheta;
+              const z = sinPhi * sinTheta;
+              vertex.push(
+                x * radius,
+                y * radius,
+                z * radius
+              );
 
-              const u = s / segments;
-              const v = l / rows;
-              vertex.push(u, v);
-
+              vertex.push(sr, 1 - rr);
+            }
+          }
+          for (let r = 0; r < rows; ++r)
+          {
+            for (let s = 0; s <= segments; ++s)
+            {
+              indices.push(
+                (r * segments) + (s % segments),
+                ((r + 1) * segments) + (s % segments)
+              );
             }
           }
 
+        // for (let s = 0; s < segments; ++s)
+        //   {
+        //     const theta = 0;
+        //     const phi = s * 2 * PI / segments;
+        //     const sinTheta = sin(theta);
+        //     const sinPhi = sin(phi);
+        //     const cosTheta = cos(theta);
+        //     const cosPhi = cos(phi);
+        //     vertex.push(radius * cosPhi * sinTheta);
+        //     vertex.push(radius * sinPhi * sinTheta);
+        //     vertex.push(radius * cosTheta);
+
+        //     const u = s / segments;
+        //     vertex.push(0, u, 0);
+
+        //   }
+        //   for (let l = 0; l <= rows; ++l)
+        //   {
+        //     for (let s = 0; s < segments; ++s)
+        //     {
+        //       let theta = (l * PI / rows) + ((PI * s) / (segments * rows));
+        //       if (l == rows)
+        //       {
+        //         theta = PI;
+        //       }
+        //       const phi = s * 2 * PI / segments;
+        //       const sinTheta = sin(theta);
+        //       const sinPhi = sin(phi);
+        //       const cosTheta = cos(theta);
+        //       const cosPhi = cos(phi);
+        //       vertex.push(radius * cosPhi * sinTheta);
+        //       vertex.push(radius * sinPhi * sinTheta);
+        //       vertex.push(radius * cosTheta);
+
+        //       const u = s / segments;
+        //       const v = l / rows;
+        //       vertex.push(v, u, 0);
+
+        //     }
+        //   }
 
 
-        for (let s = 0; s < segments; ++s) {
-          indicies.push(s);
-          indicies.push(segments + s);
-        }
-        for (let l = 0; l < rows; ++l) {
-          for (let s = 0; s < segments; ++s) {
-            indicies.push(((l + 1) * segments) + s);
-            indicies.push(((l + 2) * segments) + s);
-          }
-        }
+
+        // for (let s = 0; s < segments; ++s) {
+        //   indices.push(s);
+        //   indices.push(segments + s);
+        // }
+        // for (let l = 0; l < rows; ++l) {
+        //   for (let s = 0; s < segments; ++s) {
+        //     indices.push(((l + 1) * segments) + s);
+        //     indices.push(((l + 2) * segments) + s);
+        //   }
+        // }
 
         return [
           new Float32Array(vertex),
-          new Uint16Array(indicies),
+          new Uint16Array(indices),
         ];
       }
 
@@ -313,11 +349,11 @@
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
                       new Uint8Array([0, 0, 0, 255])); // black
 
-        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        // // gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindTexture(gl.TEXTURE_2D, null);
       }
 
       function updateTexture() {
@@ -354,7 +390,8 @@
           return out;
       };
 
-      const [boxVertices, boxIndices] = sphere(2, 40, 40);
+      const [boxVertices, boxIndices] = sphere(5000, 40, 40);
+      console.log(boxVertices.length, boxIndices.length);
       var matWorldUniformLocation;
       var matViewUniformLocation;
       var worldMatrix = new Float32Array(16);
@@ -365,15 +402,15 @@
         var yRotationMatrix = new Float32Array(16);
         var viewMatrix = new Float32Array(16);
       function updateLoop() {
-        angle = performance.now() / 1000 / 30 * 2 * Math.PI;
+        angle =Math.PI * 1.5; //performance.now() / 1000 / 30 * 2 * Math.PI;
         const x = Math.sin(angle), z = Math.cos(angle);
         const y = Math.sin(angle) / 2;
 
         // lookAt(viewMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
         lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
 
-        rotate(yRotationMatrix, identityMatrix, angle, [0, 0, 1]);
-        rotate(xRotationMatrix, identityMatrix, Math.PI/2, [1, 0, 0]);
+        rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
+        rotate(xRotationMatrix, identityMatrix, 0, [1, 0, 0]);
         mul(worldMatrix, xRotationMatrix, yRotationMatrix)
         // identity(worldMatrix)
         gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
@@ -400,9 +437,9 @@
           alert('Unable to initialize WebGL. Your browser may not support it.');
         }
 
-        gl.enable(gl.CULL_FACE);
+        // gl.enable(gl.CULL_FACE);
         gl.frontFace(gl.CW);
-        gl.cullFace(gl.FRONT);
+        gl.cullFace(gl.BACK);
 
         var vertexShader = gl.createShader(gl.VERTEX_SHADER);
         var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
