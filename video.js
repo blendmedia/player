@@ -177,8 +177,8 @@
 
   function player(video) {
     Promise.all([
-      fetch("./color.vert").then(r => r.text()),
-      fetch("./color.frag").then(r => r.text())
+      fetch("./video.vert").then(r => r.text()),
+      fetch("./video.frag").then(r => r.text())
     ]).then(([vertexShaderText, fragmentShaderText]) => {
 
       let videoTexture = null;
@@ -195,22 +195,20 @@
 
 
       function sphere(radius, rows, segments) {
-                // Position & color
+        // Position & color
         const vertex = [];
-                // Vertex order
+        // Vertex order
         const indices = [];
 
         const { PI, sin, cos } = Math;
 
-        for (let r = 0; r <= rows; ++r)
-                  {
-          for (let s = 0; s < segments; ++s)
-                    {
+        for (let r = 0; r <= rows; ++r) {
+          for (let s = 0; s < segments; ++s) {
             const rr = r / rows;
-                      // Ensure last element rese
+            // Ensure last element rese
             const sr = (s / (segments - 1)) ;
             const theta = r * PI / rows; // angle of z axis
-            const phi = s * 2 * PI / segments; // angle of y axis
+            const phi = s * 2 * PI / (segments - 1); // angle of y axis
             const sinTheta = sin(theta);
             const sinPhi = sin(phi);
             const cosTheta = cos(theta);
@@ -219,79 +217,21 @@
             const y = cosTheta;
             const z = sinPhi * sinTheta;
             vertex.push(
-                        x * radius,
-                        y * radius,
-                        z * radius
-                      );
-
+              x * radius,
+              y * radius,
+              z * radius
+            );
             vertex.push(sr, 1 - rr);
           }
         }
-        for (let r = 0; r < rows; ++r)
-                  {
-          for (let s = 0; s <= segments; ++s)
-                    {
+        for (let r = 0; r < rows; ++r) {
+          for (let s = 0; s <= segments; ++s) {
             indices.push(
-                        (r * segments) + (s % segments),
-                        ((r + 1) * segments) + (s % segments)
-                      );
+              (r * segments) + (s % segments),
+              ((r + 1) * segments) + (s % segments)
+            );
           }
         }
-
-                // for (let s = 0; s < segments; ++s)
-                //   {
-                //     const theta = 0;
-                //     const phi = s * 2 * PI / segments;
-                //     const sinTheta = sin(theta);
-                //     const sinPhi = sin(phi);
-                //     const cosTheta = cos(theta);
-                //     const cosPhi = cos(phi);
-                //     vertex.push(radius * cosPhi * sinTheta);
-                //     vertex.push(radius * sinPhi * sinTheta);
-                //     vertex.push(radius * cosTheta);
-
-                //     const u = s / segments;
-                //     vertex.push(0, u, 0);
-
-                //   }
-                //   for (let l = 0; l <= rows; ++l)
-                //   {
-                //     for (let s = 0; s < segments; ++s)
-                //     {
-                //       let theta = (l * PI / rows) + ((PI * s) / (segments * rows));
-                //       if (l == rows)
-                //       {
-                //         theta = PI;
-                //       }
-                //       const phi = s * 2 * PI / segments;
-                //       const sinTheta = sin(theta);
-                //       const sinPhi = sin(phi);
-                //       const cosTheta = cos(theta);
-                //       const cosPhi = cos(phi);
-                //       vertex.push(radius * cosPhi * sinTheta);
-                //       vertex.push(radius * sinPhi * sinTheta);
-                //       vertex.push(radius * cosTheta);
-
-                //       const u = s / segments;
-                //       const v = l / rows;
-                //       vertex.push(v, u, 0);
-
-                //     }
-                //   }
-
-
-
-                // for (let s = 0; s < segments; ++s) {
-                //   indices.push(s);
-                //   indices.push(segments + s);
-                // }
-                // for (let l = 0; l < rows; ++l) {
-                //   for (let s = 0; s < segments; ++s) {
-                //     indices.push(((l + 1) * segments) + s);
-                //     indices.push(((l + 2) * segments) + s);
-                //   }
-                // }
-
         return [
           new Float32Array(vertex),
           new Uint16Array(indices),
@@ -356,8 +296,9 @@
       var xRotationMatrix = new Float32Array(16);
       var yRotationMatrix = new Float32Array(16);
       var viewMatrix = new Float32Array(16);
+      let vh = 0, vw = 0;
       function updateLoop() {
-        angle =Math.PI * 1.5; //performance.now() / 1000 / 30 * 2 * Math.PI;
+        angle = Math.PI *0.5; //performance.now() / 1000 / 30 * 2 * Math.PI;
 
                 // lookAt(viewMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
         lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
@@ -368,6 +309,15 @@
                 // identity(worldMatrix)
         gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+        // if (vw !== canvas.offsetWidth) {
+        //   canvas.width = vw = canvas.offsetWidth;
+        //   console.log("Update size");
+        // }
+        // if (vh !== canvas.offsetHeight) {
+        //   canvas.height = vh = canvas.offsetHeight;
+        //   console.log("Update size");
+        // }
+
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
                 // perspective(pMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
@@ -479,8 +429,8 @@
       }
 
       const canvas = document.createElement("canvas");
-      canvas.width = 640;
-      canvas.height = 360;
+      canvas.width = 1280;
+      canvas.height = 720;
       const wrapper = document.createElement("div");
       gl = initWebGL(canvas);
               // Set clear color to black, fully opaque
@@ -513,6 +463,11 @@
 
     });
       // Load so
+
+    window.addEventListener("deviceorientation", function(e){
+      const { alpha: roll, beta: pitch, gamma: yaw } = e;
+      console.log(`roll: ${roll}, pitch: ${pitch}, yaw: ${yaw}`);
+    });
   }
 
   player(video);
