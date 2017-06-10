@@ -19,7 +19,12 @@
   <script>
     const video = document.querySelector("#video");
 
-    function player(video) {
+    async function player(video) {
+
+      // Load some shaders
+      const vert = await (await fetch("./video.vert")).text();
+      const frag = await (await fetch("./video.frag")).text();
+
       let videoTexture = null;
       let gl = null;
 
@@ -61,6 +66,7 @@
       function updateLoop() {
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
 
         updateTexture();
         requestAnimationFrame(updateLoop);
