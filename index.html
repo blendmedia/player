@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <video src="./testing-2d.mp4" id="video" muted autoplay preload loop></video>
+  <video src="./testing-2d.mp4" id="video" muted preload loop></video>
   <script>
   var degree = Math.PI / 180;
   const glMatrix = {
@@ -58,7 +58,7 @@
         if (Math.abs(eyex - centerx) < glMatrix.EPSILON &&
             Math.abs(eyey - centery) < glMatrix.EPSILON &&
             Math.abs(eyez - centerz) < glMatrix.EPSILON) {
-            return mat4.identity(out);
+            return identity(out);
         }
         z0 = eyex - centerx;
         z1 = eyey - centery;
@@ -259,8 +259,8 @@
             vertex.push(radius * sinPhi * sinTheta);
             vertex.push(radius * cosTheta);
 
-            const [r, g, b] = hslToRgb(s / segments, 1, 0);
-            vertex.push(r, g, b);
+            const u = s / segments;
+            vertex.push(u, 0);
 
           }
           for (let l = 0; l <= rows; ++l)
@@ -281,8 +281,9 @@
               vertex.push(radius * sinPhi * sinTheta);
               vertex.push(radius * cosTheta);
 
-              const [r, g, b] = hslToRgb(s / segments, 1, l / rows);
-              vertex.push(r, g, b);
+              const u = s / segments;
+              const v = l / rows;
+              vertex.push(u, v);
 
             }
           }
@@ -309,24 +310,26 @@
       function initTextures() {
         videoTexture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, videoTexture);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                      new Uint8Array([0, 0, 0, 255])); // black
+
+        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        // // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        // // gl.bindTexture(gl.TEXTURE_2D, null);
       }
 
       function updateTexture() {
-        if (!video.isPlaying) {
-          return;
-        }
-        try {
           gl.bindTexture(gl.TEXTURE_2D, videoTexture);
           gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
                 gl.UNSIGNED_BYTE, video);
-        } catch (e) {
-          // not ready
-        }
+          gl.bindTexture(gl.TEXTURE_2D, null);
       }
 
       perspective = function (out, fovy, aspect, near, far) {
@@ -351,25 +354,37 @@
           return out;
       };
 
-      const [boxVertices, boxIndices] = sphere(1, 20, 20);
+      const [boxVertices, boxIndices] = sphere(2, 40, 40);
       var matWorldUniformLocation;
+      var matViewUniformLocation;
       var worldMatrix = new Float32Array(16);
       var identityMatrix = new Float32Array(16);
       identity(identityMatrix);
       var angle = 0;
       var xRotationMatrix = new Float32Array(16);
         var yRotationMatrix = new Float32Array(16);
+        var viewMatrix = new Float32Array(16);
       function updateLoop() {
-        angle = performance.now() / 1000 / 6 * 2 * Math.PI;
-        rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
-        rotate(xRotationMatrix, identityMatrix, angle / 4, [1, 0, 0]);
-        mul(worldMatrix, yRotationMatrix, xRotationMatrix);
+        angle = performance.now() / 1000 / 30 * 2 * Math.PI;
+        const x = Math.sin(angle), z = Math.cos(angle);
+        const y = Math.sin(angle) / 2;
+
+        // lookAt(viewMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
+        lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
+
+        rotate(yRotationMatrix, identityMatrix, angle, [0, 0, 1]);
+        rotate(xRotationMatrix, identityMatrix, Math.PI/2, [1, 0, 0]);
+        mul(worldMatrix, xRotationMatrix, yRotationMatrix)
+        // identity(worldMatrix)
+        gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         const pMatrix = new Float32Array(16);
         // perspective(pMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
         updateTexture();
+        gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+        gl.activeTexture(gl.TEXTURE0);
         gl.drawElements(gl.TRIANGLE_STRIP, boxIndices.length, gl.UNSIGNED_SHORT, 0);
         requestAnimationFrame(updateLoop);
       }
@@ -384,6 +399,10 @@
         if (!gl) {
           alert('Unable to initialize WebGL. Your browser may not support it.');
         }
+
+        gl.enable(gl.CULL_FACE);
+        gl.frontFace(gl.CW);
+        gl.cullFace(gl.FRONT);
 
         var vertexShader = gl.createShader(gl.VERTEX_SHADER);
         var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -427,32 +446,32 @@
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, boxIndices, gl.STATIC_DRAW);
 
         var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
-        var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');
+        var texUvAttribLocation = gl.getAttribLocation(program, 'vertTexCoord');
         gl.vertexAttribPointer(
           positionAttribLocation, // Attribute location
           3, // Number of elements per attribute
           gl.FLOAT, // Type of elements
           gl.FALSE,
-          6 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+          5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
           0 // Offset from the beginning of a single vertex to this attribute
         );
         gl.vertexAttribPointer(
-          colorAttribLocation, // Attribute location
-          3, // Number of elements per attribute
+          texUvAttribLocation, // Attribute location
+          2, // Number of elements per attribute
           gl.FLOAT, // Type of elements
           gl.FALSE,
-          6 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+          5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
           3 * Float32Array.BYTES_PER_ELEMENT // Offset from the beginning of a single vertex to this attribute
         );
 
         gl.enableVertexAttribArray(positionAttribLocation);
-        gl.enableVertexAttribArray(colorAttribLocation);
+        gl.enableVertexAttribArray(texUvAttribLocation);
 
         // Tell OpenGL state machine which program should be active.
         gl.useProgram(program);
 
         matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
-        var matViewUniformLocation = gl.getUniformLocation(program, 'mView');
+        matViewUniformLocation = gl.getUniformLocation(program, 'mView');
         var matProjUniformLocation = gl.getUniformLocation(program, 'mProj');
 
         var worldMatrix = new Float32Array(16);
@@ -460,7 +479,7 @@
         var projMatrix = new Float32Array(16);
         identity(worldMatrix);
         lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
-        perspective(projMatrix, glMatrix.toRadian(45), canvas.width / canvas.height, 0.1, 1000.0);
+        perspective(projMatrix, glMatrix.toRadian(45), canvas.width / canvas.height, 1, 10000.0);
 
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
         gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
@@ -471,21 +490,21 @@
       }
 
       const canvas = document.createElement("canvas");
-      canvas.width = 600;
-      canvas.height = 600;
+      canvas.width = 640;
+      canvas.height = 360;
       const wrapper = document.createElement("div");
       gl = initWebGL(canvas);
       // Set clear color to black, fully opaque
-      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clearColor(0.4, 0.4, 0.4, 1.0);
       // Enable depth testing
-      gl.enable(gl.DEPTH_TEST);
+      // gl.enable(gl.DEPTH_TEST);
       // Near things obscure far things
       gl.depthFunc(gl.LEQUAL);
       // Clear the color as well as the depth buffer.
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       initTextures();
-      updateLoop();
+
       wrapper.className = "BlendPlayer";
       canvas.className = "BlendPlayer__canvas";
       video.classList.add("BlendPlayer__video");
@@ -493,7 +512,15 @@
       video.parentNode.insertBefore(wrapper, video);
       wrapper.appendChild(video);
 
-      play().catch(e => console.warn(e));
+      startVideo = () => {
+        play().catch(e => console.warn(e)).then(function() {
+          setTimeout(function() {
+            updateLoop();
+
+          }, 500);
+        });
+      }
+      video.addEventListener("canplaythrough", startVideo, true);
 
     }
 
