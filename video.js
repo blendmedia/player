@@ -184,6 +184,7 @@
       let videoTexture = null;
 
 
+
       if (!video.parentNode) {
         console.error("<video> tag must be present in the DOM");
         return false;
@@ -285,10 +286,11 @@
         return out;
       };
 
-      const [boxVertices, boxIndices] = sphere(5000, 40, 40);
-      console.log(boxVertices.length, boxIndices.length);
+      const [boxVertices, boxIndices] = sphere(500, 40, 40);
       var matWorldUniformLocation;
       var matViewUniformLocation;
+      var matProjUniformLocation;
+      var projMatrix = new Float32Array(16);
       var worldMatrix = new Float32Array(16);
       var identityMatrix = new Float32Array(16);
       identity(identityMatrix);
@@ -296,7 +298,6 @@
       var xRotationMatrix = new Float32Array(16);
       var yRotationMatrix = new Float32Array(16);
       var viewMatrix = new Float32Array(16);
-      let vh = 0, vw = 0;
       function updateLoop() {
         angle = Math.PI *0.5; //performance.now() / 1000 / 30 * 2 * Math.PI;
 
@@ -309,18 +310,20 @@
                 // identity(worldMatrix)
         gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
-        // if (vw !== canvas.offsetWidth) {
-        //   canvas.width = vw = canvas.offsetWidth;
-        //   console.log("Update size");
-        // }
-        // if (vh !== canvas.offsetHeight) {
-        //   canvas.height = vh = canvas.offsetHeight;
-        //   console.log("Update size");
-        // }
 
-        gl.viewport(0, 0, canvas.width, canvas.height);
+        var width = gl.canvas.clientWidth;
+        var height = gl.canvas.clientHeight;
+
+        if (gl.canvas.width != width || gl.canvas.height != height) {
+          gl.canvas.width = width;
+          gl.canvas.height = height;
+        }
+
+
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-                // perspective(pMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
+        perspective(projMatrix, glMatrix.toRadian(45), canvas.clientWidth / canvas.clientHeight, 1, 2000.0);
+        gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
         updateTexture();
         gl.bindTexture(gl.TEXTURE_2D, videoTexture);
         gl.activeTexture(gl.TEXTURE0);
@@ -411,14 +414,14 @@
 
         matWorldUniformLocation = gl.getUniformLocation(program, "mWorld");
         matViewUniformLocation = gl.getUniformLocation(program, "mView");
-        var matProjUniformLocation = gl.getUniformLocation(program, "mProj");
+        matProjUniformLocation = gl.getUniformLocation(program, "mProj");
 
         var worldMatrix = new Float32Array(16);
         var viewMatrix = new Float32Array(16);
-        var projMatrix = new Float32Array(16);
+
         identity(worldMatrix);
         lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
-        perspective(projMatrix, glMatrix.toRadian(45), canvas.width / canvas.height, 1, 10000.0);
+        perspective(projMatrix, glMatrix.toRadian(45), canvas.clientWidth / canvas.clientHeight, 1, 2000.0);
 
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
         gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
