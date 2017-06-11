@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
   <title>Blend Player</title>
+  mob
   <style>
     .BlendPlayer {
       position: relative;
@@ -23,10 +25,20 @@
       width:  100vw;
       height:  100vh;
     }
+
+    .position {
+      position: fixed;
+      bottom: 5px;
+      right: 5px;
+      color:  #FFF;
+      font-size:  14px;
+      font-family: Arial;
+    }
   </style>
 </head>
 <body>
   <video src="./testing-2d.mp4" id="video" muted preload loop></video>
   <script src="./video.js"></script>
+  <p class="position">Device position: </p>
 </body>
 </html>

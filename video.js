@@ -181,6 +181,20 @@
       fetch("./video.frag").then(r => r.text())
     ]).then(([vertexShaderText, fragmentShaderText]) => {
 
+      let position = { alpha: 0, beta: 0, gamma: 0 };
+      window.addEventListener("deviceorientation", function(e){
+        const positionEl = document.querySelector(".position");
+        const { alpha, beta, gamma } = e;
+        if (beta !== null) {
+          position = {
+            alpha: degree * alpha,
+            beta: degree * beta,
+            gamma: degree *  gamma
+          };
+        }
+        positionEl.innerHTML = `alpha: ${alpha.toFixed(2)}, beta: ${beta.toFixed(2)}, gamma: ${gamma.toFixed(2)}`;
+      });
+
       let videoTexture = null;
 
 
@@ -302,10 +316,55 @@
         angle = Math.PI *0.5; //performance.now() / 1000 / 30 * 2 * Math.PI;
 
                 // lookAt(viewMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
-        lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
+        // const up = [Math.sin(position.roll), Math.cos(position.roll), 0];
+
+        const pointAt = [
+          0,
+          1,
+          0,
+        ];
+
+        // Apply z rotation
+        // |cos θ   −sin θ   0| |x|   |x cos θ − y sin θ|   |x'|
+        // |sin θ    cos θ   0| |y| = |x sin θ + y cos θ| = |y'|
+        // |  0       0      1| |z|   |        z        |   |z'|
+        pointAt[0] = (
+          pointAt[0]*Math.cos(position.alpha) -
+          pointAt[1]*Math.sin(position.alpha)
+        );
+        pointAt[1] = (
+          pointAt[0]*Math.sin(position.alpha) +
+          pointAt[1]*Math.cos(position.alpha)
+        );
+
+        // Apply x rotation
+        // |1     0           0| |x|   |        x        |   |x'|
+        // |0   cos θ    −sin θ| |y| = |y cos θ − z sin θ| = |y'|
+        // |0   sin θ     cos θ| |z|   |y sin θ + z cos θ|   |z'|
+        pointAt[1] = (
+          pointAt[1]*Math.cos(position.beta) -
+          pointAt[2]*Math.sin(position.beta)
+        );
+        pointAt[2] = (
+          pointAt[1]*Math.sin(position.beta) +
+          pointAt[2]*Math.cos(position.beta)
+        );
+
+        // Apply y rotation
+        // | cos θ    0   sin θ| |x|   | x cos θ + z sin θ|   |x'|
+        // |   0      1       0| |y| = |         y        | = |y'|
+        // |−sin θ    0   cos θ| |z|   |−x sin θ + z cos θ|   |z'|
+        pointAt[0] = (
+          pointAt[0]*Math.cos(position.gamma) + pointAt[2]*Math.sin(position.gamma)
+        );
+        pointAt[2] = (
+          -pointAt[0]*Math.sin(position.gamma) + pointAt[2]*Math.cos(position.gamma)
+        );
+
+        lookAt(viewMatrix, [0, 0, 0], [0, 0, 1], pointAt);
 
         rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
-        rotate(xRotationMatrix, identityMatrix, 0, [1, 0, 0]);
+        rotate(xRotationMatrix, identityMatrix, 0, [0, 0, 1]);
         mul(worldMatrix, xRotationMatrix, yRotationMatrix);
                 // identity(worldMatrix)
         gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
@@ -467,10 +526,7 @@
     });
       // Load so
 
-    window.addEventListener("deviceorientation", function(e){
-      const { alpha: roll, beta: pitch, gamma: yaw } = e;
-      console.log(`roll: ${roll}, pitch: ${pitch}, yaw: ${yaw}`);
-    });
+
   }
 
   player(video);
