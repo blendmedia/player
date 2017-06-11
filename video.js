@@ -6,6 +6,51 @@
       return a * degree;
     },
   };
+  function transformationMatrix(alpha, beta, gamma) {
+
+    let _x = beta  ? beta  * degree : 0; // beta value
+    let _y = gamma ? gamma * degree : 0; // gamma value
+    let _z = alpha ? alpha * degree : 0; // alpha value
+
+    let cX = Math.cos(_x);
+    let cY = Math.cos(_y);
+    let cZ = Math.cos(_z);
+    let sX = Math.sin(_x);
+    let sY = Math.sin(_y);
+    let sZ = Math.sin(_z);
+
+    //
+    // ZXY rotation matrix letruction.
+    //
+
+    let m11 = cZ * cY - sZ * sX * sY;
+    let m12 = -cX * sZ;
+    let m13 = cY * sZ * sX + cZ * sY;
+
+    let m21 = cY * sZ + cZ * sX * sY;
+    let m22 = cZ * cX;
+    let m23 = sZ * sY - cZ * cY * sX;
+
+    let m31 = -cX * sY;
+    let m32 = sX;
+    let m33 = cX * cY;
+
+    return [
+      m11,    m12,    m13,
+      m21,    m22,    m23,
+      m31,    m32,    m33
+    ];
+  }
+
+  function transformVector(vector, alpha, beta, gamma) {
+    let tm = transformationMatrix(alpha, beta, gamma);
+    return [
+      -(vector[0] * tm[0] + vector[1] * tm[3] + vector[2] * tm[6]),
+      -(vector[0] * tm[1] + vector[1] * tm[4] + vector[2] * tm[7]),
+      -(vector[0] * tm[2] + vector[1] * tm[5] + vector[2] * tm[8]),
+    ];
+  }
+
   const identity = function (out) {
     out[0] = 1;
     out[1] = 0;
@@ -187,9 +232,9 @@
         const { alpha, beta, gamma } = e;
         if (beta !== null) {
           position = {
-            alpha: degree * alpha,
-            beta: degree * beta,
-            gamma: degree *  gamma
+            alpha,
+            beta,
+            gamma,
           };
         }
         positionEl.innerHTML = `alpha: ${alpha.toFixed(2)}, beta: ${beta.toFixed(2)}, gamma: ${gamma.toFixed(2)}`;
@@ -318,50 +363,10 @@
                 // lookAt(viewMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
         // const up = [Math.sin(position.roll), Math.cos(position.roll), 0];
 
-        const pointAt = [
-          0,
-          1,
-          0,
-        ];
+        const { alpha, beta, gamma } = position;
+        const pointAt = transformVector([0, 0, 1], alpha, beta, gamma);
 
-        // Apply z rotation
-        // |cos θ   −sin θ   0| |x|   |x cos θ − y sin θ|   |x'|
-        // |sin θ    cos θ   0| |y| = |x sin θ + y cos θ| = |y'|
-        // |  0       0      1| |z|   |        z        |   |z'|
-        pointAt[0] = (
-          pointAt[0]*Math.cos(position.alpha) -
-          pointAt[1]*Math.sin(position.alpha)
-        );
-        pointAt[1] = (
-          pointAt[0]*Math.sin(position.alpha) +
-          pointAt[1]*Math.cos(position.alpha)
-        );
-
-        // Apply x rotation
-        // |1     0           0| |x|   |        x        |   |x'|
-        // |0   cos θ    −sin θ| |y| = |y cos θ − z sin θ| = |y'|
-        // |0   sin θ     cos θ| |z|   |y sin θ + z cos θ|   |z'|
-        pointAt[1] = (
-          pointAt[1]*Math.cos(position.beta) -
-          pointAt[2]*Math.sin(position.beta)
-        );
-        pointAt[2] = (
-          pointAt[1]*Math.sin(position.beta) +
-          pointAt[2]*Math.cos(position.beta)
-        );
-
-        // Apply y rotation
-        // | cos θ    0   sin θ| |x|   | x cos θ + z sin θ|   |x'|
-        // |   0      1       0| |y| = |         y        | = |y'|
-        // |−sin θ    0   cos θ| |z|   |−x sin θ + z cos θ|   |z'|
-        pointAt[0] = (
-          pointAt[0]*Math.cos(position.gamma) + pointAt[2]*Math.sin(position.gamma)
-        );
-        pointAt[2] = (
-          -pointAt[0]*Math.sin(position.gamma) + pointAt[2]*Math.cos(position.gamma)
-        );
-
-        lookAt(viewMatrix, [0, 0, 0], [0, 0, 1], pointAt);
+        lookAt(viewMatrix, [0, 0, 0], pointAt, [0, 1, 0]);
 
         rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
         rotate(xRotationMatrix, identityMatrix, 0, [0, 0, 1]);
