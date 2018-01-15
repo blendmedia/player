@@ -1,4 +1,4 @@
-# Blend Player
+# Fuse Player
 ## A tiny, minimal dependency 180/360 video/image player for the browser
 ### Features / Planned
 
