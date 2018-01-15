@@ -6,6 +6,7 @@
   "module": "dist/blend-player.es6.js",
   "scripts": {
     "test": "karma start --single-run",
+    "test:watch": "karma start --browsers ChromeHeadless",
     "start": "rollup -c rollup.config.js",
     "build": "rollup -c rollup.prod.config.js",
     "examples": "yarn run build && hs -p 9000",
