@@ -59,6 +59,7 @@ module.exports = function(config) {
     // start these browsers
     browsers: [
       "ChromeHeadless",
+      "FirefoxHeadless",
     ],
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
