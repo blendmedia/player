@@ -1,4 +1,4 @@
-import common from "./rollup.common.config";
+import common from "./common";
 import resolve from "rollup-plugin-node-resolve";
 
 export default Object.assign({}, common, {

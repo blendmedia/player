@@ -1,4 +1,4 @@
-import common from "./rollup.common.config";
+import common from "./common";
 import uglify from "rollup-plugin-uglify";
 import resolve from "rollup-plugin-node-resolve";
 
