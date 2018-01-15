@@ -12,6 +12,8 @@ export default {
   plugins: [
     replace({
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+      "mat4/": "gl-mat4/",
+      "vec3/": "gl-vec3/",
     }),
     commonjs({
       include: "node_modules/**",
