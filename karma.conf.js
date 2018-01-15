@@ -58,9 +58,22 @@ module.exports = function(config) {
     autoWatch: true,
     // start these browsers
     browsers: [
-      "ChromeHeadless",
-      "FirefoxHeadless",
+      "MyChromeHeadless",
+      "MyFirefoxHeadless",
     ],
+
+    customLaunchers: {
+      "MyChromeHeadless": {
+        base: "Chrome",
+        flags: [
+          "--headless",
+          "--remote-debugging-port=9222",
+        ],
+      },
+      "MyFirefoxHeadless": {
+        base: "Firefox",
+      },
+    },
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
