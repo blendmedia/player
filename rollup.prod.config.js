@@ -1,5 +1,6 @@
 import common from "./rollup.common.config";
 import uglify from "rollup-plugin-uglify";
+import resolve from "rollup-plugin-node-resolve";
 
 export default [
   Object.assign({}, common, {
@@ -10,6 +11,13 @@ export default [
     },
     plugins: [
       ...common.plugins,
+      resolve({
+        jsnext: true,
+        module: true,
+        main: true,
+        browser: true,
+        modulesOnly: false,
+      }),
       uglify(),
     ],
   }),
@@ -18,5 +26,11 @@ export default [
       file: "dist/blend-player.es6.js",
       format: "es",
     },
+    external: function(id, parent, isResolved) {
+      return isResolved;
+    },
+    plugins: [
+      ...common.plugins,
+    ],
   }),
 ];
