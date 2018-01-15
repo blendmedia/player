@@ -1,6 +1,8 @@
+import main from "../src/main";
+
 describe("example", () => {
   it("should do something", () => {
-    expect(true).to.be.true;
+    expect(main.cr).to.be.ok;
   });
 });
 
