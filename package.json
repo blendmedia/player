@@ -48,7 +48,6 @@
     "rollup-plugin-uglify": "^2.0.1"
   },
   "dependencies": {
-    "gl-mat4": "^1.1.4",
-    "gl-vec3": "^1.0.3"
+    "gl-matrix": "^2.4.0"
   }
 }

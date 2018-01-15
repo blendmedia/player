@@ -8,12 +8,12 @@ export default {
   output: {
     file: "dist/blend-player.dev.js",
     format: "umd",
+    name: "blendPlayer",
   },
   plugins: [
     replace({
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
-      "mat4/": "gl-mat4/",
-      "vec3/": "gl-vec3/",
+      "gl-matrix/": "gl-matrix/src/gl-matrix/",
     }),
     commonjs({
       include: "node_modules/**",
@@ -25,7 +25,6 @@ export default {
       ],
     }),
     babel({
-      exclude: "node_modules/**",
       babelrc: false,
       presets: ["es2015-rollup"],
     }),

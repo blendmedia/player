@@ -25,8 +25,6 @@ module.exports = function(config) {
       plugins: [
         require("rollup-plugin-replace")({
           "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
-          "mat4/": "gl-mat4/",
-          "vec3/": "gl-vec3/",
         }),
         require("rollup-plugin-commonjs")({
           include: "node_modules/**",

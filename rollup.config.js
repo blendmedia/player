@@ -3,7 +3,6 @@ import resolve from "rollup-plugin-node-resolve";
 
 export default Object.assign({}, common, {
   plugins: [
-    ...common.plugins,
     resolve({
       jsnext: true,
       module: true,
@@ -11,5 +10,6 @@ export default Object.assign({}, common, {
       browser: true,
       modulesOnly: false,
     }),
+    ...common.plugins,
   ],
 });
