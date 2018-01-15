@@ -5,7 +5,7 @@
   "main": "dist/blend-player.js",
   "module": "dist/blend-player.es6.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "rollup -c rollup.config.js",
     "build": "rollup -c rollup.prod.config.js"
   },
@@ -22,8 +22,12 @@
   "homepage": "https://github.com/blendmedia/player#readme",
   "devDependencies": {
     "babel-core": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "babel-preset-es2015-rollup": "^3.0.0",
+    "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
     "eslint": "^4.15.0",
+    "mocha": "^4.1.0",
     "rollup": "^0.54.0",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^8.2.6",

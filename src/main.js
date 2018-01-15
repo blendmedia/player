@@ -1,3 +1,3 @@
-import create from "gl-mat4/create";
+import cr from "gl-mat4/create";
 
-console.log(create());
+export { cr };
