@@ -8,7 +8,8 @@
     "test": "mocha",
     "start": "rollup -c rollup.config.js",
     "build": "rollup -c rollup.prod.config.js",
-    "examples": "yarn run build && hs -p 9000"
+    "examples": "yarn run build && hs -p 9000",
+    "lint": "eslint src/ test/"
   },
   "repository": {
     "type": "git",
