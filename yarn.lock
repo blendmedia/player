@@ -3054,6 +3054,12 @@ lru-cache@~2.6.5:
   version "2.6.5"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-2.6.5.tgz#e56d6354148ede8d7707b58d143220fd08df0fd5"
 
+magic-string@^0.21.3:
+  version "0.21.3"
+  resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.21.3.tgz#87e201009ebfde6f46dc5757305a70af71e31624"
+  dependencies:
+    vlq "^0.2.1"
+
 magic-string@^0.22.4:
   version "0.22.4"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.22.4.tgz#31039b4e40366395618c1d6cf8193c53917475ff"
@@ -4084,6 +4090,13 @@ rollup-plugin-file-as-blob@^1.1.2:
   dependencies:
     mmmagic "^0.4.5"
     rollup-pluginutils "^1.5.2"
+
+rollup-plugin-glsl@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-glsl/-/rollup-plugin-glsl-1.1.0.tgz#864612f3b80c36f5561ca44ece0fe14e7e30e0b3"
+  dependencies:
+    magic-string "^0.21.3"
+    rollup-pluginutils "^1.5.0"
 
 rollup-plugin-node-resolve@^3.0.2:
   version "3.0.2"

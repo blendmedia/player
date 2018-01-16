@@ -4,13 +4,19 @@ const eslint     = require("rollup-plugin-eslint");
 const babel      = require("rollup-plugin-babel");
 const resolve    = require("rollup-plugin-node-resolve");
 const fileAsBlob = require("rollup-plugin-file-as-blob");
-
+const glsl       = require("rollup-plugin-glsl");
 
 module.exports = {
   output: {
     format: "iife",
   },
   plugins: [
+    glsl({
+      include: [
+        "../**.vert",
+        "../**.frag",
+      ],
+    }),
     fileAsBlob({
       include: ["**/*.mp4"],
     }),

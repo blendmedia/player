@@ -26,8 +26,10 @@ export default [
       file: "dist/blend-player.es6.js",
       format: "es",
     },
-    external: function(id, parent, isResolved) {
-      return isResolved;
+    external(id) {
+      return [
+        "gl-matrix",
+      ].some(prefix => id.indexOf(prefix) === 0);
     },
     plugins: [
       ...common.plugins,
