@@ -37,6 +37,7 @@ module.exports = {
     }),
     babel({
       exclude: "node_modules/**",
+      include: ["**/*.js"],
       babelrc: false,
       presets: ["es2015-rollup"],
     }),

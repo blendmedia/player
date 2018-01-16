@@ -1,4 +1,4 @@
-import mp4 from "./files/video-black.mp4";
+import mp4 from "./files/video-sample.mp4";
 
 describe("example", () => {
   it("should be able to make a WebGL context", () => {
