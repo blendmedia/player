@@ -24,10 +24,16 @@ jobs:
           key: v1-dependencies-{{ checksum "yarn.lock" }}
 
       # run tests!
+      - run: mkdir -p ./junit/mocha
       - run: yarn run lint
-      - run: yarn test --reporters junit
+      - run:
+          command: yarn test --reporters junit
+          environment:
+            JUNIT_REPORT_PATH: ./junit/mocha
+            JUNIT_REPORT_NAME: test-results.xml
+          when: always
       - store_test_results:
-          path: ~/junit
+          path: ./junit
       - store_artifacts:
           path: ./junit
 
