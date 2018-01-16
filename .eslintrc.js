@@ -34,6 +34,7 @@ module.exports = {
   },
   "globals": {
     "expect": true,
-    "assert": true
+    "assert": true,
+    "sinon": true
   }
 };
