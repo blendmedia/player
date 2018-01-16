@@ -7,7 +7,7 @@ export default [
     output: {
       file: "dist/blend-player.js",
       format: "umd",
-      name: "blendPlayer",
+      name: "flex",
     },
     plugins: [
       ...common.plugins,
