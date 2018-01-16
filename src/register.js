@@ -19,5 +19,13 @@ export function register(name, cls, override = false) {
 }
 
 export function resolve(name) {
+  if (name instanceof Array) {
+    return name.map(resolve);
+  }
+
+  if (typeof name !== "string") {
+    return name;
+  }
+
   return _store[name] || null;
 }
