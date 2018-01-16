@@ -1,3 +1,4 @@
+/* spec: webgl */
 precision mediump float;
 
 attribute vec3 vertPosition;

@@ -1,3 +1,4 @@
+/* spec: webgl */
 precision mediump float;
 
 varying vec2 fragTexCoord;
