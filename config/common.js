@@ -23,6 +23,9 @@ export default {
         "node_modules/**",
         "src/styles/**",
       ],
+      include: [
+        "**/*.js",
+      ],
     }),
     babel({
       babelrc: false,
