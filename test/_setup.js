@@ -3,14 +3,14 @@ import webm from "./files/video-sample.webm";
 
 import bowser from "bowser";
 
-describe("example", () => {
+describe("Test Suite Support", () => {
   it("should be able to make a WebGL context", () => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("webgl");
     expect(ctx).to.be.ok;
   });
 
-  it("should load the mp4", () => {
+  it("should load a video", () => {
     expect(mp4).to.be.ok;
     return new Promise((resolve, reject) => {
       const video = document.createElement("video");
