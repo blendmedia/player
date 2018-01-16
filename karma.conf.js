@@ -18,6 +18,11 @@ module.exports = function(config) {
       "test/**/*.js": ["rollup"],
     },
     reporters: ["mocha"],
+    junitReporter: {
+      outputDir: process.env.JUNIT_REPORT_PATH,
+      outputFile: process.env.JUNIT_REPORT_NAME,
+      useBrowserName: false,
+    },
     rollupPreprocessor: require("./config/test.js"),
     // web server port
     port: 9876,

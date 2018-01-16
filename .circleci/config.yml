@@ -25,6 +25,10 @@ jobs:
 
       # run tests!
       - run: yarn run lint
-      - run: yarn test
+      - run: yarn test --reporters junit
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ./junit
 
 
