@@ -1,4 +1,7 @@
 import mp4 from "./files/video-sample.mp4";
+import webm from "./files/video-sample.webm";
+
+import bowser from "bowser";
 
 describe("example", () => {
   it("should be able to make a WebGL context", () => {
@@ -16,7 +19,8 @@ describe("example", () => {
         reject(e);
       });
       video.addEventListener("canplay", resolve);
-      video.src = mp4;
+      const src = bowser.firefox ? webm : mp4;
+      video.src = src;
     }).should.be.fulfilled;
   });
 });

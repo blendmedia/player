@@ -18,7 +18,10 @@ module.exports = {
       ],
     }),
     fileAsBlob({
-      include: ["**/*.mp4"],
+      include: [
+        "**/*.mp4",
+        "**/*.webm",
+      ],
     }),
     replace({
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
