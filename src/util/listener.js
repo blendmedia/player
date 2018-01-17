@@ -1,37 +1,79 @@
+import detect from "detect-it";
+
+// DOM Events
+const DOM_EVENTS = [
+  "mouseup",
+  "mousedown",
+  "mousemove",
+  "click",
+  "touchstart",
+  "touchend",
+  "touchmove",
+  "resize",
+];
+
+/**
+ * Attach an event listener to a DOM element, detecting passive support
+ * @param {HTMLElement}   target   DOM element to add listener to
+ * @param {String}   event    event name to subscribe to
+ * @param {Function} callback Function to execute as the event listener
+ */
+export function addDomListener(target, event, callback) {
+  const options = detect.passiveEvents ? {
+    passive: true,
+    capture: false,
+  } : false;
+  target.addEventListener(event, callback, options);
+}
+
 /**
  * Listener Class
  * Basic subscription based event system
  */
 class Listener {
-  constructor() {
+  constructor(domElement) {
     this._listeners = {};
+    this._domElement = domElement;
   }
 
   /**
    * Register an event listener
    * @param  {String}   event    name of the event to subscribe to
    * @param  {Function} callback Function to run when an event is emitted
+   * @param {Boolean} [onWidnow] Should the event be applied to the Winodow if
+   * it is a DOM event
    * @return {Function} A function to call to unregister the listener
    */
-  on(event, callback) {
+  on(event, callback, onWindow = false) {
     if (typeof callback !== "function") {
       return false;
     }
-    if (!(event in this._listeners)) {
-      this._listeners[event] = [];
+
+    if (DOM_EVENTS.includes(event)) {
+      const target = onWindow ? this._domElement : window;
+      addDomListener(target, event, callback);
+    } else {
+      if (!(event in this._listeners)) {
+        this._listeners[event] = [];
+      }
+      this._listeners[event].push(callback);
     }
-    this._listeners[event].push(callback);
-    return () => this.off(event, callback);
+    return () => this.off(event, callback, onWindow);
   }
 
   /**
    * Unregister an event listener
    * @param  {String}   event    The name of the event to unsubscribe from
    * @param  {Function} callback Callback to remove
+   * @param {Boolean} [onWidnow] Should the event be applied to the Winodow if
+   * it is a DOM event
    * @return {void}
    */
-  off(event, callback) {
-    if (event in this._listeners) {
+  off(event, callback, onWindow) {
+    if (DOM_EVENTS.includes(event)) {
+      const target = onWindow ? this._domElement : window;
+      target.removeEventListener(event, callback);
+    } else if (event in this._listeners) {
       this._listeners[event] = (
         this._listeners[event].filter(fn => fn !== callback)
       );
