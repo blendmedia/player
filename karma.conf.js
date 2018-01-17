@@ -17,7 +17,7 @@ module.exports = function(config) {
     preprocessors: {
       "test/**/*.js": ["rollup"],
     },
-    reporters: ["mocha"],
+    reporters: ["mocha", "notify"],
     junitReporter: {
       outputDir: process.env.JUNIT_REPORT_PATH,
       outputFile: process.env.JUNIT_REPORT_NAME,
