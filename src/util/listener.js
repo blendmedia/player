@@ -34,9 +34,14 @@ class Listener {
   constructor(domElement) {
     this._listeners = {};
     this._domListeners = [];
-    this._domElement = domElement;
+    this._domElement = domElement || document.createElement("span");
   }
 
+  /**
+   * Replace DOM node for event binding
+   * @param  {HTMLElement} next New DOM node to use
+   * @return {void}
+   */
   updateDOM(next) {
     for (const [name, callback] of this._domListeners) {
       this._domElement.removeEventListener(name, callback);

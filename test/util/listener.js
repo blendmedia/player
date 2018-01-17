@@ -32,6 +32,15 @@ describe("Listener", () => {
     expect(l._listeners).to.eql({});
   });
 
+  it("should create it's own DOM node if not specified", () => {
+    const l = new Listener;
+    expect(l._domElement).to.be.instanceof(HTMLElement);
+  });
+
+  it("should store the provided DOM node", () => {
+    expect(l._domElement).to.be.equal(target);
+  });
+
   describe("custom events", () => {
     it("should create a new array of listeners when a new event type is subscribed to", () => {
       const fn = noop();
