@@ -33,7 +33,16 @@ export function addDomListener(target, event, callback) {
 class Listener {
   constructor(domElement) {
     this._listeners = {};
+    this._domListeners = [];
     this._domElement = domElement;
+  }
+
+  updateDOM(next) {
+    for (const [name, callback] of this._domListeners) {
+      this._domElement.removeEventListener(name, callback);
+      addDomListener(next, name, callback);
+    }
+    this._domElement = next;
   }
 
   /**
@@ -50,7 +59,10 @@ class Listener {
     }
 
     if (DOM_EVENTS.includes(event)) {
-      const target = onWindow ? this._domElement : window;
+      const target = onWindow ? window : this._domElement;
+      if (!onWindow) {
+        this._domListeners.push([event, callback]);
+      }
       addDomListener(target, event, callback);
     } else {
       if (!(event in this._listeners)) {
@@ -71,8 +83,13 @@ class Listener {
    */
   off(event, callback, onWindow) {
     if (DOM_EVENTS.includes(event)) {
-      const target = onWindow ? this._domElement : window;
+      const target = onWindow ? window : this._domElement;
       target.removeEventListener(event, callback);
+      if (!onWindow) {
+        this._domListeners = this._domListeners.filter(([name, cb]) => (
+          name !== event && cb !== callback
+        ));
+      }
     } else if (event in this._listeners) {
       this._listeners[event] = (
         this._listeners[event].filter(fn => fn !== callback)
