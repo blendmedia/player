@@ -29,6 +29,7 @@ export default [
     external(id) {
       return [
         "gl-matrix",
+        "detect-it",
       ].some(prefix => id.indexOf(prefix) === 0);
     },
     plugins: [

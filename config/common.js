@@ -37,6 +37,7 @@ export default {
     babel({
       babelrc: false,
       presets: ["es2015-rollup"],
+      plugins: ["transform-object-assign"],
     }),
   ],
 };
