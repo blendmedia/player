@@ -82,4 +82,31 @@ describe("config utils", () => {
       }
     });
   });
+
+  describe("shallowCheck()", () => {
+    it("should check primitives", () => {
+      expect(configUtils.shallowCheck(1, 2)).to.be.false;
+      expect(configUtils.shallowCheck(1, 1)).to.be.true;
+      expect(configUtils.shallowCheck(true, false)).to.be.false;
+      expect(configUtils.shallowCheck("a", "b")).to.be.false;
+      expect(configUtils.shallowCheck("a", "a")).to.be.true;
+    });
+
+    it("should check arrays", () => {
+      expect(configUtils.shallowCheck([], [])).to.be.true;
+      expect(configUtils.shallowCheck([1], [1])).to.be.true;
+      expect(configUtils.shallowCheck([2, "a"], [2, "a"])).to.be.true;
+      expect(configUtils.shallowCheck(["a", "b"], ["b", "a"])).to.be.false;
+      expect(configUtils.shallowCheck([1], [2])).to.be.false;
+    });
+
+    it("should check objects", () => {
+      expect(configUtils.shallowCheck({}, {})).to.be.true;
+      expect(configUtils.shallowCheck({a:1}, {a:1})).to.be.true;
+      expect(configUtils.shallowCheck({b:"a"}, {b:"a"})).to.be.true;
+      expect(configUtils.shallowCheck({a:2}, {a:1})).to.be.false;
+      expect(configUtils.shallowCheck({a:1}, {a:1,b:2})).to.be.false;
+      expect(configUtils.shallowCheck({a:1,b:2}, {b:2,a:1})).to.be.true;
+    });
+  });
 });

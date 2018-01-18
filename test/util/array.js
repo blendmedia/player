@@ -6,6 +6,7 @@ describe("Array utils", () => {
       expect(arrays.changes([1, 2, 3], [1, 2, 3])).to.eql({
         added: [],
         removed: [],
+        common: [1, 2, 3],
       });
     });
 
@@ -13,6 +14,7 @@ describe("Array utils", () => {
       expect(arrays.changes([1, 3, 2], [1, 2, 3])).to.eql({
         added: [],
         removed: [],
+        common: [1, 3, 2],
       });
     });
 
@@ -20,6 +22,7 @@ describe("Array utils", () => {
       expect(arrays.changes([1, 3, 3, 2, 1, 2], [1, 2, 3])).to.eql({
         added: [],
         removed: [],
+        common: [1, 3, 3, 2, 1, 2],
       });
     });
 
@@ -27,6 +30,7 @@ describe("Array utils", () => {
       expect(arrays.changes([1, 2, 3], [1, 2, 3, 4, 5, 6])).to.eql({
         added: [4, 5, 6],
         removed: [],
+        common: [1, 2, 3],
       });
     });
 
@@ -34,6 +38,7 @@ describe("Array utils", () => {
       expect(arrays.changes([1, 2, 3, 4, 5, 6], [1, 2, 3])).to.eql({
         added: [],
         removed: [4, 5, 6],
+        common: [1, 2, 3],
       });
     });
 
@@ -41,6 +46,7 @@ describe("Array utils", () => {
       expect(arrays.changes([1, 2, 3, 4, 5, 6], [1, 2, 3, 7, 8, 9])).to.eql({
         added: [7, 8, 9],
         removed: [4, 5, 6],
+        common: [1, 2, 3],
       });
     });
   });

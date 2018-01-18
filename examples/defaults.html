@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blend Player</title>
+  <style>
+    #wrapper {
+      width:  50%;
+      margin:  30px auto;
+    }
+    #player {
+      box-sizing:  content-box;
+      width: 100%%;
+      background: #888;
+      padding-bottom:  56.25%;
+      height:  0;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="player">
+
+    </div>
+  </div>
+  <script src="../dist/blend-player.dev.js"></script>
+  <script type="text/javascript">
+    const player = window.flex.create({
+      target: "#player",
+    });
+    console.log(player);
+  </script>
+</body>
+</html>

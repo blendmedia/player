@@ -7,6 +7,7 @@
 export function changes(from, to) {
   const added = to.filter(el => !from.includes(el));
   const removed = from.filter(el => !to.includes(el));
+  const common = from.filter(el => to.includes(el));
 
-  return { added, removed };
+  return { added, removed, common };
 }
