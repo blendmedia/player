@@ -9,15 +9,17 @@ class Player {
   constructor(config) {
     // Variable Init
     this._events = new Listener;
-    this._renderer = null;
-    this._controls = [];
-    this._ui = [];
-    this._lastTime = null;
-    this._frame = null;
-    this._accumulator = 0;
-    this._target = null;
-    this._renderTarget = null;
-    this._dimensions = "";
+    this._renderer = null; // Active renderer
+    this._controls = []; // Array of control components
+    this._ui = []; // Array of UI components
+    this._lastTime = null; // Last time a frame was run
+    this._frame = null; // requestAnimationFrame id
+    this._accumulator = 0; // Time accumulator for fixedUpdate
+    this._target = null; // Main HTML container to add items to
+    this._renderTarget = null; // Where the active renderer is drawing to
+    this._dimensions = ""; // Serialized dimensions of the video render
+    this._media = []; // Array of media sources
+    this._current = 0; // Current media item being played
 
     // Method binding
     this._renderLoop = this._renderLoop.bind(this);
@@ -84,7 +86,9 @@ class Player {
     if (this._renderTarget && this._renderTarget.parentNode) {
       this._renderTarget.parentNode.removeChild(this._renderTarget);
     }
-    this._target.appendChild(target);
+    if (target) {
+      this._target.appendChild(target);
+    }
     this._renderTarget = target;
   }
 
@@ -157,8 +161,27 @@ class Player {
     this._frame = requestAnimationFrame(this._renderLoop);
   }
 
-  destroy() {
+  suspend() {
+    this._suspended = true;
     cancelAnimationFrame(this._frame);
+  }
+
+  resume() {
+    if (!this._suspended) {
+      return;
+    }
+    this._suspended = false;
+    this._lastTime = null;
+    this._accumulator = 0;
+    this._renderLoop();
+  }
+
+  destroy() {
+    this.suspend();
+    this._swapRenderTarget(null);
+    if (this._renderer) {
+      this._renderer.destroy();
+    }
   }
 }
 

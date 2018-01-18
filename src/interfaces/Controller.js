@@ -1,11 +1,11 @@
 import Base from "./Base";
 
 /**
- * Controls interface
+ * Controller interface
  * Implements base lifecycle methods with an apply method to
  * manage look target and camera position
  */
-class Controls extends Base {
+class Controller extends Base {
   /**
    * Apply method that should manipulate the rotation/position vectors passed in
    * @param {Float32Array} rotation A Vec3 representing where the camera
@@ -19,4 +19,4 @@ class Controls extends Base {
   }
 }
 
-export default Controls;
+export default Controller;

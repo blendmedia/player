@@ -17,6 +17,10 @@ class Media extends Base {
 
   }
 
+  load() {
+
+  }
+
   /**
    * [seek description]
    * @param  {[type]} seconds [description]

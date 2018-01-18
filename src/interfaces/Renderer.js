@@ -36,6 +36,14 @@ class Renderer extends Base {
   }
 
   /**
+   * Set source texture (video or image)
+   * @param {HTMLMediaElement} source
+   */
+  setSource(source) {
+    this._source = source;
+  }
+
+  /**
    * Set viewport size
    * @param {number} width  [description]
    * @param {number} height [description]
