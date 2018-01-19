@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>Blend Player</title>
   <style>
+    body {
+      font-family: Verdana, Arial, sans-serif;
+    }
     #wrapper {
-      width:  50%;
+      width:  75%;
       margin:  30px auto;
     }
     #player {
@@ -22,13 +25,26 @@
     <div id="player">
 
     </div>
+    <p>
+      Video from
+      <a href="https://github.com/SamsungInternet/examples/tree/master/360-video" target="_blank">
+        https://github.com/SamsungInternet/examples/tree/master/360-video
+      </a>
+    </p>
   </div>
   <script src="../dist/blend-player.dev.js"></script>
   <script type="text/javascript">
     const player = window.flex.create({
       target: "#player",
-      src: "./files/example-360-mono.mp4",
+      src: {
+        type: "media:video",
+        options: {
+          src: "./files/example-360-mono.mp4",
+        },
+      },
     });
+    player.currentMedia().load();
+    player.currentMedia().play();
   </script>
 </body>
 </html>
