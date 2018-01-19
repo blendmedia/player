@@ -7,7 +7,7 @@
   "scripts": {
     "test": "karma start --single-run",
     "test:watch": "karma start --browsers MyChromeHeadless",
-    "start": "rollup -c config/dev.js",
+    "start": "NODE_ENV=development rollup -c config/dev.js",
     "build": "rollup -c config/prod.js",
     "examples": "yarn run build && hs -p 9000",
     "lint": "yarn run lint:glsl && yarn run lint:js",
@@ -61,6 +61,7 @@
     "sinon": "^4.1.5"
   },
   "dependencies": {
+    "debug": "^3.1.0",
     "detect-it": "^3.0.4",
     "gl-matrix": "^2.4.0"
   }
