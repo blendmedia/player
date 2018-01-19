@@ -12,13 +12,13 @@ class Player {
     this._renderer = null; // Active renderer
     this._controls = []; // Array of control components
     this._ui = []; // Array of UI components
+    this._media = []; // Array of media sources
     this._lastTime = null; // Last time a frame was run
     this._frame = null; // requestAnimationFrame id
     this._accumulator = 0; // Time accumulator for fixedUpdate
     this._target = null; // Main HTML container to add items to
     this._renderTarget = null; // Where the active renderer is drawing to
     this._dimensions = ""; // Serialized dimensions of the video render
-    this._media = []; // Array of media sources
     this._current = 0; // Current media item being played
 
     // Method binding
@@ -27,6 +27,14 @@ class Player {
     // Initialize
     this._apply(config);
     this._renderLoop();
+  }
+
+  _resolve(list) {
+    return normalize(list).map(item => (
+      Object.assign({}, item, {
+        type: resolve(item.type),
+      })
+    )).filter(item => !!item.type);
   }
 
   _setTarget(target) {
@@ -44,12 +52,44 @@ class Player {
     this._events.updateDOM(this._target);
   }
 
-  _resolve(list) {
-    return normalize(list).map(item => (
-      Object.assign({}, item, {
-        type: resolve(item.type),
-      })
-    )).filter(item => !!item.type);
+  _swapRenderTarget(target) {
+    if (this._renderTarget && this._renderTarget.parentNode) {
+      this._renderTarget.parentNode.removeChild(this._renderTarget);
+    }
+    if (target) {
+      this._target.appendChild(target);
+    }
+    this._renderTarget = target;
+  }
+
+  _setInterfaces(config, key) {
+    if (!this[key]) {
+      return;
+    }
+
+    config = this._resolve(config);
+    const types = config.map(t => t.type);
+    const current = this[key].map(comp => comp.constructor);
+
+    const { added, removed } = changes(current, types);
+    this[key] = this[key].filter(component => {
+      if (removed.includes(component.constructor)) {
+        component.destroy();
+        return false;
+      }
+      return true;
+    });
+
+    for (const { type: Type, options } of config) {
+      if (added.includes(Type)) {
+        const component = new Type(this._events);
+        if (!component.isSupported(options)) {
+          continue;
+        }
+        component.create(options);
+        this[key].push(component);
+      }
+    }
   }
 
   _setRenderer(renderers) {
@@ -82,48 +122,19 @@ class Player {
     }
   }
 
-  _swapRenderTarget(target) {
-    if (this._renderTarget && this._renderTarget.parentNode) {
-      this._renderTarget.parentNode.removeChild(this._renderTarget);
+  _setMedia(media = []) {
+    this._setInterfaces(media, "_media");
+    this._current = 0;
+    if (this._renderer) {
+      const current = this.currentMedia();
+      this._renderer.setSource(current ? current.getTexture() : null);
     }
-    if (target) {
-      this._target.appendChild(target);
-    }
-    this._renderTarget = target;
-  }
-
-  _setInterfaces(config, key) {
-    if (!this[key]) {
-      return;
-    }
-    const types = this._resolve(config);
-    const current = this[key].map(comp => comp.constructor);
-
-    const { added, removed } = changes(current, types);
-    this[key] = this[key].filter(component => {
-      if (removed.includes(component.constructor)) {
-        component.destroy();
-        return false;
-      }
-      return true;
-    });
-
-    for (const { type: Type, options } of config) {
-      if (added.includes(Type)) {
-        const component = new Type(this._events);
-        if (!component.isSupported(options)) {
-          continue;
-        }
-        component.create(options);
-        this[key].push(component);
-      }
-    }
-
   }
 
   _apply(config) {
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
+    this._setMedia(config.src);
     // this._setInterfaces(config.renderer, "_renderers");
   }
 
@@ -159,6 +170,10 @@ class Player {
     this._renderer.render();
 
     this._frame = requestAnimationFrame(this._renderLoop);
+  }
+
+  currentMedia() {
+    return this._media[this._current] || null;
   }
 
   suspend() {
