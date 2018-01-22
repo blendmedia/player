@@ -25,21 +25,21 @@
     <div id="player">
 
     </div>
-    <video src="./files/example-360-mono.mp4" id="video" loop></video>
+    <img src="./files/example-360-mono.jpg" id="image"/>
     <p>
-      Video from
-      <a href="https://github.com/SamsungInternet/examples/tree/master/360-video" target="_blank">
-        https://github.com/SamsungInternet/examples/tree/master/360-video
+      Image from
+      <a href="https://flic.kr/p/SWEadp" target="_blank">
+        https://flic.kr/p/SWEadp
       </a>
     </p>
   </div>
   <script src="../dist/blend-player.dev.js"></script>
   <script type="text/javascript">
 /* eslint-disable */
-    const video = document.querySelector("#video");
+    const image = document.querySelector("#image");
     const player = window.flex.create({
       target: "#player",
-      src: video, //"./files/example-360-mono.mp4",
+      src: image, //"./files/example-360-mono.mp4",
     });
     player.currentMedia().load();
     player.currentMedia().play();
