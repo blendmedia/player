@@ -2,6 +2,7 @@ import Listener from "./util/listener";
 import { normalize } from "./util/config";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
+import { fromValues as vec3 } from "gl-matrix/vec3";
 
 export const FIXED_TIME_UPDATE = 1000/60;
 
@@ -20,6 +21,8 @@ class Player {
     this._renderTarget = null; // Where the active renderer is drawing to
     this._dimensions = ""; // Serialized dimensions of the video render
     this._current = 0; // Current media item being played
+    this._rotation = vec3(0, 0, -1); // Current
+    this._updateable = []; // All items that have update/fixedUpdate called
 
     // Method binding
     this._renderLoop = this._renderLoop.bind(this);
@@ -92,6 +95,14 @@ class Player {
     }
   }
 
+  _setUpdateable() {
+    this._updateable = [
+      ...this._controls,
+      ...this._ui,
+      this._renderer,
+    ];
+  }
+
   _setRenderer(renderers) {
     renderers = this._resolve(renderers);
     let replace = null, opts = null;
@@ -131,11 +142,17 @@ class Player {
     }
   }
 
+  _setControls(controls = []) {
+    this._setInterfaces(controls, "_controls");
+  }
+
   _apply(config) {
     config = reconfigure(config);
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
     this._setMedia(config.src);
+    this._setControls(config.controls);
+    this._setUpdateable();
     // this._setInterfaces(config.renderer, "_renderers");
   }
 
@@ -163,13 +180,24 @@ class Player {
       this._renderer.setSize(width, height);
     }
 
-    this._renderer.update(dt);
+    for (const component of this._updateable) {
+      component.update(dt);
+    }
     while (this._accumulator > FIXED_TIME_UPDATE) {
       this._accumulator -= FIXED_TIME_UPDATE;
-      this._renderer.fixedUpdate(FIXED_TIME_UPDATE);
+      for (const component of this._updateable) {
+        component.fixedUpdate(FIXED_TIME_UPDATE);
+      }
     }
-    this._renderer.render();
 
+    for (const controller of this._controls) {
+      controller.apply(this._rotation);
+      if (controller.isLast()) {
+        break;
+      }
+    }
+
+    this._renderer.render(this._rotation);
     this._frame = requestAnimationFrame(this._renderLoop);
   }
 

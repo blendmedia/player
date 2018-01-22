@@ -10,13 +10,20 @@ class Controller extends Base {
    * Apply method that should manipulate the rotation/position vectors passed in
    * @param {Float32Array} rotation A Vec3 representing where the camera
    * is currently looking
-   * @param {Float32Array} camera A Vec3 representing where the camera
-   * is currently positioned
    * @return void
    */
-  apply(/*rotation, position*/) {
+  apply(/*rotation*/) {
 
   }
+
+  /**
+   * If this method returns true, subsequent controllers are not run
+   * @return {Boolean} [description]
+   */
+  isLast() {
+    return false;
+  }
+
 }
 
 export default Controller;

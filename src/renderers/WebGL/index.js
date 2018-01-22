@@ -6,7 +6,8 @@ import vertex from "./shader.vert";
 import fragment from "./shader.frag";
 
 import { degToRad } from "../../util/math";
-import { create, perspective } from "gl-matrix/mat4";
+import { create as mat4, perspective, lookAt, multiply } from "gl-matrix/mat4";
+import { fromValues as vec3 } from "gl-matrix/vec3";
 
 const CLEAR_COLOR = [0, 0, 0];
 class WebGLRenderer extends Renderer {
@@ -17,8 +18,8 @@ class WebGLRenderer extends Renderer {
     this._canvas = null; // Canvas element used for rendering
     this._gl = null; // WebGL canvas context
     this._program = null; // Compiled GPU program
-    this._perspective = create();
-    this._world = create();
+    this._perspective = mat4();
+    this._world = mat4();
   }
 
   _createGL() {
@@ -90,7 +91,7 @@ class WebGLRenderer extends Renderer {
     this._canvas.width = width;
     this._canvas.height = height;
     this._perspective = perspective(
-      create(),
+      mat4(),
       degToRad(45), // y fov
       width / height, // aspect ratio
       1, // near
@@ -103,14 +104,18 @@ class WebGLRenderer extends Renderer {
     this.texture = webgl.createTexture(this._gl, src);
   }
 
-  render() {
+  render(rotation) {
     const gl = this._gl;
+    const view = mat4();
+    lookAt(view, vec3(0, 0, 0), rotation, vec3(0, 1, 0));
+    const mvp = mat4();
+    multiply(mvp, view, this._perspective);
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.clearColor(...CLEAR_COLOR, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this._use();
     webgl.uniform(
-      this._gl, this._uniforms.mvp, this._perspective, webgl.MATRIX_4
+      this._gl, this._uniforms.mvp, mvp, webgl.MATRIX_4
     );
     this.texture = webgl.updateTexture(this._gl, this.texture);
     webgl.useTexture(this._gl, this.texture, this._uniforms.media);
