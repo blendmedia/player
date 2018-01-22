@@ -2,6 +2,7 @@
  * Web GL utility functions and constants
  */
 
+import { TWO_PI } from "./math";
 import debug from "debug";
 const log = debug("webgl");
 
@@ -54,7 +55,7 @@ export function shader(gl, source, type) {
  * @param {Array<String>} uniforms A list of uniform names to get locations of
  * @return {WebGLProgram} Linked and validated program
  */
-export function program(gl, vertex, fragment, uniforms = []) {
+export function program(gl, vertex, fragment, uniforms = [], attributes = []) {
   const program = gl.createProgram();
   gl.attachShader(program, vertex);
   gl.attachShader(program, fragment);
@@ -84,9 +85,21 @@ export function program(gl, vertex, fragment, uniforms = []) {
       pointers[varName] = location;
     }
   }
+
+  const aPointers = {};
+  for (const attrName of attributes) {
+    const location = gl.getAttribLocation(program, attrName);
+    if (location === -1) {
+      log("Could not get location of attribute `%s`", attrName);
+    } else {
+      aPointers[attrName] = location;
+    }
+  }
+
   return {
     program,
     uniforms: pointers,
+    attributes: aPointers,
   };
 }
 
@@ -122,6 +135,39 @@ export function uniform(gl, uniform, data, type) {
   } else {
     gl[method](uniform, data);
   }
+}
+
+/**
+ * Bind and register data into an attribute array buffer
+ * @param  {WebGLRenderingContext} gl  Context to bind to
+ * @param  {GLint} attr     Pointer to attribute to register. null when
+ * setting indicies buffer
+ * @param  {Float32Array|Uint16Array} data     Buffer data to store
+ * @param  {Number} elements Number of items per element
+ * @param  {Number} type     Type of buffer we're binding
+ * @return {WebGLBuffer} Buffer the data has been registered to
+ */
+export function attributeArray(
+  gl, attr, data, elements = 3, type = gl.ARRAY_BUFFER,
+) {
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(type, buffer);
+  gl.bufferData(type, data, gl.STATIC_DRAW);
+  // Set attribute interpolation data
+  if (type === gl.ARRAY_BUFFER) {
+    gl.vertexAttribPointer(
+      attr,
+      elements,
+      gl.FLOAT,
+      gl.FALSE,
+      elements * Float32Array.BYTES_PER_ELEMENT,
+      0,
+    );
+    gl.enableVertexAttribArray(attr);
+  }
+
+
+  return buffer;
 }
 
 
@@ -215,4 +261,62 @@ export function useTexture(gl, { pointer }, uniform, unit = 0) {
   gl.activeTexture(gl.TEXTURE0 + unit);
   gl.bindTexture(gl.TEXTURE_2D, pointer);
   gl.uniform1i(uniform, unit);
+}
+
+export function sphere(radius, rows = 30, segments = 30, PHI = TWO_PI) {
+  // Position & color
+  const vertex = [];
+  // Vertex order
+  const indices = [];
+  // UV mapping
+  const uvs = [];
+
+  const { PI, sin, cos } = Math;
+
+  const R = 1 / (rows - 1);
+  const S = 1 / (segments - 1);
+  for (let r = 0; r < rows; ++r) {
+    for (let s = 0; s < segments; ++s) {
+      const rr = r * R;
+      // Ensure last element rese
+      const sr = s * S;
+      const theta = rr * PI; // angle of z axis
+      const phi = sr * PHI; // angle of y axis
+      const sinTheta = sin(theta);
+      const sinPhi = sin(phi);
+      const cosTheta = cos(theta);
+      const cosPhi = cos(phi);
+      const x = cosPhi * sinTheta;
+      const y = cosTheta;
+      const z = sinPhi * sinTheta;
+      vertex.push(
+        x * radius,
+        y * radius,
+        z * radius
+      );
+      uvs.push(
+        sr,
+        rr,
+      );
+    }
+  }
+
+  for (let r = 0; r < rows - 1; ++r) {
+    for (let s = 0; s < segments - 1; ++s) {
+      indices.push(
+        (r * segments) + s,
+        (r * segments) + s + 1,
+        (r+1) * segments + s + 1,
+        (r+1) * segments + s + 1,
+        (r+1) * segments + s,
+        (r * segments) + s,
+      );
+    }
+  }
+
+  return {
+    vertices: new Float32Array(vertex),
+    indicies: new Uint16Array(indices),
+    uvs: new Float32Array(uvs),
+  };
 }
