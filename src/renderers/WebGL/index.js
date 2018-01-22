@@ -6,7 +6,9 @@ import vertex from "./shader.vert";
 import fragment from "./shader.frag";
 
 import { degToRad } from "../../util/math";
-import { create as mat4, perspective, lookAt, multiply } from "gl-matrix/mat4";
+import {
+  create as mat4, perspective, translate, multiply,
+} from "gl-matrix/mat4";
 import { fromValues as vec3 } from "gl-matrix/vec3";
 
 const CLEAR_COLOR = [0, 0, 0];
@@ -107,7 +109,10 @@ class WebGLRenderer extends Renderer {
   render(rotation) {
     const gl = this._gl;
     const view = mat4();
-    lookAt(view, vec3(0, 0, 0), rotation, vec3(0, 1, 0));
+    const eye = mat4();
+    translate(eye, mat4(), vec3(0, 0, 1));
+    multiply(view, rotation, eye);
+
     const mvp = mat4();
     multiply(mvp, view, this._perspective);
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);

@@ -2,7 +2,8 @@ import Listener from "./util/listener";
 import { normalize } from "./util/config";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
-import { fromValues as vec3 } from "gl-matrix/vec3";
+import { X_AXIS, Y_AXIS, degToRad } from "./util/math";
+import { create as mat4, fromRotation, mul } from "gl-matrix/mat4";
 
 export const FIXED_TIME_UPDATE = 1000/60;
 
@@ -21,7 +22,11 @@ class Player {
     this._renderTarget = null; // Where the active renderer is drawing to
     this._dimensions = ""; // Serialized dimensions of the video render
     this._current = 0; // Current media item being played
-    this._rotation = vec3(0, 0, -1); // Current
+    this._rotation = { // Current rotation in Euler degrees
+      x: 0,
+      y: 0,
+      z: 0,
+    };
     this._updateable = []; // All items that have update/fixedUpdate called
 
     // Method binding
@@ -190,14 +195,26 @@ class Player {
       }
     }
 
+    let rot = Object.assign({}, this._rotation);
     for (const controller of this._controls) {
-      controller.apply(this._rotation);
+      const result = controller.apply(this._rotation);
+      if (result) {
+        rot = result;
+      }
+      rot.x = Math.max(-90, Math.min(90, rot.x));
+      rot.y = rot.y % 360;
       if (controller.isLast()) {
         break;
       }
     }
 
-    this._renderer.render(this._rotation);
+    const rotation = mat4();
+    const pitch = fromRotation(mat4(), degToRad(rot.x) , X_AXIS);
+    const yaw = fromRotation(mat4(), degToRad(rot.y) , Y_AXIS);
+    mul(rotation, yaw, pitch);
+    this._rotation = rot;
+
+    this._renderer.render(rotation);
     this._frame = requestAnimationFrame(this._renderLoop);
   }
 

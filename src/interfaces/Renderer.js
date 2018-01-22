@@ -17,9 +17,8 @@ class Renderer extends Base {
 
   /**
    * Method to draw current state on the screen
-   * @param {Float32Array} rotation A Vec3 representing where the camera
-   * is currently looking
-   * is currently placed
+   * @param {Float32Array} rotation A Quaternion representing where the camera
+   * is currently rotation
    * @return void
    */
   render(/*rotation*/) {

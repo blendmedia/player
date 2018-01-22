@@ -25,6 +25,7 @@ module.exports = {
     }),
     replace({
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+      "gl-matrix/": "gl-matrix/src/gl-matrix/",
     }),
     commonjs({
       include: "node_modules/**",
