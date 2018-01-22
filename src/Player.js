@@ -1,6 +1,6 @@
 import Listener from "./util/listener";
 import { normalize } from "./util/config";
-import { resolve } from "./register";
+import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
 
 export const FIXED_TIME_UPDATE = 1000/60;
@@ -132,6 +132,7 @@ class Player {
   }
 
   _apply(config) {
+    config = reconfigure(config);
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
     this._setMedia(config.src);
@@ -201,3 +202,4 @@ class Player {
 }
 
 export default Player;
+
