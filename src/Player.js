@@ -2,8 +2,6 @@ import Listener from "./util/listener";
 import { normalize } from "./util/config";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
-import { X_AXIS, Y_AXIS, degToRad } from "./util/math";
-import { create as mat4, fromRotation, mul } from "gl-matrix/mat4";
 
 export const FIXED_TIME_UPDATE = 1000/60;
 
@@ -208,13 +206,9 @@ class Player {
       }
     }
 
-    const rotation = mat4();
-    const pitch = fromRotation(mat4(), degToRad(rot.x) , X_AXIS);
-    const yaw = fromRotation(mat4(), degToRad(rot.y) , Y_AXIS);
-    mul(rotation, yaw, pitch);
-    this._rotation = rot;
 
-    this._renderer.render(rotation);
+    this._rotation = rot;
+    this._renderer.render(rot);
     this._frame = requestAnimationFrame(this._renderLoop);
   }
 

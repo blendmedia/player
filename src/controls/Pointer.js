@@ -18,6 +18,11 @@ class Pointer extends Controller {
     this._rotateX = 0;
     this._running = false;
     this._speed = config.speed || 1;
+    this._acceleration = config.acceleration || false;
+    this._deceleration = config.deceleration || 0.9;
+    this._velY = 0;
+    this._velX = 0;
+
   }
 
   destroy() {
@@ -38,6 +43,29 @@ class Pointer extends Controller {
     this._running = true;
   }
 
+  _diff(e) {
+    let diffX = 0, diffY = 0;
+    if ("movementX" in e) {
+      diffX = e.movementX;
+      diffY = e.movementY;
+    } else {
+      const { screenX: x, screenY: y } = e;
+      diffX = this.last[0] - x;
+      diffY = this.last[1] - y;
+      this.last = [x, y];
+    }
+
+    if (e.shiftKey) {
+      diffY = 0;
+    }
+
+    if (e.altKey) {
+      diffX = 0;
+    }
+
+    return [diffX, diffY];
+  }
+
   _onEnd() {
     const unlock = (
       document.exitPointerLock || document.mozExitPointerLoc
@@ -46,26 +74,41 @@ class Pointer extends Controller {
       unlock.call(document);
     }
     this._running = false;
+    if (this._acceleration) {
+      const [diffX, diffY] = this._lastDiff;
+      this._velY = diffX * this._acceleration;
+      this._velX = diffY * this._acceleration;
+    }
   }
 
   _onMove(e) {
     if (!this._running) {
       return;
     }
-    const { screenX: x, screenY: y } = e;
-    let diffX = 0, diffY = 0;
-    if ("movementX" in e) {
-      diffX = e.movementX;
-      diffY = e.movementY;
-    } else {
-      diffX = this.last[0] - x;
-      diffY = this.last[1] - y;
-    }
 
+    const [diffX, diffY] = this._diff(e);
+    this._lastDiff = [diffX, diffY];
     this._rotateY = diffX / (2 / this._speed);
     this._rotateX = diffY / (2 / this._speed);
   }
 
+  fixedUpdate() {
+    if (this._running) {
+      return;
+    }
+
+    this._rotateY = this._velY;
+    this._rotateX = this._velX;
+
+    this._velX *= this._deceleration;
+    if (Math.abs(this._velX) <= 0.1) {
+      this._velX = 0;
+    }
+    this._velY *= this._deceleration;
+    if (Math.abs(this._velY) <= 0.1) {
+      this._velY = 0;
+    }
+  }
 
   apply({ x, y, z }) {
     x += this._rotateX;

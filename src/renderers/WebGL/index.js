@@ -5,11 +5,12 @@ import * as webgl from "../../util/gl";
 import vertex from "./shader.vert";
 import fragment from "./shader.frag";
 
-import { degToRad } from "../../util/math";
+import { degToRad, X_AXIS, Y_AXIS } from "../../util/math";
 import {
-  create as mat4, perspective, translate, multiply,
+  create as mat4, perspective, translate, multiply, fromRotation,
 } from "gl-matrix/mat4";
 import { fromValues as vec3 } from "gl-matrix/vec3";
+
 
 const CLEAR_COLOR = [0, 0, 0];
 class WebGLRenderer extends Renderer {
@@ -107,11 +108,16 @@ class WebGLRenderer extends Renderer {
   }
 
   render(rotation) {
+    const rot = mat4();
+    const pitch = fromRotation(mat4(), degToRad(rotation.x) , X_AXIS);
+    const yaw = fromRotation(mat4(), degToRad(rotation.y) , Y_AXIS);
+    multiply(rot, yaw, pitch);
+
     const gl = this._gl;
     const view = mat4();
     const eye = mat4();
     translate(eye, mat4(), vec3(0, 0, 1));
-    multiply(view, rotation, eye);
+    multiply(view, rot, eye);
 
     const mvp = mat4();
     multiply(mvp, view, this._perspective);
