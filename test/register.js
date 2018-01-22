@@ -1,5 +1,7 @@
 import Base from "../src/interfaces/Base";
-import { reset, register, resolve } from "../src/register";
+import {
+  reset, register, resolve, configure, reconfigure,
+} from "../src/register";
 
 describe("Component registration", () => {
   class TestInterface extends Base {}
@@ -59,6 +61,101 @@ describe("Component registration", () => {
         TestInterface,
         TestInterface,
       ]);
+    });
+  });
+
+  describe("configure()/reconfigure()", () => {
+    const testTransform = config => Object.assign({}, config, {
+      world: "hello",
+    });
+    const testTransform2 = config => Object.assign({}, config, {
+      foo: "bar",
+    });
+    const testFalseTransform = () => false;
+
+    it("should transform the entire configuration object", () => {
+      const config = {
+        hello: "world",
+      };
+      configure(testTransform);
+      const result = reconfigure(config);
+      expect(result).to.eql({
+        hello: "world",
+        world: "hello",
+      });
+      expect(result).to.not.equal(config);
+    });
+
+    it("should transform a subtree of the configuration if it exists", () => {
+      const config = {
+        hello: "world",
+        src: {},
+      };
+      configure(testTransform, "src");
+      const result = reconfigure(config);
+      expect(result).to.eql({
+        hello: "world",
+        src: {
+          world: "hello",
+        },
+      });
+      expect(result).to.not.equal(config);
+    });
+
+    it("should ignore a subtree if not defined", () => {
+      const config = {
+        hello: "world",
+      };
+      configure(testTransform, "src");
+      const result = reconfigure(config);
+      expect(result).to.eql({
+        hello: "world",
+      });
+      expect(result).to.equal(config);
+    });
+
+    it("should ignore a transform if it returns falsey values", () => {
+      const config = Object.freeze({
+        hello: "world",
+      });
+      configure(testFalseTransform, "src");
+      configure(testFalseTransform);
+      expect(reconfigure(config)).to.equal(config);
+    });
+
+    it("should parse multiple registrations", () => {
+      const config = {
+        hello: "world",
+      };
+      configure(testTransform);
+      configure(testTransform2);
+      const result = reconfigure(config);
+      expect(result).to.eql({
+        hello: "world",
+        world: "hello",
+        foo: "bar",
+      });
+      expect(result).to.not.equal(config);
+    });
+
+    it("should receieve a copy of the full configuration object", () => {
+      const transform = function(src, config) {
+        return {
+          random: config.random,
+        };
+      };
+      const config = {
+        random: Math.random(),
+        src: "",
+      };
+      configure(transform, "src");
+      const result = reconfigure(config);
+      expect(result).to.eql({
+        random: config.random,
+        src: {
+          random: config.random,
+        },
+      });
     });
   });
 

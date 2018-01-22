@@ -3,13 +3,6 @@ import Base from "./interfaces/Base";
 let _store = {};
 
 /**
- * Clear component store
- */
-export function reset() {
-  _store = {};
-}
-
-/**
  * Register a class prototype
  * @param  {String}  name     Name to bind component to
  * @param  {Function}  cls      Class function to store
@@ -46,4 +39,65 @@ export function resolve(name) {
   }
 
   return _store[name] || null;
+}
+
+
+let _configure = {
+  "*": [],
+};
+/**
+ * Register a configuration override/parser for a comonent
+ * @param  {Function} fn  Configuration callback
+ * @param  {String}   key Sub-key of configuration to attach to, defaults to all
+ * @param {Boolean} replace If true, remove all pre-existing callbacks under
+ * `key`
+ */
+export function configure(fn, key = "*", replace = false) {
+  if (!(key in _configure) || replace) {
+    _configure[key] = [];
+  }
+  _configure[key].push(fn);
+}
+
+/**
+ * Map configuration object through registered configuration hooks
+ * @param  {Object} config Configuration object to manipulate
+ * @return {Object}        remapped configuration
+ */
+export function reconfigure(config) {
+  let output = config;
+  for (const key in _configure) {
+    for (const fn of _configure[key]) {
+      const tree = key === "*" ? output : output[key];
+      if (tree === void 0) { // Ignore undefined trees
+        continue;
+      }
+      const result = fn(tree, config);
+      if (result) {
+        if (key === "*") {
+          output = result;
+        } else {
+          output = Object.assign({}, output, {
+            [key]: result,
+          });
+        }
+      }
+    }
+  }
+
+  return output;
+}
+
+/**
+ * Clear component store
+ */
+export function reset(store = true, configure = true) {
+  if (store) {
+    _store = {};
+  }
+  if (configure) {
+    _configure = {
+      "*": [],
+    };
+  }
 }
