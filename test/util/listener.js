@@ -9,7 +9,7 @@ const domStub = () => ({
 
 describe("Listener", () => {
   const add = window.addEventListener;
-  const remove = window.addEventListener;
+  const remove = window.removeEventListener;
 
   let l = null;
   let target = null;
