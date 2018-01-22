@@ -13,10 +13,12 @@ class WebGLRenderer extends Renderer {
   constructor(...args) {
     super(...args);
 
+    this._t = 0;
     this._canvas = null; // Canvas element used for rendering
     this._gl = null; // WebGL canvas context
     this._program = null; // Compiled GPU program
     this._perspective = create();
+    this._world = create();
   }
 
   _createGL() {
@@ -41,64 +43,27 @@ class WebGLRenderer extends Renderer {
 
     const vert = webgl.shader(gl, vertex, webgl.VERTEX);
     const frag = webgl.shader(gl, fragment, webgl.FRAGMENT);
-    const { program, uniforms } = webgl.program(
-      gl, vert, frag, ["time", "media", "mvp"]
+    const { program, uniforms, attributes } = webgl.program(
+      gl, vert, frag, ["media", "mvp"], ["xyz", "uv"],
     );
+
     this._program = program;
     this._uniforms = uniforms;
+    this._attributes = attributes;
     return true;
   }
 
-  _createGeometry(gl, program) {
-    const points = new Float32Array(4*3);
-    // Top left
-    points[0] = -1;
-    points[1] = -1;
-    points[2] = -3;
-    // Top right
-    points[3] = 1;
-    points[4] = -1;
-    points[5] = -2;
-    // Bottom right
-    points[6] = 1;
-    points[7] = 1;
-    points[8] = -2;
-    // Bottom left
-    points[9] = -1;
-    points[10] = 1;
-    points[11] = -2;
+  _createGeometry(gl) {
+    const { vertices, indicies, uvs } = webgl.sphere(2000);
 
-    const indicies = new Uint16Array(6);
-    indicies[0] = 0;
-    indicies[1] = 1;
-    indicies[2] = 2;
-    indicies[3] = 0;
-    indicies[4] = 3;
-    indicies[5] = 2;
+    // Bind vertex, uv, and indicies data to attribute buffers
+    webgl.attributeArray(gl, this._attributes.xyz, vertices);
+    webgl.attributeArray(gl, this._attributes.uv, uvs, 2);
+    webgl.attributeArray(gl, null, indicies, 2, gl.ELEMENT_ARRAY_BUFFER);
 
-    const vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
-
-    const indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indicies, gl.STATIC_DRAW);
-
-    const vertexPointer = gl.getAttribLocation(
-      program, "vertPosition"
-    );
-    gl.vertexAttribPointer(
-      vertexPointer, // Attribute location
-      3, // Number of elements per attribute
-      gl.FLOAT, // Type of elements
-      gl.FALSE,
-      3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
-      0 // Offset from the beginning of a single vertex to this attribute
-    );
-    gl.enableVertexAttribArray(vertexPointer);
     this._geometry = {
       indicies,
-      points,
+      vertices,
     };
   }
 
@@ -133,25 +98,9 @@ class WebGLRenderer extends Renderer {
     );
   }
 
-  fixedUpdate(dt) {
-    this.t += dt / 1000;
-    this.t %= 1000;
-    this._use();
-    webgl.uniform(
-      this._gl, this._uniforms.time, this.t, webgl.FLOAT
-    );
-  }
-
   setSource(src) {
     super.setSource(src);
     this.texture = webgl.createTexture(this._gl, src);
-  }
-
-  update() {
-    this._use();
-    webgl.uniform(
-      this._gl, this._uniforms.mvp, this._perspective, webgl.MATRIX_4
-    );
   }
 
   render() {
@@ -160,10 +109,13 @@ class WebGLRenderer extends Renderer {
     gl.clearColor(...CLEAR_COLOR, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this._use();
+    webgl.uniform(
+      this._gl, this._uniforms.mvp, this._perspective, webgl.MATRIX_4
+    );
     this.texture = webgl.updateTexture(this._gl, this.texture);
     webgl.useTexture(this._gl, this.texture, this._uniforms.media);
     gl.drawElements(
-      gl.TRIANGLE_STRIP, this._geometry.indicies.length, gl.UNSIGNED_SHORT, 0
+      gl.TRIANGLES, this._geometry.indicies.length, gl.UNSIGNED_SHORT, 0
     );
   }
 }
