@@ -1,5 +1,5 @@
 import Media from "../interfaces/Media";
-import { register } from "../register";
+import { register, configure } from "../register";
 
 class Video extends Media {
   constructor(...args) {
@@ -14,20 +14,35 @@ class Video extends Media {
     return true;
   }
 
-  create(options) {
-    if (!options.src) {
+  create({ src, crossOrigin, loop }) {
+    if (!src) {
       return false;
     }
 
-    const video = document.createElement("video");
-    this._video = video;
-    video.preload = "auto";
-    this._src = options.src;
+    if (src instanceof HTMLVideoElement) {
+      if (src.parentNode) {
+        src.parentNode.removeChild(src);
+        this._originalParent = src.parentNode;
+      }
+      this._video = src;
+      this._src = this._video.getAttribute("src");
+    } else if (typeof src === "string") {
+      const video = document.createElement("video");
+      this._video = video;
+      video.preload = "auto";
+      video.loop = !!loop;
+      if (crossOrigin) {
+        video.crossOrigin = crossOrigin === true ? "anonymous" : crossOrigin;
+      }
+      this._src = src;
+      return true;
+    }
+    return false;
   }
 
   play() {
     if (this._video) {
-      Promise.resolve(this._video.play()).catch(() => {
+      return Promise.resolve(this._video.play()).catch(() => {
         console.warn("Playback failed");
       });
     }
@@ -57,6 +72,34 @@ class Video extends Media {
   }
 }
 
+// Register component and setup src configuration mapping
+configure((src, original) => {
+  if (src instanceof HTMLVideoElement) {
+    return {
+      type: Video,
+      options: {
+        src,
+      },
+    };
+  }
+  // Only parse string src configurations
+  if (typeof src !== "string") {
+    return null;
+  }
 
+  if (/\.(mp4|webm|ogv|mov)$/.test(src)) {
+    return {
+      type: Video,
+      options: {
+        src,
+        crossOrigin: true,
+        loop: original.loop,
+      },
+    };
+  }
+
+  // Do not manipulate if no match found
+  return null;
+}, "src");
 register("media:video", Video);
 export default Video;

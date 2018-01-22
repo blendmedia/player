@@ -13,7 +13,7 @@
     }
     #player {
       box-sizing:  content-box;
-      width: 100%%;
+      width: 100%;
       background: #888;
       padding-bottom:  56.25%;
       height:  0;
@@ -25,6 +25,7 @@
     <div id="player">
 
     </div>
+    <video src="./files/example-360-mono.mp4" id="video" loop></video>
     <p>
       Video from
       <a href="https://github.com/SamsungInternet/examples/tree/master/360-video" target="_blank">
@@ -34,14 +35,11 @@
   </div>
   <script src="../dist/blend-player.dev.js"></script>
   <script type="text/javascript">
+/* eslint-disable */
+    const video = document.querySelector("#video");
     const player = window.flex.create({
       target: "#player",
-      src: {
-        type: "media:video",
-        options: {
-          src: "./files/example-360-mono.mp4",
-        },
-      },
+      src: video, //"./files/example-360-mono.mp4",
     });
     player.currentMedia().load();
     player.currentMedia().play();
