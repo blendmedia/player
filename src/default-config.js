@@ -7,6 +7,7 @@ export default {
         acceleration: 0.3,
         deceleration: 0.9,
         speed: 0.5,
+        disableVerticalTouch: true,
       },
     },
     {

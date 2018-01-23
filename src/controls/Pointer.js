@@ -20,6 +20,8 @@ class Pointer extends Controller {
     this._speed = config.speed || 1;
     this._acceleration = config.acceleration || false;
     this._deceleration = config.deceleration || 0.9;
+    this._reverse = config.reverse ? -1 : 1;
+    this._disableVerticalTouch = !!config.disableVerticalTouch;
     this._velY = 0;
     this._velX = 0;
     this._lastDiff = [0, 0];
@@ -31,7 +33,8 @@ class Pointer extends Controller {
     this.off(POINTER_MOVE, this._onMove, true);
   }
 
-  _onStart({ currentTarget, screenX: x, screenY: y }) {
+  _onStart(e) {
+    const { currentTarget, screenX: x, screenY: y } = this._normalize(e);
     const lock = (
       currentTarget.requestPointerLock || currentTarget.mozRequestPointerLock
     );
@@ -43,19 +46,29 @@ class Pointer extends Controller {
     this._running = true;
   }
 
+  _normalize(e) {
+    if (e.touches) {
+      return Object.assign(e, {
+        screenX: e.touches[0].screenX,
+        screenY: e.touches[0].screenY,
+      });
+    }
+    return e;
+  }
+
   _diff(e) {
     let diffX = 0, diffY = 0;
     if ("movementX" in e) {
       diffX = e.movementX;
       diffY = e.movementY;
     } else {
-      const { screenX: x, screenY: y } = e;
-      diffX = this.last[0] - x;
-      diffY = this.last[1] - y;
-      this.last = [x, y];
+      const { screenX: x, screenY: y } = this._normalize(e);
+      diffX = x - this._last[0];
+      diffY = y - this._last[1];
+      this._last = [x, y];
     }
 
-    if (e.shiftKey) {
+    if (e.shiftKey || (e.touches && this._disableVerticalTouch)) {
       diffY = 0;
     }
 
@@ -63,7 +76,7 @@ class Pointer extends Controller {
       diffX = 0;
     }
 
-    return [diffX, diffY];
+    return [diffX*this._reverse, diffY*this._reverse];
   }
 
   _onEnd() {
