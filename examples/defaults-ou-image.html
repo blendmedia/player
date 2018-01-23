@@ -33,8 +33,10 @@
       </a>
     </p>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/webvr-polyfill@latest/build/webvr-polyfill.js"></script>
   <script src="../dist/blend-player.dev.js"></script>
   <script type="text/javascript">
+    new WebVRPolyfill();
 /* eslint-disable */
     const image = document.querySelector("#image");
     const player = window.flex.create({

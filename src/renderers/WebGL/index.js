@@ -7,7 +7,7 @@ import fragment from "./shader.frag";
 
 import { degToRad, X_AXIS, Y_AXIS } from "../../util/math";
 import {
-  create as mat4, perspective, translate, multiply, fromRotation,
+  create as mat4, perspective, translate, multiply, fromRotation, transpose,
 } from "gl-matrix/mat4";
 import { fromValues as vec3 } from "gl-matrix/vec3";
 
@@ -83,7 +83,7 @@ class WebGLRenderer extends Renderer {
         )
       );
     } else {
-      // geom.push(geom[0]); // Duplicate mono geometry for stereo view
+      geom.push(geom[0]); // Duplicate mono geometry for stereo view
     }
     this._geometry = geom;
   }
@@ -134,6 +134,13 @@ class WebGLRenderer extends Renderer {
   }
 
   render(rotation, useStereo = false) {
+    let frameData = null;
+    if (this._vrDisplay) {
+      useStereo = true;
+      frameData = new window.VRFrameData();
+      this._vrDisplay.getFrameData(frameData);
+    }
+
     const rot = mat4();
     const pitch = fromRotation(mat4(), degToRad(rotation.x) , X_AXIS);
     const yaw = fromRotation(mat4(), degToRad(rotation.y) , Y_AXIS);
@@ -143,8 +150,8 @@ class WebGLRenderer extends Renderer {
     const width = gl.drawingBufferWidth;
     const height = gl.drawingBufferHeight;
     const trueWidth = useStereo ? width / 2 : width;
-    const view = mat4();
     const eye = mat4();
+    const view = mat4();
     translate(eye, mat4(), vec3(0, 0, 1));
     multiply(view, rot, eye);
 
@@ -162,26 +169,14 @@ class WebGLRenderer extends Renderer {
 
     let i = 0;
 
+
+
     for (const { vertices, uvs, indicies } of this._geometry) {
       // Bind vertex, uv, and indicies data to attribute buffers
       webgl.attributeArray(gl, this._attributes.xyz, vertices);
       webgl.attributeArray(gl, this._attributes.uv, uvs, 2);
       webgl.attributeArray(gl, null, indicies, 2, gl.ELEMENT_ARRAY_BUFFER);
 
-      const perspect = mat4();
-      perspective(
-        perspect,
-        degToRad(45), // y fov
-        trueWidth / height, // aspect ratio
-        1, // near
-        2000, // far
-      );
-
-      const mvp = mat4();
-      multiply(mvp, view, perspect);
-      webgl.uniform(
-        gl, this._uniforms.mvp, mvp, webgl.MATRIX_4
-      );
 
       if (useStereo) {
         gl.scissor(trueWidth * i, 0, trueWidth, height);
@@ -190,11 +185,33 @@ class WebGLRenderer extends Renderer {
         gl.viewport(0, 0, width, height);
       }
 
-      gl.drawElements(
-        gl.TRIANGLES, indicies.length, gl.UNSIGNED_SHORT, 0
+      const perspect = mat4();
+      const mvp = mat4();
+      if (frameData) {
+        const eye = frameData[`${i ? "right" : "left"}ProjectionMatrix`];
+        transpose(perspect, eye);
+        transpose(view, frameData[`${i ? "right" : "left"}ViewMatrix`]);
+      } else {
+        perspective(
+          perspect,
+          degToRad(45), // y fov
+          trueWidth / height, // aspect ratio
+          1, // near
+          2000, // far
+        );
+      }
+      multiply(mvp, view, perspect);
+
+
+
+      webgl.uniform(
+        gl, this._uniforms.mvp, mvp, webgl.MATRIX_4
       );
 
 
+      gl.drawElements(
+        gl.TRIANGLES, indicies.length, gl.UNSIGNED_SHORT, 0
+      );
       i++;
       if (!useStereo) { // Only use first geometry in stereo mode
         break;

@@ -2,6 +2,7 @@ import Listener from "./util/listener";
 import { normalize } from "./util/config";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
+import { ENTER_VR, EXIT_VR, stop } from "./events";
 
 export const FIXED_TIME_UPDATE = 1000/60;
 // If the time between updates goes beyond this value, assume the page
@@ -17,7 +18,6 @@ class Player {
     this._ui = []; // Array of UI components
     this._media = []; // Array of media sources
     this._lastTime = null; // Last time a frame was run
-    this._frame = null; // requestAnimationFrame id
     this._accumulator = 0; // Time accumulator for fixedUpdate
     this._target = null; // Main HTML container to add items to
     this._renderTarget = null; // Where the active renderer is drawing to
@@ -30,16 +30,32 @@ class Player {
     };
     this._updateable = []; // All items that have update/fixedUpdate called
 
+    // Stores frame methods and reference to request for cancelling
+    this._requestFrame = window.requestAnimationFrame.bind(window);
+    this._cancelFrame = window.cancelAnimationFrame.bind(window);
+    this._submit = () => {};
+    this._frame = null;
+
     // Method binding
     this._renderLoop = this._renderLoop.bind(this);
+    this._onEnterVR = this._onEnterVR.bind(this);
+    this._onExitVR = this._onExitVR.bind(this);
 
     // DOM elements
     this._uiContainer = document.createElement("div");
     this._uiContainer.className = "fuse-ui";
+    this._uiContainer.addEventListener("mousedown", stop);
+    this._uiContainer.addEventListener("mouseup", stop);
+    this._uiContainer.addEventListener("touchstart", stop);
+    this._uiContainer.addEventListener("touchend", stop);
+    this._uiContainer.addEventListener("click", stop);
 
     // Initialize
     this._apply(config);
     this._renderLoop();
+
+    this._events.on(ENTER_VR, this._onEnterVR);
+    this._events.on(EXIT_VR, this._onExitVR);
   }
 
   _resolve(list) {
@@ -62,6 +78,7 @@ class Player {
     } else {
       return;
     }
+
 
     this._target.appendChild(this._uiContainer);
     this._events.updateDOM(this._target);
@@ -162,26 +179,82 @@ class Player {
     this._setInterfaces(controls, "_controls");
   }
 
+  _setUI(ui = []) {
+    this._setInterfaces(ui, "_ui");
+    for (const ui of this._ui) {
+      ui.mount(this._uiContainer);
+    }
+  }
+
   _apply(config) {
     config = reconfigure(config);
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
     this._setMedia(config.src, config.stereo);
     this._setControls(config.controls);
+    this._setUI(config.ui);
     this._setUpdateable();
-    // this._setInterfaces(config.renderer, "_renderers");
   }
 
+  _updateSize(force) {
+    const { width, height } = this._target.getBoundingClientRect();
+    const serialized = `${width}x${height}`;
+    if (force || serialized !== this._dimensions) {
+      this._dimensions = serialized;
+      this._renderer.setSize(width, height);
+    }
+  }
+
+  _onEnterVR(display) {
+    display.requestPresent([{ source: this._renderTarget }]).then(() => {
+      display.resetPose();
+
+      // Set canvas size
+      const right = display.getEyeParameters("right");
+      const left = display.getEyeParameters("left");
+
+      const width = Math.max(left.renderWidth, right.renderWidth) * 2;
+      const height = Math.max(left.renderHeight, right.renderHeight);
+      this._renderer.setSize(width, height);
+      this._vrDisplay = display;
+      this._cancelFrame(this._frame);
+      this._requestFrame = display.requestAnimationFrame.bind(display);
+      this._cancelFrame = display.cancelAnimationFrame.bind(display);
+      this._submit = display.submitFrame.bind(display);
+      this._frame = null;
+      this._renderer.enableVR(display);
+      this._renderLoop();
+    }).catch(e => {
+      // ignore
+      console.warn(e);
+    });
+  }
+
+  _onExitVR() {
+    if (this._vrDisplay) {
+      this._vrDisplay.exitPresent();
+      this._cancelFrame(this._frame);
+      this._requestFrame = window.requestAnimationFrame.bind(window);
+      this._cancelFrame = window.cancelAnimationFrame.bind(window);
+      this._frame = null;
+      this._renderer.disableVR();
+      this._vrDisplay = null;
+      this._updateSize(true);
+      this._submit = () => {};
+      this._renderLoop();
+
+    }
+  }
 
   _renderLoop(t) {
     if (t === void 0) { // First pass
-      this._frame = requestAnimationFrame(this._renderLoop);
+      this._frame = this._requestFrame(this._renderLoop);
       return;
     }
 
     if (this._lastTime === null) {
       this._lastTime = t;
-      this._frame = requestAnimationFrame(this._renderLoop);
+      this._frame = this._requestFrame(this._renderLoop);
       return;
     }
 
@@ -189,17 +262,14 @@ class Player {
     this._lastTime = t;
 
     if (dt >= MAX_UPDATE) {
-      this._frame = requestAnimationFrame(this._renderLoop);
+      this._frame = this._requestFrame(this._renderLoop);
       return;
     }
 
     this._accumulator += dt;
 
-    const { width, height } = this._target.getBoundingClientRect();
-    const serialized = `${width}x${height}`;
-    if (serialized !== this._dimensions) {
-      this._dimensions = serialized;
-      this._renderer.setSize(width, height);
+    if (!this._vrDisplay) {
+      this._updateSize();
     }
 
     for (const component of this._updateable) {
@@ -228,7 +298,8 @@ class Player {
 
     this._rotation = rot;
     this._renderer.render(rot);
-    this._frame = requestAnimationFrame(this._renderLoop);
+    this._frame = this._requestFrame(this._renderLoop);
+    this._submit();
   }
 
   currentMedia() {
@@ -251,6 +322,9 @@ class Player {
   }
 
   destroy() {
+    this._cancelFrame(this._frame);
+    this._events.off(ENTER_VR, this._onEnterVR);
+    this._events.off(EXIT_VR, this._onExitVR);
     this.suspend();
     this._swapRenderTarget(null);
     if (this._renderer) {

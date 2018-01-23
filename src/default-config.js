@@ -1,9 +1,11 @@
 export default {
   renderer: ["render:webgl"],
   controls: [
+    "controls:vr",
     {
       type: "controls:pointer",
       options: {
+        lock: false,
         acceleration: 0.3,
         deceleration: 0.9,
         speed: 0.5,
@@ -17,9 +19,10 @@ export default {
         speed: 0.2,
       },
     },
-    {
-      type: "controls:gyro",
-    },
+    "controls:gyro",
+  ],
+  ui: [
+    "ui:vr",
   ],
   format: 360,
   stereo: false,

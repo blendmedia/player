@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Blend Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: Verdana, Arial, sans-serif;
@@ -19,6 +20,12 @@
       height:  0;
     }
 
+    button {
+      width:  200px;
+      height:  44px;
+      background: #CCC
+    }
+
   </style>
 </head>
 <body>
@@ -33,7 +40,10 @@
         https://github.com/SamsungInternet/examples/tree/master/360-video
       </a>
     </p>
+    <p id="pos"></p>
+    <p id="ori"></p>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/webvr-polyfill@latest/build/webvr-polyfill.js"></script>
   <script src="../dist/blend-player.dev.js"></script>
   <script type="text/javascript">
 /* eslint-disable */

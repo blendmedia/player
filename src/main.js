@@ -5,6 +5,7 @@ import * as events from "./events";
 import * as renderers from "./renderers";
 import * as media from "./media";
 import * as controls from "./controls";
+import * as ui from "./ui";
 
 export function factory(base) {
   return function(config) {
@@ -13,4 +14,4 @@ export function factory(base) {
 }
 
 export const create = factory(DEFAULT_CONFIG);
-export { events, renderers, media, controls };
+export { events, renderers, media, controls, ui };

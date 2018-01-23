@@ -21,6 +21,7 @@ class Pointer extends Controller {
     this._acceleration = config.acceleration || false;
     this._deceleration = config.deceleration || 0.9;
     this._reverse = config.reverse ? -1 : 1;
+    this._useLock = config.lock;
     this._disableVerticalTouch = !!config.disableVerticalTouch;
     this._velY = 0;
     this._velX = 0;
@@ -38,7 +39,7 @@ class Pointer extends Controller {
     const lock = (
       currentTarget.requestPointerLock || currentTarget.mozRequestPointerLock
     );
-    if (lock) {
+    if (lock && this._useLock) {
       lock.call(currentTarget);
     }
 
@@ -86,7 +87,7 @@ class Pointer extends Controller {
     const unlock = (
       document.exitPointerLock || document.mozExitPointerLoc
     );
-    if (unlock) {
+    if (unlock && this._useLock) {
       unlock.call(document);
     }
     this._running = false;

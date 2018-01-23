@@ -57,3 +57,10 @@ export const RECONFIGURE   = "reconfigure";
 export const PRE_RENDER    = "prerender";
 export const POST_RENDER   = "postrender";
 export const ERROR         = "error";
+
+// VR events
+export const ENTER_VR = "entervr";
+export const EXIT_VR = "exitvr";
+
+// Helper listeners
+export const stop = e => e.stopPropagation();

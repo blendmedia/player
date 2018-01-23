@@ -52,6 +52,16 @@ class Renderer extends Base {
   setSize(/*width, height*/) {
 
   }
+
+  enableVR(display) {
+    this._vr = true;
+    this._vrDisplay = display;
+  }
+
+  disableVR() {
+    this._vr = false;
+    this._vrDisplay = null;
+  }
 }
 
 export default Renderer;

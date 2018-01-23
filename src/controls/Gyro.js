@@ -15,7 +15,6 @@ if (screen.orientation) {
     get: () => window.orientation || 0,
   });
 }
-// const factor = IS_IOS ? 0.01 : 1;
 
 class Gyro extends Controller {
   constructor(...args) {
