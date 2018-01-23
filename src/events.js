@@ -14,6 +14,9 @@ export const TOUCH_MOVE  = "touchmove";
 export const KEY_DOWN = "keydown";
 export const KEY_UP = "keyup";
 
+// Device events
+export const DEVICE_MOTION = "devicemotion";
+
 // Pointer events based on primary interaction mechanism
 export const POINTER_DOWN = (
   detect.primaryInput === "touch" ? TOUCH_START : MOUSE_DOWN

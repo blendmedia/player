@@ -267,6 +267,7 @@ export function useTexture(gl, { pointer }, uniform, unit = 0) {
 
 export function sphere(
   radius, rows = 30, segments = 30, PHI = TWO_PI, uScale = 1, vScale = 1,
+  uOffset = 0, vOffset = 0,
 ) {
   // Position & color
   const vertex = [];
@@ -299,8 +300,8 @@ export function sphere(
         z * radius
       );
       uvs.push(
-        sr * uScale,
-        rr * vScale,
+        uOffset + (sr * uScale),
+        vOffset + (rr * vScale),
       );
     }
   }

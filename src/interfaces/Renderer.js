@@ -19,9 +19,10 @@ class Renderer extends Base {
    * Method to draw current state on the screen
    * @param {Float32Array} rotation A Quaternion representing where the camera
    * is currently rotation
+   * @param {Boolean} isStereo Whether or not to render in stereo
    * @return void
    */
-  render(/*rotation*/) {
+  render(/*rotation, isStereo */) {
 
   }
 

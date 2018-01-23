@@ -13,7 +13,7 @@ class Pointer extends Controller {
   create(config) {
     this.on(POINTER_DOWN, this._onStart);
     this.on(POINTER_UP, this._onEnd, true);
-    this.on(POINTER_MOVE, this._onMove, true);
+    this.on(POINTER_MOVE, this._onMove, true, false);
     this._rotateY = 0;
     this._rotateX = 0;
     this._running = false;
@@ -102,6 +102,8 @@ class Pointer extends Controller {
     if (!this._running) {
       return;
     }
+    e.stopPropagation();
+    e.preventDefault();
     const [diffX, diffY] = this._diff(e);
     this._lastDiff = [diffX, diffY];
     this._rotateY = diffX / (2 / this._speed);

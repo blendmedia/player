@@ -12,6 +12,7 @@ const DOM_EVENTS = [
   "resize",
   "keyup",
   "keydown",
+  "devicemotion",
 ];
 
 /**
@@ -20,9 +21,9 @@ const DOM_EVENTS = [
  * @param {String}   event    event name to subscribe to
  * @param {Function} callback Function to execute as the event listener
  */
-export function addDomListener(target, event, callback) {
+export function addDomListener(target, event, callback, passive = true) {
   const options = detect.passiveEvents ? {
-    passive: true,
+    passive,
     capture: false,
   } : false;
   target.addEventListener(event, callback, options);
@@ -60,7 +61,7 @@ class Listener {
    * it is a DOM event
    * @return {Function} A function to call to unregister the listener
    */
-  on(event, callback, onWindow = false) {
+  on(event, callback, onWindow = false, passive = true) {
     if (typeof callback !== "function") {
       return false;
     }
@@ -70,7 +71,7 @@ class Listener {
       if (!onWindow) {
         this._domListeners.push([event, callback]);
       }
-      addDomListener(target, event, callback);
+      addDomListener(target, event, callback, passive);
     } else {
       if (!(event in this._listeners)) {
         this._listeners[event] = [];

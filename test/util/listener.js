@@ -209,6 +209,18 @@ describe("Listener", () => {
       });
     });
 
+    it("should set passive to false if specified", () => {
+      detect.passiveEvents = true;
+      const element = domStub();
+      const fn = noop();
+      addDomListener(element, "click", fn, false);
+      expect(element.addEventListener.calledOnce).to.be.true;
+      expect(element.addEventListener.args[0][2]).to.eql({
+        passive: false,
+        capture: false,
+      });
+    });
+
     it("should set capture to false when passive flag is not supported", () => {
       detect.passiveEvents = false;
       const element = domStub();
