@@ -14,6 +14,11 @@ class Video extends Media {
     return true;
   }
 
+  _setupVideo(video) {
+    video.setAttribute("playsinline", true);
+    video.setAttribute("webkit-playsinline", true);
+  }
+
   create({ src, crossOrigin, loop }) {
     if (!src) {
       return false;
@@ -35,15 +40,18 @@ class Video extends Media {
         video.crossOrigin = crossOrigin === true ? "anonymous" : crossOrigin;
       }
       this._src = src;
-      return true;
+    } else {
+      return false;
     }
-    return false;
+
+    this._setupVideo(this._video);
+    return true;
   }
 
   play() {
     if (this._video) {
-      return Promise.resolve(this._video.play()).catch(() => {
-        console.warn("Playback failed");
+      return Promise.resolve(this._video.play()).catch((e) => {
+        console.warn("Playback failed", e);
       });
     }
   }
