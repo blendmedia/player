@@ -4,6 +4,9 @@ import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
 
 export const FIXED_TIME_UPDATE = 1000/60;
+// If the time between updates goes beyond this value, assume the page
+// was in an inactive state
+export const MAX_UPDATE = 1000;
 
 class Player {
   constructor(config) {
@@ -184,6 +187,12 @@ class Player {
 
     const dt = t - this._lastTime;
     this._lastTime = t;
+
+    if (dt >= MAX_UPDATE) {
+      this._frame = requestAnimationFrame(this._renderLoop);
+      return;
+    }
+
     this._accumulator += dt;
 
     const { width, height } = this._target.getBoundingClientRect();
