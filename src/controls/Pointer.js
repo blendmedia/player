@@ -67,6 +67,9 @@ class Pointer extends Controller {
   }
 
   _onEnd() {
+    if (!this._running) {
+      return;
+    }
     const unlock = (
       document.exitPointerLock || document.mozExitPointerLoc
     );
@@ -79,6 +82,7 @@ class Pointer extends Controller {
       this._velY = diffX * this._acceleration;
       this._velX = diffY * this._acceleration;
     }
+    this._lastDiff = [0, 0];
   }
 
   _onMove(e) {
