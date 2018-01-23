@@ -40,6 +40,7 @@ class Renderer extends Base {
    */
   setSource(source, stereo) {
     this._source = source;
+    this._stereo = stereo;
   }
 
   /**
