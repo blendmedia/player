@@ -3,6 +3,7 @@ import eslint from "rollup-plugin-eslint";
 import commonjs from "rollup-plugin-commonjs";
 import replace from "rollup-plugin-replace";
 import glsl from "rollup-plugin-glsl";
+import visualizer from "rollup-plugin-visualizer";
 
 export default {
   input: "src/main.js",
@@ -39,5 +40,6 @@ export default {
       presets: ["es2015-rollup"],
       plugins: ["transform-object-assign"],
     }),
+    visualizer(),
   ],
 };

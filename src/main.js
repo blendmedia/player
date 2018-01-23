@@ -1,4 +1,4 @@
-import debug from "debug";
+import debug from "./debug";
 import Player from "./Player";
 import DEFAULT_CONFIG from "./default-config.js";
 

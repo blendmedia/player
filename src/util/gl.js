@@ -3,7 +3,7 @@
  */
 
 import { TWO_PI } from "./math";
-import debug from "debug";
+import debug from "../debug";
 const log = debug("webgl");
 
 export const VERTEX = 0;

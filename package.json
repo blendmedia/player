@@ -58,10 +58,10 @@
     "rollup-plugin-node-resolve": "^3.0.2",
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "^2.0.1",
+    "rollup-plugin-visualizer": "^0.3.1",
     "sinon": "^4.1.5"
   },
   "dependencies": {
-    "debug": "^3.1.0",
     "detect-it": "^3.0.4",
     "gl-matrix": "^2.4.0"
   }
