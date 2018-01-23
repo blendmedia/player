@@ -22,7 +22,7 @@ class Pointer extends Controller {
     this._deceleration = config.deceleration || 0.9;
     this._velY = 0;
     this._velX = 0;
-
+    this._lastDiff = [0, 0];
   }
 
   destroy() {
@@ -85,7 +85,6 @@ class Pointer extends Controller {
     if (!this._running) {
       return;
     }
-
     const [diffX, diffY] = this._diff(e);
     this._lastDiff = [diffX, diffY];
     this._rotateY = diffX / (2 / this._speed);

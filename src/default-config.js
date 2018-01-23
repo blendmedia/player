@@ -6,6 +6,14 @@ export default {
       options: {
         acceleration: 0.3,
         deceleration: 0.9,
+        speed: 0.5,
+      },
+    },
+    {
+      type: "controls:keyboard",
+      options: {
+        deceleration: 0.9,
+        speed: 0.2,
       },
     },
   ],

@@ -195,7 +195,7 @@ class Player {
 
     let rot = Object.assign({}, this._rotation);
     for (const controller of this._controls) {
-      const result = controller.apply(this._rotation);
+      const result = controller.apply(rot);
       if (result) {
         rot = result;
       }

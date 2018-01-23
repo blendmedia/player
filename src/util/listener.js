@@ -10,6 +10,8 @@ const DOM_EVENTS = [
   "touchend",
   "touchmove",
   "resize",
+  "keyup",
+  "keydown",
 ];
 
 /**
