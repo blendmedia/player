@@ -1,4 +1,3 @@
-import debug from "./debug";
 import Player from "./Player";
 import DEFAULT_CONFIG from "./default-config.js";
 
@@ -6,10 +5,6 @@ import * as events from "./events";
 import * as renderers from "./renderers";
 import * as media from "./media";
 import * as controls from "./controls";
-
-if (process.env.NODE_ENV === "development") {
-  debug.enable("*");
-}
 
 export function factory(base) {
   return function(config) {

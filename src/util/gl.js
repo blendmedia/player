@@ -166,7 +166,6 @@ export function attributeArray(
     gl.enableVertexAttribArray(attr);
   }
 
-
   return buffer;
 }
 
@@ -211,20 +210,22 @@ export function createTexture(
 
 export const isPowerOf2 = val => !(Math.log2(val) % 1);
 
-export function updateTexture(gl, { pointer, media, initialized }) {
+export function updateTexture(gl, { pointer, media, initialized, applied }) {
   if (!media) {
     return;
   }
 
   if (!initialized) {
     initialized = media.complete || media.readyState >= 2;
-    if (!initialized) {
-      return {
-        pointer,
-        media,
-        initialized,
-      };
-    }
+  }
+
+  if (!initialized || (media instanceof HTMLImageElement && applied)) {
+    return {
+      pointer,
+      media,
+      initialized,
+      applied,
+    };
   }
 
   const width = media.naturalWidth || media.videoWidth;
@@ -251,6 +252,7 @@ export function updateTexture(gl, { pointer, media, initialized }) {
     pointer,
     media,
     initialized,
+    applied: true,
   };
 }
 
@@ -263,7 +265,9 @@ export function useTexture(gl, { pointer }, uniform, unit = 0) {
   gl.uniform1i(uniform, unit);
 }
 
-export function sphere(radius, rows = 30, segments = 30, PHI = TWO_PI) {
+export function sphere(
+  radius, rows = 30, segments = 30, PHI = TWO_PI, uScale = 1, vScale = 1,
+) {
   // Position & color
   const vertex = [];
   // Vertex order
@@ -295,8 +299,8 @@ export function sphere(radius, rows = 30, segments = 30, PHI = TWO_PI) {
         z * radius
       );
       uvs.push(
-        sr,
-        rr,
+        sr * uScale,
+        rr * vScale,
       );
     }
   }

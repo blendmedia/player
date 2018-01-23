@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blend Player</title>
+  <style>
+    body {
+      font-family: Verdana, Arial, sans-serif;
+    }
+    #wrapper {
+      width:  75%;
+      margin:  30px auto;
+    }
+    #player {
+      box-sizing:  content-box;
+      width: 100%;
+      background: #888;
+      padding-bottom:  56.25%;
+      height:  0;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="player">
+
+    </div>
+    <img src="./files/example-360-ou.jpg" id="image"/>
+    <p>
+      Image from
+      <a href="https://developers.google.com/vr/discover/360-degree-media" target="_blank">
+        https://developers.google.com/vr/discover/360-degree-media
+      </a>
+    </p>
+  </div>
+  <script src="../dist/blend-player.dev.js"></script>
+  <script type="text/javascript">
+/* eslint-disable */
+    const image = document.querySelector("#image");
+    const player = window.flex.create({
+      target: "#player",
+      src: image, //"./files/example-360-mono.mp4",
+      stereo: "ou",
+    });
+    player.currentMedia().load();
+    player.currentMedia().play();
+  </script>
+</body>
+</html>

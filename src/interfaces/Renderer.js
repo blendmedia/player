@@ -36,8 +36,9 @@ class Renderer extends Base {
   /**
    * Set source texture (video or image)
    * @param {HTMLMediaElement} source
+   * @param {String|Boolean} stereo Stereo format of media (if any)
    */
-  setSource(source) {
+  setSource(source, stereo) {
     this._source = source;
   }
 

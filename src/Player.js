@@ -30,6 +30,10 @@ class Player {
     // Method binding
     this._renderLoop = this._renderLoop.bind(this);
 
+    // DOM elements
+    this._uiContainer = document.createElement("div");
+    this._uiContainer.className = "fuse-ui";
+
     // Initialize
     this._apply(config);
     this._renderLoop();
@@ -55,6 +59,8 @@ class Player {
     } else {
       return;
     }
+
+    this._target.appendChild(this._uiContainer);
     this._events.updateDOM(this._target);
   }
 
@@ -136,12 +142,16 @@ class Player {
     }
   }
 
-  _setMedia(media = []) {
+  _setMedia(media = [], stereo) {
+    this._stereo = stereo || false;
     this._setInterfaces(media, "_media");
     this._current = 0;
     if (this._renderer) {
       const current = this.currentMedia();
-      this._renderer.setSource(current ? current.getTexture() : null);
+      this._renderer.setSource(
+        current ? current.getTexture() : null,
+        this._stereo,
+      );
     }
   }
 
@@ -153,7 +163,7 @@ class Player {
     config = reconfigure(config);
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
-    this._setMedia(config.src);
+    this._setMedia(config.src, config.stereo);
     this._setControls(config.controls);
     this._setUpdateable();
     // this._setInterfaces(config.renderer, "_renderers");
