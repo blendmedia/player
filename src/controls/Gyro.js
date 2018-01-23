@@ -15,7 +15,7 @@ if (screen.orientation) {
     get: () => window.orientation || 0,
   });
 }
-const factor = IS_IOS ? 0.01 : 1;
+// const factor = IS_IOS ? 0.01 : 1;
 
 class Gyro extends Controller {
   constructor(...args) {
@@ -34,27 +34,32 @@ class Gyro extends Controller {
   }
 
   _onMove(e) {
-    const { alpha, beta } = e.rotationRate;
+    const { interval, rotationRate } = e;
+    let { alpha, beta } = rotationRate;
     if (alpha === null || beta === null) {
       return;
     }
+    if (IS_IOS) {
+      alpha *= interval;
+      beta *= interval;
+    }
     switch (orientation.angle) {
       case 0:
-        this._moveX = alpha * factor;
-        this._moveY = beta * factor;
+        this._moveX = alpha;
+        this._moveY = beta;
         break;
       case 90:
-        this._moveX = -beta * factor;
-        this._moveY = alpha * factor;
+        this._moveX = -beta;
+        this._moveY = alpha;
         break;
       case -90:
       case 270:
-        this._moveX = beta * factor;
-        this._moveY = -alpha * factor;
+        this._moveX = beta;
+        this._moveY = -alpha;
         break;
       case 180:
-        this._moveX = beta * factor;
-        this._moveY = -alpha * factor;
+        this._moveX = beta;
+        this._moveY = -alpha;
         break;
     }
   }

@@ -1,5 +1,4 @@
 /* spec: webgl */
-precision mediump float;
 
 attribute vec3 xyz;
 attribute vec2 uv;
