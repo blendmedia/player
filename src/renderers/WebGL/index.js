@@ -182,7 +182,7 @@ class WebGLRenderer extends Renderer {
     gl.drawElements(gl.TRIANGLES, geom.size, gl.UNSIGNED_SHORT, 0);
   }
 
-  render(rotation, useStereo = true) {
+  render(rotation, useStereo = false) {
     const gl = this._gl;
     let view = null;
     if (this._vrDisplay) {
@@ -190,6 +190,15 @@ class WebGLRenderer extends Renderer {
       view = new window.VRFrameData();
       this._vrDisplay.getFrameData(view);
     } else {
+      const pose = `${rotation.y}:${rotation.x}:${useStereo ? "s" : "m"}`;
+      if (
+        pose === this._lastPose &&
+        this.texture.type === "image" &&
+        this.texture.applied
+      ) {
+        return;
+      }
+      this._lastPose = pose;
       // Create view matrix from euler rotation
       const rot = multiply(
         mat4(),
@@ -202,8 +211,7 @@ class WebGLRenderer extends Renderer {
         translate(mat4(), mat4(), vec3(0, 0, 1))
       );
     }
-
-
+    this.texture = webgl.updateTexture(gl, this.texture);
 
     // Clear display for next frame
     gl.clearColor(...CLEAR_COLOR, 1);
@@ -212,7 +220,6 @@ class WebGLRenderer extends Renderer {
     // Re-activate shader for frame
     this._use();
 
-    this.texture = webgl.updateTexture(gl, this.texture);
     webgl.useTexture(gl, this.texture, this._uniforms.media);
 
     if (useStereo) {

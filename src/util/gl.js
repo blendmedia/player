@@ -208,22 +208,29 @@ export function createTexture(
   );
 
   let initialized = false;
+  let type = "image";
   if (!media) {
     log("No media item supplied for texture");
   } else if (media instanceof HTMLVideoElement) {
     initialized = media.readyState >= 2;
+    type = "video";
+  } else if (media.complete) {
+    initialized = true;
   }
 
   return {
     pointer: texture,
     media,
     initialized,
+    type,
   };
 }
 
 export const isPowerOf2 = val => !(Math.log2(val) % 1);
 
-export function updateTexture(gl, { pointer, media, initialized, applied }) {
+export function updateTexture(gl, texture) {
+  const { pointer, media, applied } = texture;
+  let { initialized } = texture;
   if (!media) {
     return;
   }
@@ -233,12 +240,7 @@ export function updateTexture(gl, { pointer, media, initialized, applied }) {
   }
 
   if (!initialized || (media instanceof HTMLImageElement && applied)) {
-    return {
-      pointer,
-      media,
-      initialized,
-      applied,
-    };
+    return texture;
   }
 
   const width = media.naturalWidth || media.videoWidth;
@@ -261,12 +263,10 @@ export function updateTexture(gl, { pointer, media, initialized, applied }) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   }
-  return {
-    pointer,
-    media,
+  return Object.assign({}, texture, {
     initialized,
     applied: true,
-  };
+  });
 }
 
 export function useTexture(gl, { pointer }, uniform, unit = 0) {
