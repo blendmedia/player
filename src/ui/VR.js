@@ -1,7 +1,6 @@
 import { register } from "../register";
 import UI from "../interfaces/UI";
 import { ENTER_VR, EXIT_VR } from "../events";
-import { hmd } from "../util/device";
 
 class VR extends UI {
   constructor(...args) {
@@ -10,7 +9,7 @@ class VR extends UI {
   }
 
   isSupported() {
-    return !!hmd();
+    return true;
   }
 
   mount(container) {
