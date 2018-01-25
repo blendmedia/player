@@ -1,4 +1,4 @@
-import Listener from "./util/listener";
+import Listener, { addDomListener } from "./util/listener";
 import { normalize } from "./util/config";
 import { hmd } from "./util/device";
 import { resolve, reconfigure } from "./register";
@@ -46,11 +46,11 @@ class Player {
     // DOM elements
     this._uiContainer = document.createElement("div");
     this._uiContainer.className = "fuse-ui";
-    this._uiContainer.addEventListener("mousedown", stop);
-    this._uiContainer.addEventListener("mouseup", stop);
-    this._uiContainer.addEventListener("touchstart", stop);
-    this._uiContainer.addEventListener("touchend", stop);
-    this._uiContainer.addEventListener("click", stop);
+    addDomListener(this._uiContainer, "mousedown", stop);
+    addDomListener(this._uiContainer, "mouseup", stop);
+    addDomListener(this._uiContainer, "touchstart", stop);
+    addDomListener(this._uiContainer, "touchend", stop);
+    addDomListener(this._uiContainer, "click", stop);
 
     // Initialize
     this._apply(config);
