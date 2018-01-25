@@ -138,21 +138,36 @@ export function uniform(gl, uniform, data, type) {
 }
 
 /**
- * Bind and register data into an attribute array buffer
- * @param  {WebGLRenderingContext} gl  Context to bind to
- * @param  {GLint} attr     Pointer to attribute to register. null when
- * setting indicies buffer
- * @param  {Float32Array|Uint16Array} data     Buffer data to store
- * @param  {Number} elements Number of items per element
- * @param  {Number} type     Type of buffer we're binding
- * @return {WebGLBuffer} Buffer the data has been registered to
+ * Create a GL buffer and register it's data
+ * @param  {WebGLRenderingContext} gl   Context to create the buffer with
+ * @param  {Float32Array|Uint16Array} data Data to bind to the buffer
+ * @param  {GLint} type Type of buffer
+ * @return {Object}  Buffer object and it's type
  */
-export function attributeArray(
-  gl, attr, data, elements = 3, type = gl.ARRAY_BUFFER,
-) {
+export function buffer(gl, data, type = gl.ARRAY_BUFFER) {
   const buffer = gl.createBuffer();
   gl.bindBuffer(type, buffer);
   gl.bufferData(type, data, gl.STATIC_DRAW);
+
+  return {
+    data: buffer,
+    type,
+  };
+}
+
+/**
+ * Bind buffer into a shader attribute
+ * @param  {WebGLRenderingContext} gl  Context to bind to
+ * @param  {GLint} attr     Pointer to attribute to register. null when
+ * setting indicies buffer
+ * @param  {Object} Buffer returned by buffer()
+ * @param  {Number} elements Number of items per element
+ * @param  {Number} type     Type of buffer we're binding
+ */
+export function attributeArray(
+  gl, attr, { data, type }, elements = 3
+) {
+  gl.bindBuffer(type, data);
   // Set attribute interpolation data
   if (type === gl.ARRAY_BUFFER) {
     gl.vertexAttribPointer(
@@ -165,8 +180,6 @@ export function attributeArray(
     );
     gl.enableVertexAttribArray(attr);
   }
-
-  return buffer;
 }
 
 
@@ -266,8 +279,15 @@ export function useTexture(gl, { pointer }, uniform, unit = 0) {
 }
 
 export function sphere(
-  radius, rows = 30, segments = 30, PHI = TWO_PI, uScale = 1, vScale = 1,
-  uOffset = 0, vOffset = 0,
+  gl,
+  radius,
+  rows = 30,
+  segments = 30,
+  PHI = TWO_PI,
+  uScale = 1,
+  vScale = 1,
+  uOffset = 0,
+  vOffset = 0,
 ) {
   // Position & color
   const vertex = [];
@@ -320,8 +340,9 @@ export function sphere(
   }
 
   return {
-    vertices: new Float32Array(vertex),
-    indicies: new Uint16Array(indices),
-    uvs: new Float32Array(uvs),
+    vertices: buffer(gl, new Float32Array(vertex)),
+    indicies: buffer(gl, new Uint16Array(indices), gl.ELEMENT_ARRAY_BUFFER),
+    uvs:      buffer(gl, new Float32Array(uvs)),
+    size:     indices.length,
   };
 }
