@@ -79,7 +79,7 @@ class WebGLRenderer extends Renderer {
     // Create left eye geometry
     geom.left = webgl.sphere(sphereConfig);
     if (this._stereo) {
-      geom.left = webgl.sphere(Object.assign({}, sphereConfig, {
+      geom.right = webgl.sphere(Object.assign({}, sphereConfig, {
         uOffset: 1 - this._uScale,
         vOffset: 1 - this._vScale,
       }));
