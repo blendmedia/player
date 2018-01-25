@@ -2,6 +2,7 @@ import { register } from "../register";
 import Controller from "../interfaces/Controller";
 import { KEY_DOWN, KEY_UP } from "../events";
 import { clamp } from "../util/math";
+import { hmd } from "../util/device";
 
 class Keyboard extends Controller {
   constructor(...args) {
@@ -11,8 +12,8 @@ class Keyboard extends Controller {
   }
 
   create(config) {
-    this.on(KEY_DOWN, this._onStart, true);
-    this.on(KEY_UP, this._onEnd, true);
+    this.on(KEY_DOWN, this._onStart, true, false);
+    this.on(KEY_UP, this._onEnd, true, false);
     this._rotateY = 0;
     this._rotateX = 0;
     this._running = false;
@@ -21,6 +22,9 @@ class Keyboard extends Controller {
     this._deceleration = config.deceleration || 0.9;
     this._accY = 0;
     this._accX = 0;
+    this._snapY = 0;
+    this._snapX = 0;
+    this._snap = config.snap || 30;
   }
 
   destroy() {
@@ -47,12 +51,22 @@ class Keyboard extends Controller {
     return [null, null];
   }
 
-  _onStart({ key }) {
+  _onStart(e) {
+    const vr = hmd();
+    const { key, repeat } = e;
     const [axis, dir] = this._getAxis(key);
     if (!axis) {
       return;
     }
-    this[`_acc${axis}`] = this._speed * dir;
+    e.preventDefault();
+    if (repeat) {
+      return;
+    }
+    if (vr && vr.isPresenting) {
+      this[`_snap${axis}`] = this._snap * dir;
+    } else {
+      this[`_acc${axis}`] = this._speed * dir;
+    }
   }
 
   _onEnd({ key }) {
@@ -92,8 +106,14 @@ class Keyboard extends Controller {
   }
 
   apply({ x, y, z }) {
+    x += this._snapX;
+    y += this._snapY;
     x += this._rotateX;
     y += this._rotateY;
+
+    this._snapX = 0;
+    this._snapY = 0;
+
     return {
       x,
       y,

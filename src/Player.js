@@ -194,7 +194,11 @@ class Player {
 
   _apply(config) {
     config = reconfigure(config);
-    console.log(config);
+    this._correction = {
+      x: (config.correction ? config.correction.x : 0) || 0,
+      y: (config.correction ? config.correction.y : 0) || 0,
+      z: (config.correction ? config.correction.z : 0) || 0,
+    };
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
     this._setMedia(config.src, config.stereo, config.degrees, config.fisheye);
@@ -316,9 +320,8 @@ class Player {
       }
     }
 
-
     this._rotation = rot;
-    this._renderer.render(rot, !!frameData, frameData);
+    this._renderer.render(rot, this._correction, !!frameData, frameData);
     this._frame = this._requestFrame(this._renderLoop);
     this._submit();
   }

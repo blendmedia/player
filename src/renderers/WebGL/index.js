@@ -132,7 +132,7 @@ class WebGLRenderer extends Renderer {
     this._createGeometry(degrees, fisheye);
   }
 
-  _renderGeom(gl, eye, stereo = false, view) {
+  _renderGeom(gl, eye, stereo = false, view, model, y) {
     const geom = this._geometry[eye] || this._geometry.left;
     if (!geom) {
       return;
@@ -159,6 +159,8 @@ class WebGLRenderer extends Renderer {
     if (view instanceof window.VRFrameData) {
       transpose(perspect, view[`${eye}ProjectionMatrix`]);
       transpose(view, view[`${eye}ViewMatrix`]);
+      const rot = fromRotation(mat4(), degToRad(y) , Y_AXIS);
+      multiply(view, rot, view);
     } else {
       perspective(
         perspect,
@@ -170,14 +172,21 @@ class WebGLRenderer extends Renderer {
     }
 
     // Update model-view-projection matrix
-    multiply(mvp, view, perspect);
+    multiply(mvp, multiply(mat4(), model, view), perspect);
     webgl.uniform(gl, this._uniforms.mvp, mvp, webgl.MATRIX_4);
     gl.drawElements(gl.TRIANGLES, geom.size, gl.UNSIGNED_SHORT, 0);
   }
 
-  render(rotation, useStereo, vrFrame) {
+  render(rotation, position, useStereo, vrFrame) {
     const gl = this._gl;
     let view = vrFrame;
+
+    const model = multiply(
+      mat4(),
+      fromRotation(mat4(), degToRad(position.y) , Y_AXIS),
+      fromRotation(mat4(), degToRad(position.x) , X_AXIS),
+    );
+
     if (!view) {
       const pose = `${rotation.y}:${rotation.x}:${useStereo ? "s" : "m"}`;
       if (
@@ -214,9 +223,9 @@ class WebGLRenderer extends Renderer {
     if (useStereo) {
       gl.enable(gl.SCISSOR_TEST);
     }
-    this._renderGeom(gl, "left", useStereo, view);
+    this._renderGeom(gl, "left", useStereo, view, model, rotation.y);
     if (useStereo) {
-      this._renderGeom(gl, "right", useStereo, view);
+      this._renderGeom(gl, "right", useStereo, view, model, rotation.y);
     }
     gl.disable(gl.SCISSOR_TEST);
   }
