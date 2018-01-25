@@ -20,9 +20,10 @@ class Renderer extends Base {
    * @param {Float32Array} rotation A Quaternion representing where the camera
    * is currently rotation
    * @param {Boolean} isStereo Whether or not to render in stereo
+   * @param {VRFrameData} vrFrame frame data from active VRDisplay if it exists
    * @return void
    */
-  render(/*rotation, isStereo */) {
+  render(/*rotation, isStereo, vrFrame */) {
 
   }
 
@@ -38,10 +39,12 @@ class Renderer extends Base {
    * Set source texture (video or image)
    * @param {HTMLMediaElement} source
    * @param {String|Boolean} stereo Stereo format of media (if any)
+   * @param {Number} degrees Number of degrees that the media takes up
    */
-  setSource(source, stereo) {
+  setSource(source, stereo, degrees = 360) {
     this._source = source;
     this._stereo = stereo;
+    this._degrees = degrees;
   }
 
   /**

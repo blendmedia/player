@@ -2,7 +2,7 @@
  * Web GL utility functions and constants
  */
 
-import { TWO_PI } from "./math";
+import { TWO_PI, radToDeg } from "./math";
 import debug from "../debug";
 const log = debug("webgl");
 
@@ -310,16 +310,19 @@ export function sphere(config) {
   const uvs = [];
 
   const { PI, sin, cos } = Math;
+  console.log(radToDeg(PHI));
 
   const R = 1 / (rows - 1);
   const S = 1 / (segments - 1);
+  const offset = PI - (PHI - PI) / 2;
+  // PI - PHI / 2 + PI_2
   for (let r = 0; r < rows; ++r) {
     for (let s = 0; s < segments; ++s) {
       const rr = r * R;
       // Ensure last element rese
       const sr = s * S;
       const theta = rr * PI; // angle of z axis
-      const phi = sr * PHI; // angle of y axis
+      const phi = (offset + sr * PHI) % TWO_PI; // angle of y axis
       const sinTheta = sin(theta);
       const sinPhi = sin(phi);
       const cosTheta = cos(theta);
@@ -336,6 +339,11 @@ export function sphere(config) {
         uOffset + (sr * uScale),
         vOffset + (rr * vScale),
       );
+      if (r === 0) {
+        console.log(
+          radToDeg(phi)
+        );
+      }
     }
   }
 

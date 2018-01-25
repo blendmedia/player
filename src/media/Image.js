@@ -25,6 +25,7 @@ class Image extends Media {
     } else if (typeof src === "string") {
       const image = document.createElement("img");
       this._image = image;
+      image.src = src;
       if (crossOrigin) {
         image.crossOrigin = crossOrigin === true ? "anonymous" : crossOrigin;
       }
@@ -40,7 +41,7 @@ class Image extends Media {
 }
 
 // Register component and setup src configuration mapping
-configure((src, original) => {
+configure(src => {
   if (src instanceof HTMLImageElement) {
     return {
       type: Image,
@@ -60,7 +61,6 @@ configure((src, original) => {
       options: {
         src,
         crossOrigin: true,
-        loop: original.loop,
       },
     };
   }

@@ -165,8 +165,9 @@ class Player {
     }
   }
 
-  _setMedia(media = [], stereo) {
+  _setMedia(media = [], stereo, degrees = 360) {
     this._stereo = stereo || false;
+    this._degrees = degrees;
     this._setInterfaces(media, "_media");
     this._current = 0;
     if (this._renderer) {
@@ -174,6 +175,7 @@ class Player {
       this._renderer.setSource(
         current ? current.getTexture() : null,
         this._stereo,
+        this._degrees,
       );
     }
   }
@@ -191,9 +193,10 @@ class Player {
 
   _apply(config) {
     config = reconfigure(config);
+    console.log(config);
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
-    this._setMedia(config.src, config.stereo);
+    this._setMedia(config.src, config.stereo, config.degrees);
     this._setControls(config.controls);
     this._setUI(config.ui);
     this._setUpdateable();
