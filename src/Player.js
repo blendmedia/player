@@ -1,8 +1,9 @@
 import Listener from "./util/listener";
 import { normalize } from "./util/config";
+import { hmd } from "./util/device";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
-import { ENTER_VR, EXIT_VR, stop } from "./events";
+import { ENTER_VR, EXIT_VR, VR_PRESENT_CHANGE, stop } from "./events";
 
 export const FIXED_TIME_UPDATE = 1000/60;
 // If the time between updates goes beyond this value, assume the page
@@ -40,6 +41,7 @@ class Player {
     this._renderLoop = this._renderLoop.bind(this);
     this._onEnterVR = this._onEnterVR.bind(this);
     this._onExitVR = this._onExitVR.bind(this);
+    this._onVRChange = this._onVRChange.bind(this);
 
     // DOM elements
     this._uiContainer = document.createElement("div");
@@ -56,6 +58,7 @@ class Player {
 
     this._events.on(ENTER_VR, this._onEnterVR);
     this._events.on(EXIT_VR, this._onExitVR);
+    this._events.on(VR_PRESENT_CHANGE, this._onVRChange, true);
   }
 
   _resolve(list) {
@@ -205,7 +208,11 @@ class Player {
     }
   }
 
-  _onEnterVR(display) {
+  _onEnterVR() {
+    const display = hmd();
+    if (!display) {
+      return;
+    }
     display.requestPresent([{ source: this._renderTarget }]).then(() => {
       display.resetPose();
 
@@ -243,6 +250,13 @@ class Player {
       this._submit = () => {};
       this._renderLoop();
 
+    }
+  }
+
+  _onVRChange() {
+    // Exit VR if mode was cancelled
+    if (this._vrDisplay && !this._vrDisplay.isPresenting) {
+      this._onExitVR();
     }
   }
 

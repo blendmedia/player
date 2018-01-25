@@ -13,6 +13,7 @@ const DOM_EVENTS = [
   "keyup",
   "keydown",
   "devicemotion",
+  "vrdisplaypresentchange",
 ];
 
 /**

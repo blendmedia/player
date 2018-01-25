@@ -61,6 +61,7 @@ export const ERROR         = "error";
 // VR events
 export const ENTER_VR = "entervr";
 export const EXIT_VR = "exitvr";
+export const VR_PRESENT_CHANGE = "vrdisplaypresentchange";
 
 // Helper listeners
 export const stop = e => e.stopPropagation();

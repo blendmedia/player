@@ -1,6 +1,7 @@
 import { register } from "../register";
 import UI from "../interfaces/UI";
 import { ENTER_VR, EXIT_VR } from "../events";
+import { hmd } from "../util/device";
 
 class VR extends UI {
   constructor(...args) {
@@ -9,7 +10,7 @@ class VR extends UI {
   }
 
   isSupported() {
-    return !!navigator.getVRDisplays;
+    return !!hmd();
   }
 
   mount(container) {
@@ -23,22 +24,15 @@ class VR extends UI {
     this._button.title = "Enter VR";
     this._button.addEventListener("click", this._toggleVR);
     this._inVR = false;
-
-    navigator.getVRDisplays().then(([display]) => {
-      this._display = display;
-    }).catch(() => {
-      // ignore
-    });
   }
 
   _toggleVR() {
     if (this._inVR) {
       this.emit(EXIT_VR);
-      return;
+    } else {
+      this.emit(ENTER_VR);
     }
-    if (this._display) {
-      this.emit(ENTER_VR, this._display);
-    }
+    this._inVR = !this._inVR;
   }
 
 }
