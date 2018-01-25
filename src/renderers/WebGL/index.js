@@ -60,7 +60,7 @@ class WebGLRenderer extends Renderer {
     return true;
   }
 
-  _createGeometry(degrees = 360) {
+  _createGeometry(degrees = 360, fisheye) {
     const geom = {
       left: null,
       right: null,
@@ -74,6 +74,7 @@ class WebGLRenderer extends Renderer {
       uScale: this._uScale,
       vScale: this._vScale,
       PHI: degToRad(degrees),
+      fisheye,
     };
     // Create left eye geometry
     geom.left = webgl.sphere(sphereConfig);
@@ -112,7 +113,7 @@ class WebGLRenderer extends Renderer {
     this._canvas.height = height;
   }
 
-  setSource(src, stereo, degrees = 360) {
+  setSource(src, stereo, degrees = 360, fisheye = false) {
     super.setSource(src, stereo, degrees);
     this.texture = webgl.createTexture(this._gl, src);
     let uScale = 1, vScale = 1;
@@ -128,7 +129,7 @@ class WebGLRenderer extends Renderer {
     }
     this._uScale = uScale;
     this._vScale = vScale;
-    this._createGeometry(degrees);
+    this._createGeometry(degrees, fisheye);
   }
 
   _renderGeom(gl, eye, stereo = false, view) {
@@ -174,7 +175,7 @@ class WebGLRenderer extends Renderer {
     gl.drawElements(gl.TRIANGLES, geom.size, gl.UNSIGNED_SHORT, 0);
   }
 
-  render(rotation, useStereo = false, vrFrame) {
+  render(rotation, useStereo, vrFrame) {
     const gl = this._gl;
     let view = vrFrame;
     if (!view) {

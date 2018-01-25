@@ -165,7 +165,7 @@ class Player {
     }
   }
 
-  _setMedia(media = [], stereo, degrees = 360) {
+  _setMedia(media = [], stereo, degrees = 360, fisheye = false) {
     this._stereo = stereo || false;
     this._degrees = degrees;
     this._setInterfaces(media, "_media");
@@ -176,6 +176,7 @@ class Player {
         current ? current.getTexture() : null,
         this._stereo,
         this._degrees,
+        fisheye,
       );
     }
   }
@@ -196,7 +197,7 @@ class Player {
     console.log(config);
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
-    this._setMedia(config.src, config.stereo, config.degrees);
+    this._setMedia(config.src, config.stereo, config.degrees, config.fisheye);
     this._setControls(config.controls);
     this._setUI(config.ui);
     this._setUpdateable();

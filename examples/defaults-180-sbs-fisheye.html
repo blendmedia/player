@@ -50,9 +50,11 @@
     const video = document.querySelector("#video");
     const player = window.flex.create({
       target: "#player",
+      // src: "./files/fisheye-180.jpg",
       src: video,
       stereo: "sbs",
       degrees: 180,
+      fisheye: true,
     });
     player.currentMedia().load();
     player.currentMedia().play();

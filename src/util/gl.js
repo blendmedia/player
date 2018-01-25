@@ -2,7 +2,7 @@
  * Web GL utility functions and constants
  */
 
-import { TWO_PI, radToDeg } from "./math";
+import { TWO_PI } from "./math";
 import debug from "../debug";
 const log = debug("webgl");
 
@@ -287,6 +287,7 @@ export const DEFAULT_SPHERE = {
   uOffset: 0,
   vOffset: 0,
   radius: 1500,
+  fisheye: false,
 };
 
 export function sphere(config) {
@@ -300,6 +301,7 @@ export function sphere(config) {
     vScale = 1,
     uOffset = 0,
     vOffset = 0,
+    fisheye,
   } = Object.assign({}, DEFAULT_SPHERE, config);
 
   // Position & color
@@ -310,12 +312,10 @@ export function sphere(config) {
   const uvs = [];
 
   const { PI, sin, cos } = Math;
-  console.log(radToDeg(PHI));
 
   const R = 1 / (rows - 1);
   const S = 1 / (segments - 1);
   const offset = PI - (PHI - PI) / 2;
-  // PI - PHI / 2 + PI_2
   for (let r = 0; r < rows; ++r) {
     for (let s = 0; s < segments; ++s) {
       const rr = r * R;
@@ -335,15 +335,34 @@ export function sphere(config) {
         y * radius,
         z * radius
       );
-      uvs.push(
-        uOffset + (sr * uScale),
-        vOffset + (rr * vScale),
-      );
-      if (r === 0) {
-        console.log(
-          radToDeg(phi)
-        );
+
+      let u = sr;
+      let v = rr;
+      if (fisheye) {
+        // http://paulbourke.net/dome/fish2/
+        // Fisheye to (partial) spherical projection
+        const fov = PHI;
+        const destU = u;
+        const destV = v;
+
+        let theta = PHI * (destU - 0.5);
+        let phi = PI * (destV - 0.5);
+        const x = Math.cos(phi) * Math.sin(theta);
+        const y = Math.cos(phi) * Math.cos(theta);
+        const z = Math.sin(phi);
+
+        theta = Math.atan2(z, x);
+        phi = Math.atan2(Math.sqrt(x*x + z*z), y);
+        const R = phi / fov;
+        u = 0.5 + R * Math.cos(theta);
+        v = 0.5 + R * Math.sin(theta);
+
       }
+
+      uvs.push(
+        u * uScale + uOffset,
+        v * vScale + vOffset,
+      );
     }
   }
 
