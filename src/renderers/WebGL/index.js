@@ -66,29 +66,21 @@ class WebGLRenderer extends Renderer {
       right: null,
     };
 
+    const sphereConfig = {
+      gl: this._gl,
+      radius: 1500,
+      segments: this._segments,
+      rows: this._rows,
+      uScale: this._uScale,
+      vScale: this._vScale,
+    };
     // Create left eye geometry
-    geom.left = webgl.sphere(
-      this._gl,
-      1500,
-      this._segments,
-      this._rows,
-      degToRad(this._phi),
-      this._uScale,
-      this._vScale
-    );
-
+    geom.left = webgl.sphere(sphereConfig);
     if (this._stereo) {
-      geom.right = webgl.sphere(
-        this._gl,
-        1500,
-        this._segments,
-        this._rows,
-        degToRad(this._phi),
-        this._uScale,
-        this._vScale,
-        1 - this._uScale,
-        1 - this._vScale,
-      );
+      geom.left = webgl.sphere(Object.assign({}, sphereConfig, {
+        uOffset: 1 - this._uScale,
+        vOffset: 1 - this._vScale,
+      }));
     }
 
     this._geometry = geom;

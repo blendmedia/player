@@ -278,17 +278,30 @@ export function useTexture(gl, { pointer }, uniform, unit = 0) {
   gl.uniform1i(uniform, unit);
 }
 
-export function sphere(
-  gl,
-  radius,
-  rows = 30,
-  segments = 30,
-  PHI = TWO_PI,
-  uScale = 1,
-  vScale = 1,
-  uOffset = 0,
-  vOffset = 0,
-) {
+export const DEFAULT_SPHERE = {
+  rows: 30,
+  segments: 30,
+  PHI: TWO_PI,
+  uScale: 1,
+  vScale: 1,
+  uOffset: 0,
+  vOffset: 0,
+  radius: 1500,
+};
+
+export function sphere(config) {
+  const {
+    gl,
+    radius,
+    rows = 30,
+    segments = 30,
+    PHI = TWO_PI,
+    uScale = 1,
+    vScale = 1,
+    uOffset = 0,
+    vOffset = 0,
+  } = Object.assign({}, DEFAULT_SPHERE, config);
+
   // Position & color
   const vertex = [];
   // Vertex order
