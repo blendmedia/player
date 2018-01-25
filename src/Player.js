@@ -281,9 +281,12 @@ class Player {
     }
 
     this._accumulator += dt;
-
+    let frameData = null;
     if (!this._vrDisplay) {
       this._updateSize();
+    } else {
+      frameData = new window.VRFrameData();
+      this._vrDisplay.getFrameData(frameData);
     }
 
     for (const component of this._updateable) {
@@ -311,7 +314,7 @@ class Player {
 
 
     this._rotation = rot;
-    this._renderer.render(rot);
+    this._renderer.render(rot, !!frameData, frameData);
     this._frame = this._requestFrame(this._renderLoop);
     this._submit();
   }

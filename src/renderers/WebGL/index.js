@@ -182,14 +182,10 @@ class WebGLRenderer extends Renderer {
     gl.drawElements(gl.TRIANGLES, geom.size, gl.UNSIGNED_SHORT, 0);
   }
 
-  render(rotation, useStereo = false) {
+  render(rotation, useStereo = false, vrFrame) {
     const gl = this._gl;
-    let view = null;
-    if (this._vrDisplay) {
-      useStereo = true;
-      view = new window.VRFrameData();
-      this._vrDisplay.getFrameData(view);
-    } else {
+    let view = vrFrame;
+    if (!view) {
       const pose = `${rotation.y}:${rotation.x}:${useStereo ? "s" : "m"}`;
       if (
         pose === this._lastPose &&
@@ -225,9 +221,10 @@ class WebGLRenderer extends Renderer {
     if (useStereo) {
       gl.enable(gl.SCISSOR_TEST);
     }
-
     this._renderGeom(gl, "left", useStereo, view);
-    this._renderGeom(gl, "right", useStereo, view);
+    if (useStereo) {
+      this._renderGeom(gl, "right", useStereo, view);
+    }
     gl.disable(gl.SCISSOR_TEST);
   }
 }
