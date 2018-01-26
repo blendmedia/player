@@ -22,6 +22,7 @@ module.exports = function(config) {
       outputDir: process.env.JUNIT_REPORT_PATH,
       outputFile: process.env.JUNIT_REPORT_NAME,
       useBrowserName: false,
+      classNameFormatter: () => "",
     },
     rollupPreprocessor: require("./config/test.js"),
     // web server port
