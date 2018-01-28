@@ -19,6 +19,7 @@ export default {
         speed: 0.2,
       },
     },
+    "controls:gamepad",
     "controls:gyro",
   ],
   ui: [
