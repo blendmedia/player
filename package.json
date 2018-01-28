@@ -12,7 +12,9 @@
     "examples": "yarn run build && hs -p 9000",
     "lint": "yarn run lint:glsl && yarn run lint:js",
     "lint:glsl": "node glsl/lint.js",
-    "lint:js": "eslint src/ test/ glsl/"
+    "lint:js": "eslint src/ test/ glsl/",
+    "serve": "http-server -c-1 ./",
+    "preserve": "yarn run start"
   },
   "repository": {
     "type": "git",
