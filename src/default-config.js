@@ -7,18 +7,12 @@ export default {
       options: {
         lock: false,
         acceleration: 0.3,
-        deceleration: 0.9,
+        deceleration: 0.1,
         speed: 0.5,
         disableVerticalTouch: false,
       },
     },
-    {
-      type: "controls:keyboard",
-      options: {
-        deceleration: 0.9,
-        speed: 0.2,
-      },
-    },
+    "controls:keyboard",
     "controls:gamepad",
     "controls:gyro",
   ],

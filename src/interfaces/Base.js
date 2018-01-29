@@ -13,7 +13,14 @@ class Base {
     this.on = listener.on.bind(listener);
     this.off = listener.off.bind(listener);
     this.emit = listener.emit.bind(listener);
+    this._config = {};
   }
+
+  config(key) {
+    const defaults = this.constructor.defaultConfig || {};
+    return key in this._config ? this._config[key] : defaults[key];
+  }
+
   /**
    * Determine if the browser can use the specified component
    * @param  {Object}  config configuration to use during initialization
@@ -28,7 +35,8 @@ class Base {
    * @param  {Object} config configuration to use when setting up
    * @return boolean Return success of initialization
    */
-  create(/*config*/) {
+  create(config) {
+    this._config = Object.assign({}, config);
     return true;
   }
 

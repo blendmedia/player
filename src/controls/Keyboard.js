@@ -1,8 +1,8 @@
 import { register } from "../register";
 import Controller from "../interfaces/Controller";
 import { KEY_DOWN, KEY_UP } from "../events";
-import { clamp } from "../util/math";
 import { hmd } from "../util/device";
+import { accelerator } from "../util/animation";
 
 class Keyboard extends Controller {
   constructor(...args) {
@@ -12,19 +12,22 @@ class Keyboard extends Controller {
   }
 
   create(config) {
+    super.create(config);
     this.on(KEY_DOWN, this._onStart, true, false);
     this.on(KEY_UP, this._onEnd, true, false);
-    this._rotateY = 0;
-    this._rotateX = 0;
-    this._running = false;
-    this._speed = config.speed || 1;
-    this._maxSpeed = config.maxSpeed || 7;
-    this._deceleration = config.deceleration || 0.9;
-    this._accY = 0;
-    this._accX = 0;
+
+    this.x = accelerator(
+      this.config("deceleration"),
+      this.config("maxSpeed")
+    );
+
+    this.y = accelerator(
+      this.config("deceleration"),
+      this.config("maxSpeed")
+    );
+
     this._snapY = 0;
     this._snapX = 0;
-    this._snap = config.snap || 30;
   }
 
   destroy() {
@@ -36,16 +39,16 @@ class Keyboard extends Controller {
     switch (key) {
       case "w":
       case "ArrowUp":
-        return ["X", 1];
+        return ["x", 1];
       case "a":
       case "ArrowLeft":
-        return ["Y", 1];
+        return ["y", 1];
       case "s":
       case "ArrowDown":
-        return ["X", -1];
+        return ["x", -1];
       case "d":
       case "ArrowRight":
-        return ["Y", -1];
+        return ["y", -1];
     }
 
     return [null, null];
@@ -62,10 +65,12 @@ class Keyboard extends Controller {
     if (repeat) {
       return;
     }
+
     if (vr && vr.isPresenting) {
-      this[`_snap${axis}`] = this._snap * dir;
+      this[axis].reset();
+      this[axis].move(this.config("snap") * dir);
     } else {
-      this[`_acc${axis}`] = this._speed * dir;
+      this[axis].accelerate(this.config("speed") * dir);
     }
   }
 
@@ -74,46 +79,17 @@ class Keyboard extends Controller {
     if (!axis) {
       return;
     }
-    this[`_acc${axis}`] = 0;
+    this[axis].acceleration = 0;
   }
 
-  fixedUpdate() {
-    if (this._running) {
-      return;
-    }
-
-    if (this._accY) {
-      this._rotateY = clamp(
-        this._rotateY + this._accY, -this._maxSpeed, this._maxSpeed
-      );
-    } else {
-      this._rotateY *= this._deceleration;
-      if (Math.abs(this._rotateY) <= 0.1) {
-        this._rotateY = 0;
-      }
-    }
-
-    if (this._accX) {
-      this._rotateX = clamp(
-        this._rotateX + this._accX, -this._maxSpeed, this._maxSpeed
-      );
-    } else {
-      this._rotateX *= this._deceleration;
-      if (Math.abs(this._rotateX) <= 0.1) {
-        this._rotateX = 0;
-      }
-    }
+  fixedUpdate(dt) {
+    this.x.tick(dt);
+    this.y.tick(dt);
   }
 
   apply({ x, y, z }) {
-    x += this._snapX;
-    y += this._snapY;
-    x += this._rotateX;
-    y += this._rotateY;
-
-    this._snapX = 0;
-    this._snapY = 0;
-
+    x += this.x.apply();
+    y += this.y.apply();
     return {
       x,
       y,
@@ -121,6 +97,13 @@ class Keyboard extends Controller {
     };
   }
 }
+
+Keyboard.defaultConfig = {
+  deceleration: 0.1,
+  maxSpeed: 3,
+  speed: 0.05,
+  snap: 30,
+};
 
 register("controls:keyboard", Keyboard);
 export default Keyboard;
