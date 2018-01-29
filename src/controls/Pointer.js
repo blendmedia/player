@@ -1,6 +1,7 @@
 import { register } from "../register";
 import Controller from "../interfaces/Controller";
 import { POINTER_DOWN, POINTER_UP, POINTER_MOVE } from "../events";
+import { accelerator } from "../util/animation";
 
 class Pointer extends Controller {
   constructor(...args) {
@@ -11,21 +12,23 @@ class Pointer extends Controller {
   }
 
   create(config) {
+    super.create(config);
+
     this.on(POINTER_DOWN, this._onStart);
     this.on(POINTER_UP, this._onEnd, true);
     this.on(POINTER_MOVE, this._onMove, true, false);
-    this._rotateY = 0;
-    this._rotateX = 0;
-    this._running = false;
-    this._speed = config.speed || 1;
-    this._acceleration = config.acceleration || false;
-    this._deceleration = config.deceleration || 0.9;
-    this._reverse = config.reverse ? -1 : 1;
-    this._useLock = config.lock;
-    this._disableVerticalTouch = !!config.disableVerticalTouch;
-    this._velY = 0;
-    this._velX = 0;
     this._lastDiff = [0, 0];
+    this._dragging = false;
+
+    this.x = accelerator(
+      this.config("deceleration"),
+      this.config("maxSpeed")
+    );
+    this.y = accelerator(
+      this.config("deceleration"),
+      this.config("maxSpeed")
+    );
+
   }
 
   destroy() {
@@ -39,12 +42,13 @@ class Pointer extends Controller {
     const lock = (
       currentTarget.requestPointerLock || currentTarget.mozRequestPointerLock
     );
-    if (lock && this._useLock) {
+    if (lock && this.config("lock")) {
       lock.call(currentTarget);
     }
-
     this._last = [x, y];
-    this._running = true;
+    this._dragging = true;
+    this.x.reset();
+    this.y.reset();
   }
 
   _normalize(e) {
@@ -69,71 +73,66 @@ class Pointer extends Controller {
       this._last = [x, y];
     }
 
-    if (e.shiftKey || (e.touches && this._disableVerticalTouch)) {
+    if (e.shiftKey || (e.touches && this.config("disableVerticalTouch"))) {
       diffY = 0;
     }
-
     if (e.altKey) {
       diffX = 0;
     }
 
-    return [diffX*this._reverse, diffY*this._reverse];
+    const reverse = this.config("reverse") ? -1 : 1;
+    return [diffX * reverse, diffY * reverse];
   }
 
   _onEnd() {
-    if (!this._running) {
+    if (!this._dragging) {
       return;
     }
+
     const unlock = (
       document.exitPointerLock || document.mozExitPointerLoc
     );
-    if (unlock && this._useLock) {
+    if (unlock && this.config("lock")) {
       unlock.call(document);
     }
-    this._running = false;
-    if (this._acceleration) {
+    this._dragging = false;
+
+    const acc = this.config("acceleration");
+    if (acc) {
       const [diffX, diffY] = this._lastDiff;
-      this._velY = diffX * this._acceleration;
-      this._velX = diffY * this._acceleration;
+      console.log(diffX, diffY);
+      if (Math.abs(diffY) >= this.config("minAcceleration")) {
+        this.x.pulse(diffY * acc);
+        this.x.velocity = this.config("speed") * diffY;
+      }
+      if (Math.abs(diffX) >= this.config("minAcceleration")) {
+        this.y.pulse(diffX * acc);
+        this.y.velocity = this.config("speed") * diffX;
+      }
     }
     this._lastDiff = [0, 0];
   }
 
   _onMove(e) {
-    if (!this._running) {
+    if (!this._dragging) {
       return;
     }
     e.stopPropagation();
     e.preventDefault();
     const [diffX, diffY] = this._diff(e);
     this._lastDiff = [diffX, diffY];
-    this._rotateY = diffX / (2 / this._speed);
-    this._rotateX = diffY / (2 / this._speed);
+    this.x.move(diffY * this.config("speed"));
+    this.y.move(diffX * this.config("speed"));
   }
 
-  fixedUpdate() {
-    if (this._running) {
-      return;
-    }
-
-    this._rotateY = this._velY;
-    this._rotateX = this._velX;
-
-    this._velX *= this._deceleration;
-    if (Math.abs(this._velX) <= 0.1) {
-      this._velX = 0;
-    }
-    this._velY *= this._deceleration;
-    if (Math.abs(this._velY) <= 0.1) {
-      this._velY = 0;
-    }
+  fixedUpdate(dt) {
+    this.x.tick(dt);
+    this.y.tick(dt);
   }
 
   apply({ x, y, z }) {
-    x += this._rotateX;
-    y += this._rotateY;
-
-    this._rotateY = this._rotateX = 0;
+    x += this.x.apply();
+    y += this.y.apply();
     return {
       x,
       y,
@@ -141,6 +140,17 @@ class Pointer extends Controller {
     };
   }
 }
+
+Pointer.defaultConfig = {
+  acceleration: 0.1,
+  speed: 0.3,
+  lock: false,
+  reverse: false,
+  disableVerticalTouch: false,
+  deceleration: 0.15,
+  maxSpeed: 3,
+  minAcceleration: 5,
+};
 
 register("controls:pointer", Pointer);
 export default Pointer;

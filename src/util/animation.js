@@ -10,6 +10,7 @@ export function accelerator(
   let v = 0;
   let d = drag;
   let p = 0;
+  let pulsed = false;
 
   return {
     get acceleration() {
@@ -26,9 +27,18 @@ export function accelerator(
     },
     set acceleration(v) {
       a = clamp(v, -maxAcc, maxAcc);
+      pulsed = false;
+    },
+    set velocity(va) {
+      v = clamp(va, -maxV, maxV);
     },
     accelerate(dA) {
       a = clamp(a + dA, -maxAcc, maxAcc);
+      pulsed = false;
+    },
+    pulse(dA) {
+      a = clamp(a + dA, -maxAcc, maxAcc);
+      pulsed = true;
     },
     move(v) {
       p += v;
@@ -40,6 +50,12 @@ export function accelerator(
         v = 0;
       }
       p += v;
+      if (pulsed) {
+        a = clamp(a * (1 - d), -maxV, maxV);
+        if (Math.abs(a) <= minV) {
+          a = 0;
+        }
+      }
     },
     apply() {
       const r = p;
@@ -50,6 +66,7 @@ export function accelerator(
       a = 0;
       v = 0;
       p = 0;
+      pulsed = false;
     },
   };
 }
