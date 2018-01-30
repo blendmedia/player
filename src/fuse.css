@@ -14,6 +14,11 @@
   left: 0;
   right:  0;
   pointer-events: none;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.fuse-player-ui-hidden {
+  opacity: 0;
 }
 
 .fuse-player-ui-right,
@@ -21,6 +26,23 @@
 .fuse-player-ui-bottom,
 .fuse-player-ui-top {
   position: absolute;
+}
+
+.fuse-player-ui-right:empty,
+.fuse-player-ui-left:empty,
+.fuse-player-ui-bottom:empty,
+.fuse-player-ui-top:empty {
+  display: none !important;
+}
+
+.fuse-player-ui-bottom,
+.fuse-player-ui-top {
+  background: rgba(60, 60, 60, 0.8);
+  height:  54px;
+  display: flex;
+  flex-direction:  row;
+  align-items:  center;
+  padding: 0 5px;
 }
 
 .fuse-player-ui-bottom {
@@ -54,4 +76,11 @@
 .fuse-player-vr-toggle {
   width: 44px;
   height:  44px;
+  margin-left:  auto;
+}
+
+.fuse-player-fullscreen-toggle {
+  width: 44px;
+  height:  44px;
+  margin-left:  5px;
 }

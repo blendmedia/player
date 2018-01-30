@@ -13,4 +13,5 @@ export default {
   format: 360,
   stereo: false,
   autoSuspend: true,
+  autoHideUI: true,
 };

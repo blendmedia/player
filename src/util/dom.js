@@ -41,3 +41,13 @@ export function render(type = "div", props = {}, children = []) {
 
   return element;
 }
+
+export function addClass(element, className) {
+  const name = _classes[className] || className;
+  element.classList.add(name);
+}
+
+export function removeClass(element, className) {
+  const name = _classes[className] || className;
+  element.classList.remove(name);
+}

@@ -17,7 +17,8 @@ class VR extends UI {
     container.appendChild(this._button);
   }
 
-  create() {
+  create(config) {
+    super.create(config);
     this._button = render("button", {
       type: "button",
       title: "Enter VR",
@@ -37,6 +38,11 @@ class VR extends UI {
   }
 
 }
+
+VR.defaultConfig = {
+  section: "bottom",
+};
+
 
 register("ui:vr", VR);
 export default VR;

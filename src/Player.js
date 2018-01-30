@@ -1,6 +1,6 @@
 import Listener, { addDomListener } from "./util/listener";
 import { normalize } from "./util/config";
-import { render } from "./util/dom";
+import { render, removeClass, addClass } from "./util/dom";
 import { hmd } from "./util/device";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
@@ -48,6 +48,7 @@ class Player {
     this._onEnterVR = this._onEnterVR.bind(this);
     this._onExitVR = this._onExitVR.bind(this);
     this._onVRChange = this._onVRChange.bind(this);
+    this._showUI = this._showUI.bind(this);
     this._checkVisible = this._checkVisible.bind(this);
 
     // DOM elements
@@ -67,7 +68,7 @@ class Player {
     };
 
     this._uiContainer = render("div", {
-      className: "fuse-player-ui",
+      className: "fuse-player-ui fuse-player-ui-hidden",
       onMousedown: events.stop,
       onMouseup: events.stop,
       onTouchstart: events.stop,
@@ -93,6 +94,7 @@ class Player {
     if (config.autoSuspend) {
       addDomListener(window, "scroll", debounce(this._checkVisible, 50));
       this._checkVisible();
+      this._hideDelay = config.uiHideDelay || 2000;
     }
 
     if (!this._suspended) {
@@ -103,6 +105,14 @@ class Player {
     this._events.on(events.EXIT_VR, this._onExitVR);
     this._events.on(events.VR_PRESENT_CHANGE, this._onVRChange, true);
     this._events.on(events.TOGGLE_FULLSCREEN, this.fullscreen);
+
+    // UI setup
+    if (config.autoHideUI) {
+      addDomListener(this._root, events.POINTER_MOVE, this._showUI);
+      addDomListener(this._root, events.POINTER_START, this._showUI);
+    } else {
+      removeClass(this._uiContainer, "fuse-player-ui-hidden");
+    }
   }
 
   _checkVisible() {
@@ -347,6 +357,14 @@ class Player {
       this._renderLoop();
 
     }
+  }
+
+  _showUI() {
+    removeClass(this._uiContainer, "fuse-player-ui-hidden");
+    clearTimeout(this._hider);
+    this._hider = setTimeout(() => {
+      addClass(this._uiContainer, "fuse-player-ui-hidden");
+    }, this._hideDelay);
   }
 
   _onVRChange() {
