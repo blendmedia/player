@@ -29,7 +29,7 @@ class Gamepad extends Controller {
 
   update() {
     const pads = Array.from(navigator.getGamepads());
-    const invertY = this.config("invertY") ? -1 : 1;
+    const invertY = this.config("invertY") ? 1 : -1;
     // Sum the 0/1 axis of all gamepads
     const [x, y] = pads.reduce(([x, y], pad) => {
       if (pad) {
@@ -41,20 +41,17 @@ class Gamepad extends Controller {
       return [x, y];
     }, [0, 0]);
 
-    if (inVR && this.config("snapInVR")) {
+    if (inVR() && this.config("snapInVR")) {
+      const dir = x < 0 ? 1 : -1;
       this.x.reset(false);
       this.y.reset(false);
-      this.x.snap(
-        this.config("snapAngle"),
-        Math.abs(y) >= this.config("snapDeadzone")
-      );
       this.y.snap(
-        this.config("snapAngle"),
+        this.config("snapAngle") * dir,
         Math.abs(x) >= this.config("snapDeadzone")
       );
     } else {
       this.x.velocity = y * this.config("speed") * invertY;
-      this.y.velocity = x * this.config("speed");
+      this.y.velocity = x * this.config("speed") * -1;
     }
   }
 
