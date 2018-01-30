@@ -15,6 +15,7 @@ class Player {
   constructor(config) {
     // Variable Init
     this._suspended = false;
+    this._pauseOnSuspend = config.pauseOnSuspend;
     this._events = new Listener;
     this._renderer = null; // Active renderer
     this._controls = []; // Array of control components
@@ -380,6 +381,13 @@ class Player {
     }
     this._suspended = true;
     this._cancelFrame(this._frame);
+    if (this._pauseOnSuspend) {
+      const media = this.currentMedia();
+      if (media) {
+        console.log("Pausing media");
+        media.pause();
+      }
+    }
   }
 
   resume() {
