@@ -97,16 +97,12 @@ class Pointer extends Controller {
     }
     this._dragging = false;
 
-    const acc = this.config("acceleration");
-    if (acc) {
+    if (this.config("momentum")) {
       const [diffX, diffY] = this._lastDiff;
-      console.log(diffX, diffY);
-      if (Math.abs(diffY) >= this.config("minAcceleration")) {
-        this.x.pulse(diffY * acc);
+      if (Math.abs(diffY) >= this.config("minSpeed")) {
         this.x.velocity = this.config("speed") * diffY;
       }
-      if (Math.abs(diffX) >= this.config("minAcceleration")) {
-        this.y.pulse(diffX * acc);
+      if (Math.abs(diffX) >= this.config("minSpeed")) {
         this.y.velocity = this.config("speed") * diffX;
       }
     }
@@ -142,14 +138,14 @@ class Pointer extends Controller {
 }
 
 Pointer.defaultConfig = {
-  acceleration: 0.1,
+  momentum: true,
   speed: 0.3,
   lock: false,
   reverse: false,
   disableVerticalTouch: false,
-  deceleration: 0.15,
-  maxSpeed: 3,
-  minAcceleration: 5,
+  deceleration: 0.1,
+  maxSpeed: 5,
+  minSpeed: 5,
 };
 
 register("controls:pointer", Pointer);
