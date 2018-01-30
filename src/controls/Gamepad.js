@@ -1,112 +1,85 @@
 import { register } from "../register";
 import Controller from "../interfaces/Controller";
-import { hmd } from "../util/device";
+import { inVR } from "../util/device";
+import { accelerator } from "../util/animation";
 
 class Gamepad extends Controller {
   isSupported() {
     return !!navigator.getGamepads;
   }
 
-  constructor(...args) {
-    super(...args);
-    this._scan = this._scan.bind(this);
-  }
-
-  _scan() {
-    const gamepads = navigator.getGamepads();
-    for (const pad of gamepads) {
-      if (!pad) {
-        continue;
-      }
-
-      if (!(pad.index in this._gamepads)) {
-        this._gamepads[pad.index] = pad;
-      }
-    }
-  }
-
-  create(config) {
-    this._gamepads = {};
-    this._checkInterval = setInterval(this._scan, 1000);
-    this._deadZone = config.deadzone || 0.1;
-    this._snapDeadZone = config.snapDeadzone || 0.5;
-    this._speed = config.speed || 3;
-    this._scan();
-    this._accX = this._accY = this._moveX = this._moveY = 0;
-    this._invertY = config.invertY ? 1 : -1;
-    const shouldSnap = "snapInVR" in config ? config.snapInVR : true;
-    this._snap = shouldSnap ? (config.snap || 30) : false;
-
-    this.isSnappedX = false;
-    this.isSnappedY = false;
-  }
-
-  destroy() {
-    this._gamepads = false;
+  create() {
+    this.x = accelerator(
+      0,
+      this.config("maxSpeed"),
+    );
+    this.y = accelerator(
+      0,
+      this.config("maxSpeed"),
+    );
   }
 
   normalizeAxis(value) {
-    const dz = this._deadZone;
+    const dz = this.config("deadzone");
     const sign = value < 0 ? -1 : 1;
     const abs = Math.abs(value);
-    const normalized = abs < this._deadZone ? 0 : (abs - dz) / (1 - dz);
+    const normalized = abs < dz ? 0 : (abs - dz) / (1 - dz);
     return normalized * sign;
   }
 
-  _checkSnap(value, axis, invert = 1) {
-    const sign = value < 0 ? -1 : 1;
-    const shouldSnap = Math.abs(value) >= this._snapDeadZone;
-    if (shouldSnap) {
-      if (!this[`isSnapped${axis}`]) {
-        this[`_move${axis}`] = this._snap * sign * invert;
-      }
-      this[`isSnapped${axis}`] = true;
-    } else {
-      this[`isSnapped${axis}`] = false;
-    }
-  }
-
   update() {
-    const headset = hmd();
-    const inVR = headset && headset.isPresenting;
-    const pads = navigator.getGamepads();
-    for (const index in this._gamepads) {
-      const pad = pads[index];
+    const pads = Array.from(navigator.getGamepads());
+    const invertY = this.config("invertY") ? -1 : 1;
+    // Sum the 0/1 axis of all gamepads
+    const [x, y] = pads.reduce(([x, y], pad) => {
       if (pad) {
-        const [x, y] = pad.axes;
-        if (inVR && this._snap) {
-          this._checkSnap(x, "X", -1);
-          this._accX = 0;
-          this._accY = 0;
-        } else {
-          this._accX = this.normalizeAxis(x);
-          this._accY = this.normalizeAxis(y);
-        }
-        return;
+        const [aX, aY] = pad.axes;
+        // Apply deadzone per stick to prevent error accumulation
+        x += this.normalizeAxis(aX);
+        y += this.normalizeAxis(aY);
       }
-    }
+      return [x, y];
+    }, [0, 0]);
 
-    this._accX = 0;
-    this._accY = 0;
+    if (inVR && this.config("snapInVR")) {
+      this.x.reset(false);
+      this.y.reset(false);
+      this.x.snap(
+        this.config("snapAngle"),
+        Math.abs(y) >= this.config("snapDeadzone")
+      );
+      this.y.snap(
+        this.config("snapAngle"),
+        Math.abs(x) >= this.config("snapDeadzone")
+      );
+    } else {
+      this.x.velocity = y * this.config("speed") * invertY;
+      this.y.velocity = x * this.config("speed");
+    }
   }
 
-  fixedUpdate() {
-    this._moveX -= this._accX * this._speed;
-    this._moveY += this._accY * this._invertY * this._speed;
+  fixedUpdate(dt) {
+    this.x.tick(dt);
+    this.y.tick(dt);
   }
 
   apply({ x, y, z }) {
-    x += this._moveY;
-    y += this._moveX;
-
-    this._moveX = 0;
-    this._moveY = 0;
+    x += this.x.apply();
+    y += this.y.apply();
 
     return { x, y, z };
   }
-
 }
 
+Gamepad.defaultConfig = {
+  deadzone: 0.1,
+  speed: 3,
+  maxSpeed: Infinity,
+  invertY: false,
+  snapInVR: true,
+  snapDeadzone: 0.5,
+  snapAngle: 30,
+};
 
 register("controls:gamepad", Gamepad);
 export default Gamepad;

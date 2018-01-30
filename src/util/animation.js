@@ -10,6 +10,7 @@ export function accelerator(
   let v = 0;
   let d = drag;
   let p = 0;
+  let snapped = false;
 
   return {
     get acceleration() {
@@ -36,6 +37,17 @@ export function accelerator(
     move(v) {
       p += v;
     },
+    snap(amount, triggered){
+      if (triggered) {
+        if (snapped) {
+          return;
+        }
+        snapped = true;
+        p += amount;
+      } else {
+        snapped = false;
+      }
+    },
     tick(time) {
       v += a * time;
       v = clamp(v * (1 - d), -maxV, maxV);
@@ -49,10 +61,13 @@ export function accelerator(
       p = 0;
       return r;
     },
-    reset() {
+    reset(includeSnap = true) {
       a = 0;
       v = 0;
       p = 0;
+      if (includeSnap) {
+        snapped = false;
+      }
     },
   };
 }

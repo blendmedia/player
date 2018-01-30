@@ -22,5 +22,7 @@ if (navigator.getVRDisplays) {
   });
 }
 
-
-window.hmd = hmd;
+export function inVR() {
+  const headset = hmd();
+  return headset && headset.isPresenting;
+}

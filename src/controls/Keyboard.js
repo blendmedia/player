@@ -1,7 +1,7 @@
 import { register } from "../register";
 import Controller from "../interfaces/Controller";
 import { KEY_DOWN, KEY_UP } from "../events";
-import { hmd } from "../util/device";
+import { inVR } from "../util/device";
 import { accelerator } from "../util/animation";
 
 class Keyboard extends Controller {
@@ -55,20 +55,20 @@ class Keyboard extends Controller {
   }
 
   _onStart(e) {
-    const vr = hmd();
-    const { key, repeat } = e;
+    const { key } = e;
     const [axis, dir] = this._getAxis(key);
     if (!axis) {
       return;
     }
-    e.preventDefault();
-    if (repeat) {
-      return;
-    }
 
-    if (vr && vr.isPresenting) {
-      this[axis].reset();
-      this[axis].move(this.config("snap") * dir);
+    e.preventDefault();
+    if (inVR() && this.config("snapInVR")) {
+      this.x.reset(false);
+      this.y.reset(false);
+      this[axis].snap(
+        this.config("snapAngle") * dir,
+        true
+      );
     } else {
       this[axis].accelerate(this.config("speed") * dir);
     }
@@ -80,6 +80,12 @@ class Keyboard extends Controller {
       return;
     }
     this[axis].acceleration = 0;
+    if (inVR() && this.config("snapInVR")) {
+      this[axis].snap(
+        0,
+        false,
+      );
+    }
   }
 
   fixedUpdate(dt) {
@@ -102,7 +108,8 @@ Keyboard.defaultConfig = {
   deceleration: 0.1,
   maxSpeed: 3,
   speed: 0.05,
-  snap: 30,
+  snapInVR: true,
+  snapAngle: 30,
 };
 
 register("controls:keyboard", Keyboard);
