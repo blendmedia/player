@@ -1,5 +1,11 @@
 .fuse-player {
+  background: #000;
   position: relative;
+  contain: content;
+}
+
+.fuse-player canvas {
+  display: block;
 }
 
 .fuse-player:-webkit-full-screen {

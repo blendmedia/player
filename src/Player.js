@@ -307,6 +307,9 @@ class Player {
       width = this._target.clientWidth;
       height = this._target.clientHeight;
     }
+
+    width = Math.ceil(width);
+    height = Math.ceil(height);
     const serialized = `${width}x${height}`;
     if (force || serialized !== this._dimensions) {
       this._dimensions = serialized;
