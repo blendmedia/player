@@ -1,10 +1,12 @@
 import Listener, { addDomListener } from "./util/listener";
 import { normalize } from "./util/config";
+import { render } from "./util/dom";
 import { hmd } from "./util/device";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
-import { ENTER_VR, EXIT_VR, VR_PRESENT_CHANGE, stop } from "./events";
+import * as events from "./events";
 import debounce from "debounce";
+import fscreen from "fscreen";
 
 export const FIXED_TIME_UPDATE = 1000/60;
 // If the time between updates goes beyond this value, assume the page
@@ -41,6 +43,7 @@ class Player {
     this._frame = null;
 
     // Method binding
+    this.fullscreen = this.fullscreen.bind(this);
     this._renderLoop = this._renderLoop.bind(this);
     this._onEnterVR = this._onEnterVR.bind(this);
     this._onExitVR = this._onExitVR.bind(this);
@@ -48,13 +51,20 @@ class Player {
     this._checkVisible = this._checkVisible.bind(this);
 
     // DOM elements
-    this._uiContainer = document.createElement("div");
-    this._uiContainer.className = "fuse-ui";
-    addDomListener(this._uiContainer, "mousedown", stop);
-    addDomListener(this._uiContainer, "mouseup", stop);
-    addDomListener(this._uiContainer, "touchstart", stop);
-    addDomListener(this._uiContainer, "touchend", stop);
-    addDomListener(this._uiContainer, "click", stop);
+    this._uiContainer = render("div", {
+      className: "fuse-player-ui",
+      onMousedown: events.stop,
+      onMouseup: events.stop,
+      onTouchstart: events.stop,
+      onTouchend: events.stop,
+      onClick: events.stop,
+    });
+
+    this._root = render("div", {
+      className: "fuse-player",
+    }, [
+      this._uiContainer,
+    ]);
 
 
     // Initialize
@@ -69,9 +79,10 @@ class Player {
       this._renderLoop();
     }
 
-    this._events.on(ENTER_VR, this._onEnterVR);
-    this._events.on(EXIT_VR, this._onExitVR);
-    this._events.on(VR_PRESENT_CHANGE, this._onVRChange, true);
+    this._events.on(events.ENTER_VR, this._onEnterVR);
+    this._events.on(events.EXIT_VR, this._onExitVR);
+    this._events.on(events.VR_PRESENT_CHANGE, this._onVRChange, true);
+    this._events.on(events.TOGGLE_FULLSCREEN, this.fullscreen);
   }
 
   _checkVisible() {
@@ -128,7 +139,7 @@ class Player {
     }
 
 
-    this._target.appendChild(this._uiContainer);
+    this._target.appendChild(this._root);
     this._events.updateDOM(this._target);
   }
 
@@ -137,7 +148,7 @@ class Player {
       this._renderTarget.parentNode.removeChild(this._renderTarget);
     }
     if (target) {
-      this._target.appendChild(target);
+      this._root.appendChild(target);
     }
     this._renderTarget = target;
   }
@@ -253,7 +264,14 @@ class Player {
   }
 
   _updateSize(force) {
-    const { width, height } = this._target.getBoundingClientRect();
+    let width, height;
+    if (fscreen.fullscreenElement === this._root) {
+      width = this._root.clientWidth;
+      height = this._root.clientHeight;
+    } else {
+      width = this._target.clientWidth;
+      height = this._target.clientHeight;
+    }
     const serialized = `${width}x${height}`;
     if (force || serialized !== this._dimensions) {
       this._dimensions = serialized;
@@ -371,6 +389,22 @@ class Player {
     this._submit();
   }
 
+  fullscreen() {
+    if (!this._root.parentNode) {
+      return;
+    }
+
+    if (!fscreen.fullscreenEnabled) {
+      return;
+    }
+
+    if (fscreen.fullscreenElement) {
+      fscreen.exitFullscreen();
+    } else {
+      fscreen.requestFullscreen(this._root);
+    }
+  }
+
   currentMedia() {
     return this._media[this._current] || null;
   }
@@ -402,8 +436,8 @@ class Player {
 
   destroy() {
     this._cancelFrame(this._frame);
-    this._events.off(ENTER_VR, this._onEnterVR);
-    this._events.off(EXIT_VR, this._onExitVR);
+    this._events.off(events.ENTER_VR, this._onEnterVR);
+    this._events.off(events.EXIT_VR, this._onExitVR);
     this.suspend();
     this._swapRenderTarget(null);
     if (this._renderer) {

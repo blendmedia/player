@@ -58,6 +58,8 @@ export const PRE_RENDER    = "prerender";
 export const POST_RENDER   = "postrender";
 export const ERROR         = "error";
 
+export const TOGGLE_FULLSCREEN = "fullscreen";
+
 // VR events
 export const ENTER_VR = "entervr";
 export const EXIT_VR = "exitvr";

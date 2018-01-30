@@ -1,12 +1,12 @@
 import { register } from "../register";
+import { TOGGLE_FULLSCREEN } from "../events";
 import UI from "../interfaces/UI";
-import { ENTER_VR, EXIT_VR } from "../events";
 import { render } from "../util/dom";
 
-class VR extends UI {
+class Fullscreen extends UI {
   constructor(...args) {
     super(...args);
-    this._toggleVR = this._toggleVR.bind(this);
+    this._toggleFullscreen = this._toggleFullscreen.bind(this);
   }
 
   isSupported() {
@@ -20,23 +20,18 @@ class VR extends UI {
   create() {
     this._button = render("button", {
       type: "button",
-      title: "Enter VR",
+      title: "Enter Fullscreen",
       className: "fuse-player-vr-toggle",
-      onClick: this._toggleVR,
-    }, "Enter VR");
+      onClick: this._toggleFullscreen,
+    }, "Enter Fullscreen");
     this._inVR = false;
   }
 
-  _toggleVR() {
-    if (this._inVR) {
-      this.emit(EXIT_VR);
-    } else {
-      this.emit(ENTER_VR);
-    }
-    this._inVR = !this._inVR;
+  _toggleFullscreen() {
+    this.emit(TOGGLE_FULLSCREEN);
   }
 
 }
 
-register("ui:vr", VR);
-export default VR;
+register("ui:fullscreen", Fullscreen);
+export default Fullscreen;

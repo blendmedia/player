@@ -4,6 +4,7 @@ import commonjs from "rollup-plugin-commonjs";
 import replace from "rollup-plugin-replace";
 import glsl from "rollup-plugin-glsl";
 import visualizer from "rollup-plugin-visualizer";
+import css from "rollup-plugin-css-only";
 
 export default {
   input: "src/main.js",
@@ -37,6 +38,7 @@ export default {
     }),
     babel({
       babelrc: false,
+      include: "**/*.js",
       exclude: "node_modules/**",
       runtimeHelpers: true,
       presets: [["es2015", {
@@ -53,5 +55,8 @@ export default {
       ],
     }),
     visualizer(),
+    css({
+      output: "dist/fuse.css",
+    }),
   ],
 };

@@ -8,6 +8,7 @@ export default {
   ],
   ui: [
     "ui:vr",
+    "ui:fullscreen",
   ],
   format: 360,
   stereo: false,

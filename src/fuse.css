@@ -1,0 +1,26 @@
+.fuse-player {
+  position: relative;
+}
+
+.fuse-player:-webkit-full-screen {
+  width:  100vw;
+  height:  100vh;
+}
+
+.fuse-player-ui {
+  position: absolute;
+  bottom:  0;
+  top:  0;
+  left: 0;
+  right:  0;
+  pointer-events: none;
+}
+
+.fuse-player-ui > * {
+  pointer-events: all;
+}
+
+.fuse-player-vr-toggle {
+  width: 44px;
+  height:  44px;
+}

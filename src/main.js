@@ -1,3 +1,5 @@
+import "./fuse.css";
+
 import Player from "./Player";
 import DEFAULT_CONFIG from "./default-config.js";
 
