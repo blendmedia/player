@@ -37,14 +37,18 @@ export default {
     }),
     babel({
       babelrc: false,
-      runtimeHelpers: false,
-      presets: ["es2015-rollup"],
+      exclude: "node_modules/**",
+      runtimeHelpers: true,
+      presets: [["es2015", {
+        modules: false,
+      }]],
       plugins: [
-        // "transform-object-assign"
+        "external-helpers",
         ["transform-runtime", {
-          helpers: false,
+          helpers: true,
           regenerator: false,
           polyfill: true,
+          moduleName: "babel-runtime",
         }],
       ],
     }),

@@ -43,7 +43,9 @@ module.exports = {
       exclude: "node_modules/**",
       include: ["**/*.js"],
       babelrc: false,
-      presets: ["es2015-rollup"],
+      presets: [["es2015", {
+        modules: false,
+      }]],
     }),
     resolve({
       jsnext: true,
