@@ -39,7 +39,9 @@ export default {
     babel({
       babelrc: false,
       include: "**/*.js",
-      exclude: "node_modules/**",
+      exclude: [
+        "node_modules/babel-runtime/**",
+      ],
       runtimeHelpers: true,
       presets: [["es2015", {
         modules: false,

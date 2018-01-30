@@ -32,6 +32,7 @@ export default [
         "detect-it",
         "babel-runtime",
         "debounce",
+        "fscreen",
       ].some(prefix => id.indexOf(prefix) === 0);
     },
     plugins: [
