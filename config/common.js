@@ -37,8 +37,16 @@ export default {
     }),
     babel({
       babelrc: false,
+      runtimeHelpers: false,
       presets: ["es2015-rollup"],
-      plugins: ["transform-object-assign"],
+      plugins: [
+        // "transform-object-assign"
+        ["transform-runtime", {
+          helpers: false,
+          regenerator: false,
+          polyfill: true,
+        }],
+      ],
     }),
     visualizer(),
   ],

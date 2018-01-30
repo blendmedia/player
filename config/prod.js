@@ -30,6 +30,8 @@ export default [
       return [
         "gl-matrix",
         "detect-it",
+        "babel-runtime",
+        "debounce",
       ].some(prefix => id.indexOf(prefix) === 0);
     },
     plugins: [

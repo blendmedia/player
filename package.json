@@ -14,7 +14,8 @@
     "lint:glsl": "node glsl/lint.js",
     "lint:js": "eslint src/ test/ glsl/",
     "serve": "http-server -c-1 ./",
-    "preserve": "yarn run start"
+    "preserve": "yarn run start",
+    "transpile": "babel src/ -d es6/ --no-babelrc --presets es2015-rollup --plugins transform-runtime"
   },
   "repository": {
     "type": "git",
@@ -28,9 +29,10 @@
   },
   "homepage": "https://github.com/blendmedia/player#readme",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
-    "babel-plugin-transform-object-assign": "^6.22.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015-rollup": "^3.0.0",
     "babel-register": "^6.26.0",
     "bowser": "^1.9.1",
@@ -64,6 +66,7 @@
     "sinon": "^4.1.5"
   },
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "debounce": "^1.1.0",
     "detect-it": "^3.0.4",
     "gl-matrix": "^2.4.0"
