@@ -17,7 +17,8 @@ class Fullscreen extends UI {
     container.appendChild(this._button);
   }
 
-  create() {
+  create(options) {
+    super.create(options);
     this._button = render("button", {
       type: "button",
       title: "Enter Fullscreen",
@@ -32,6 +33,10 @@ class Fullscreen extends UI {
   }
 
 }
+
+Fullscreen.defaultConfig = {
+  section: "bottom",
+};
 
 register("ui:fullscreen", Fullscreen);
 export default Fullscreen;

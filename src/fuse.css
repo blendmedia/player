@@ -16,6 +16,37 @@
   pointer-events: none;
 }
 
+.fuse-player-ui-right,
+.fuse-player-ui-left,
+.fuse-player-ui-bottom,
+.fuse-player-ui-top {
+  position: absolute;
+}
+
+.fuse-player-ui-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.fuse-player-ui-top {
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.fuse-player-ui-right {
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.fuse-player-ui-left {
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
 .fuse-player-ui > * {
   pointer-events: all;
 }

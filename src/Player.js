@@ -51,6 +51,21 @@ class Player {
     this._checkVisible = this._checkVisible.bind(this);
 
     // DOM elements
+    this._uiSections = {
+      top: render("div", {
+        className: "fuse-player-ui-top",
+      }),
+      bottom: render("div", {
+        className: "fuse-player-ui-bottom",
+      }),
+      left: render("div", {
+        className: "fuse-player-ui-left",
+      }),
+      right: render("div", {
+        className: "fuse-player-ui-right",
+      }),
+    };
+
     this._uiContainer = render("div", {
       className: "fuse-player-ui",
       onMousedown: events.stop,
@@ -58,7 +73,12 @@ class Player {
       onTouchstart: events.stop,
       onTouchend: events.stop,
       onClick: events.stop,
-    });
+    }, [
+      this._uiSections.top,
+      this._uiSections.bottom,
+      this._uiSections.left,
+      this._uiSections.right,
+    ]);
 
     this._root = render("div", {
       className: "fuse-player",
@@ -244,7 +264,12 @@ class Player {
   _setUI(ui = []) {
     this._setInterfaces(ui, "_ui");
     for (const ui of this._ui) {
-      ui.mount(this._uiContainer);
+      const section = ui._mountPoint;
+      let target = this._uiContainer;
+      if (section in this._uiSections) {
+        target = this._uiSections[section];
+      }
+      ui.mount(target);
     }
   }
 
