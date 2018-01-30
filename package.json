@@ -64,6 +64,7 @@
     "sinon": "^4.1.5"
   },
   "dependencies": {
+    "debounce": "^1.1.0",
     "detect-it": "^3.0.4",
     "gl-matrix": "^2.4.0"
   }

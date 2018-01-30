@@ -4,6 +4,7 @@ import { hmd } from "./util/device";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
 import { ENTER_VR, EXIT_VR, VR_PRESENT_CHANGE, stop } from "./events";
+import debounce from "debounce";
 
 export const FIXED_TIME_UPDATE = 1000/60;
 // If the time between updates goes beyond this value, assume the page
@@ -13,6 +14,7 @@ export const MAX_UPDATE = 1000;
 class Player {
   constructor(config) {
     // Variable Init
+    this._suspended = false;
     this._events = new Listener;
     this._renderer = null; // Active renderer
     this._controls = []; // Array of control components
@@ -42,6 +44,7 @@ class Player {
     this._onEnterVR = this._onEnterVR.bind(this);
     this._onExitVR = this._onExitVR.bind(this);
     this._onVRChange = this._onVRChange.bind(this);
+    this._checkVisible = this._checkVisible.bind(this);
 
     // DOM elements
     this._uiContainer = document.createElement("div");
@@ -52,13 +55,54 @@ class Player {
     addDomListener(this._uiContainer, "touchend", stop);
     addDomListener(this._uiContainer, "click", stop);
 
+
     // Initialize
     this._apply(config);
-    this._renderLoop();
+    // Run autosuspend before first render loop and after target initialization
+    if (config.autoSuspend) {
+      addDomListener(window, "scroll", debounce(this._checkVisible, 50));
+      this._checkVisible();
+    }
+
+    if (!this._suspended) {
+      this._renderLoop();
+    }
 
     this._events.on(ENTER_VR, this._onEnterVR);
     this._events.on(EXIT_VR, this._onExitVR);
     this._events.on(VR_PRESENT_CHANGE, this._onVRChange, true);
+  }
+
+  _checkVisible() {
+    if (!this._target) { // No HTML node available
+      return;
+    }
+
+    const {
+      top,
+      left,
+      right,
+      bottom,
+      width,
+      height,
+    } = this._target.getBoundingClientRect();
+
+    const wHeight = window.innerHeight;
+    const wWidth = window.innerWidth;
+    const isVisible = (
+      width  > 0      &&
+      height > 0      &&
+      bottom > 0      &&
+      right  > 0      &&
+      left   < wWidth &&
+      top    < wHeight
+    );
+
+    if (isVisible) {
+      this.resume();
+    } else {
+      this.suspend();
+    }
   }
 
   _resolve(list) {
@@ -331,8 +375,11 @@ class Player {
   }
 
   suspend() {
+    if (this._suspended) {
+      return;
+    }
     this._suspended = true;
-    cancelAnimationFrame(this._frame);
+    this._cancelFrame(this._frame);
   }
 
   resume() {
