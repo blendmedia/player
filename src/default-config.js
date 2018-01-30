@@ -1,7 +1,6 @@
 export default {
   renderer: ["render:webgl"],
   controls: [
-    "controls:vr",
     "controls:pointer",
     "controls:keyboard",
     "controls:gamepad",
