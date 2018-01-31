@@ -1,6 +1,6 @@
 import { register } from "../register";
 import Controller from "../interfaces/Controller";
-import { POINTER_DOWN, POINTER_UP, POINTER_MOVE } from "../events";
+import { POINTER_DOWN, POINTER_UP, POINTER_MOVE, normalize } from "../events";
 
 class Parallax extends Controller {
   constructor(...args) {
@@ -32,16 +32,6 @@ class Parallax extends Controller {
     this._dragging = true;
   }
 
-  _normalize(e) {
-    if (e.touches) {
-      return Object.assign(e, {
-        screenX: e.touches[0].screenX,
-        screenY: e.touches[0].screenY,
-      });
-    }
-    return e;
-  }
-
   _onEnd() {
     if (!this._dragging) {
       return;
@@ -54,11 +44,11 @@ class Parallax extends Controller {
       return;
     }
 
-    const { screenX, screenY, currentTarget } = this._normalize(e);
+    const { clientX, clientY, currentTarget } = normalize(e);
     const { top, left, width, height } = currentTarget.getBoundingClientRect();
 
-    const x = Math.max(0, Math.min(1, (screenX - left) / width)) - 0.5;
-    const y = Math.max(0, Math.min(1, (screenY - top) / height)) - 0.5;
+    const x = Math.max(0, Math.min(1, (clientX - left) / width)) - 0.5;
+    const y = Math.max(0, Math.min(1, (clientY - top) / height)) - 0.5;
 
     this._x = y * this.$config("magnitude");
     this._y = x * this.$config("magnitude");

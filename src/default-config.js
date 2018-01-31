@@ -8,6 +8,7 @@ export default {
   ],
   ui: [
     "ui:play-pause",
+    "ui:time",
     "ui:scrubber",
     "ui:fullscreen",
     "ui:vr",

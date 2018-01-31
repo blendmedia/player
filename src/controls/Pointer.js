@@ -38,7 +38,7 @@ class Pointer extends Controller {
   }
 
   _onStart(e) {
-    const { currentTarget, screenX: x, screenY: y } = normalize(e);
+    const { currentTarget, clientX: x, clientY: y } = normalize(e);
     const lock = (
       currentTarget.requestPointerLock || currentTarget.mozRequestPointerLock
     );
@@ -57,7 +57,7 @@ class Pointer extends Controller {
       diffX = e.movementX;
       diffY = e.movementY;
     } else {
-      const { screenX: x, screenY: y } = normalize(e);
+      const { clientX: x, clientY: y } = normalize(e);
       diffX = x - this._last[0];
       diffY = y - this._last[1];
       this._last = [x, y];

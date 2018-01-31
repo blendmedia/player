@@ -72,8 +72,8 @@ export const stop = e => e.stopPropagation();
 export const normalize = e => {
   if (e.touches) {
     return Object.assign(e, {
-      screenX: e.touches[0].screenX,
-      screenY: e.touches[0].screenY,
+      clientX: e.touches[0].clientX,
+      clientY: e.touches[0].clientY,
     });
   }
   return e;
@@ -87,9 +87,9 @@ export const normalize = e => {
  */
 export const normalizeXY = e => {
   e = normalize(e);
-  const { screenX, screenY, currentTarget } = e;
+  const { clientX, clientY, currentTarget } = e;
   const { left, width } = currentTarget.getBoundingClientRect();
-  const x = Math.max(0, Math.min(1, ((screenX - left) / width)));
-  const y = Math.max(0, Math.min(1, ((screenY - top) / width)));
+  const x = Math.max(0, Math.min(1, ((clientX - left) / width)));
+  const y = Math.max(0, Math.min(1, ((clientY - top) / width)));
   return { x, y };
 };
