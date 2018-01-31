@@ -7,6 +7,8 @@ export default {
     "controls:gyro",
   ],
   ui: [
+    "ui:play-pause",
+    "ui:scrubber",
     "ui:vr",
     "ui:fullscreen",
   ],

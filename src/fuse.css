@@ -43,7 +43,7 @@
 
 .fuse-player-ui-bottom,
 .fuse-player-ui-top {
-  background: rgba(60, 60, 60, 0.8);
+  background: rgba(0, 0, 0, 0.5);
   height:  54px;
   display: flex;
   flex-direction:  row;
@@ -89,4 +89,54 @@
   width: 44px;
   height:  44px;
   margin-left:  5px;
+}
+
+
+.fuse-player-scrubber {
+  position: absolute;
+  bottom: 100%;
+  left:  0;
+  right:  0;
+  background:  rgba(0, 0, 0, 0.3);
+  height:  16px;
+  transform-origin:  bottom;
+  transform:  scaleY(0.3);
+  transition:  transform 0.2s linear;
+  cursor: pointer;
+  z-index:  0;
+}
+
+.fuse-player-scrubber:hover {
+  transform:  scaleY(1);
+}
+
+.fuse-player-scrubber-position,
+.fuse-player-scrubber-target,
+.fuse-player-scrubber-buffered {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width:  100%;
+  height:  100%;
+  background: rgba(255, 255, 255, 0.4);
+  transform-origin: left;
+}
+
+.fuse-player-scrubber-position {
+  background: #5bcde7;
+  z-index:  1;
+}
+
+.fuse-player-scrubber-target,
+.fuse-player-scrubber-buffered {
+}
+
+.fuse-player-scrubber-handle {
+  height:  16px;
+  width:  10px;
+  position: absolute;
+  top:  0px;
+  margin-left:  -10px;
+  background:  #FFF;
+  z-index:  2;
 }

@@ -1,7 +1,7 @@
 import { register } from "../register";
 import { TOGGLE_FULLSCREEN } from "../events";
 import UI from "../interfaces/UI";
-import { render, attr, text, addClass, removeClass } from "../util/dom";
+import { render, attr, text, addClass, removeClass, remove } from "../util/dom";
 
 class Fullscreen extends UI {
   constructor(...args) {
@@ -16,6 +16,10 @@ class Fullscreen extends UI {
 
   mount(container) {
     container.appendChild(this._button);
+  }
+
+  unmount() {
+    remove(this._button);
   }
 
   create(options) {

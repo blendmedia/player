@@ -59,3 +59,9 @@ export function text(element, text) {
 export function attr(element, attr, value) {
   element.setAttribute(attr, value);
 }
+
+export function remove(element) {
+  if (element.parentNode) {
+    element.parentNode.removeChild(element);
+  }
+}

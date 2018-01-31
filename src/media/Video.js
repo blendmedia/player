@@ -1,5 +1,6 @@
 import Media from "../interfaces/Media";
 import { register, configure } from "../register";
+import * as events from "../events";
 
 class Video extends Media {
   constructor(...args) {
@@ -17,6 +18,9 @@ class Video extends Media {
   _setupVideo(video) {
     video.setAttribute("playsinline", true);
     video.setAttribute("webkit-playsinline", true);
+    video.addEventListener("pause", () => this.emit(events.PAUSED));
+    video.addEventListener("playing", () => this.emit(events.PLAYING));
+    video.addEventListener("timeupdate", () => this.emit(events.TIME_UPDATE));
   }
 
   create({ src, crossOrigin, loop }) {
@@ -62,6 +66,10 @@ class Video extends Media {
     }
   }
 
+  isPlaying() {
+    return this._video ? !this._video.paused : false;
+  }
+
   load() {
     if (this._video) {
       this._video.src = this._src;
@@ -73,6 +81,29 @@ class Video extends Media {
     if (this._video) {
       this._video.currentTime = time;
     }
+  }
+
+  currentTime() {
+    if (this._video) {
+      return this._video.currentTime;
+    }
+
+    return 0;
+  }
+
+  duration() {
+    if (this._video) {
+      return this._video.duration;
+    }
+
+    return 0;
+  }
+
+  buffered() {
+    if (!this._video) {
+      return [];
+    }
+    return this._video.buffered;
   }
 
   getTexture() {
@@ -95,7 +126,7 @@ configure((src, original) => {
     return null;
   }
 
-  if (/\.(mp4|webm|ogv|mov)$/.test(src)) {
+  if (/\.(mp4|webm|ogv|mov)(\?.*?)$/.test(src)) {
     return {
       type: Video,
       options: {

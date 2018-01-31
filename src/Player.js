@@ -66,11 +66,11 @@ class Player {
 
     this._uiContainer = render("div", {
       className: "fuse-player-ui fuse-player-ui-hidden",
-      onMousedown: events.stop,
-      onMouseup: events.stop,
-      onTouchstart: events.stop,
-      onTouchend: events.stop,
-      onClick: events.stop,
+      // onMousedown: events.stop,
+      // onMouseup: events.stop,
+      // onTouchstart: events.stop,
+      // onTouchend: events.stop,
+      // onClick: events.stop,
     }, [
       this._uiSections.top,
       this._uiSections.bottom,
@@ -106,7 +106,7 @@ class Player {
     // UI setup
     if (config.autoHideUI) {
       addDomListener(this._root, events.POINTER_MOVE, this._showUI);
-      addDomListener(this._root, events.POINTER_START, this._showUI);
+      addDomListener(this._root, events.POINTER_END, this._showUI);
     } else {
       removeClass(this._uiContainer, "fuse-player-ui-hidden");
     }
@@ -248,20 +248,37 @@ class Player {
     }
   }
 
-  _setMedia(media = [], stereo, degrees = 360, fisheye = false) {
-    this._stereo = stereo || false;
-    this._degrees = degrees;
-    this._setInterfaces(media, "_media");
-    this._current = 0;
+  setCurrentMedia(n) {
+    this._current = n;
+    const current = this.currentMedia();
     if (this._renderer) {
-      const current = this.currentMedia();
       this._renderer.setSource(
         current ? current.getTexture() : null,
         this._stereo,
         this._degrees,
-        fisheye,
+        this._fisheye,
       );
     }
+
+    const isVideo = current ? current.isVideo() : false;
+    for (const ui of this._ui) {
+      if (ui.usesVideo()) {
+        if (isVideo) {
+          ui.unhide();
+        } else {
+          ui.hide();
+        }
+      }
+    }
+
+  }
+
+  _setMedia(media = [], stereo, degrees = 360, fisheye = false) {
+    this._stereo = stereo || false;
+    this._degrees = degrees;
+    this._fisheye = fisheye || false;
+    this._setInterfaces(media, "_media");
+    this.setCurrentMedia(0);
   }
 
   _setControls(controls = []) {
@@ -281,7 +298,7 @@ class Player {
   }
 
   _apply(config) {
-    config = reconfigure(config);
+    this._config = config = reconfigure(config);
     this._correction = {
       x: (config.correction ? config.correction.x : 0) || 0,
       y: (config.correction ? config.correction.y : 0) || 0,
@@ -289,9 +306,9 @@ class Player {
     };
     this._setTarget(config.target);
     this._setRenderer(config.renderer);
-    this._setMedia(config.src, config.stereo, config.degrees, config.fisheye);
     this._setControls(config.controls);
     this._setUI(config.ui);
+    this._setMedia(config.src, config.stereo, config.degrees, config.fisheye);
     this._setUpdateable();
   }
 
@@ -502,6 +519,35 @@ class Player {
     this._lastTime = null;
     this._accumulator = 0;
     this._renderLoop();
+  }
+
+  play() {
+    const media = this.currentMedia();
+    if (!media) {
+      return;
+    }
+    media.play();
+  }
+
+  pause() {
+    const media = this.currentMedia();
+    if (!media) {
+      return;
+    }
+    media.pause();
+  }
+
+  togglePlayback() {
+    const media = this.currentMedia();
+    if (!media) {
+      return;
+    }
+
+    if (media.isPlaying()) {
+      media.pause();
+    } else {
+      media.play();
+    }
   }
 
   destroy() {

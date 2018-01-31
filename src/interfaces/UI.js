@@ -9,11 +9,27 @@ class UI extends Base {
     this._mountPoint = this.$config("section") || null;
   }
 
+  /**
+   * Return true when this UI component is only used in video media
+   * @return {[type]} [description]
+   */
+  usesVideo() {
+    return false;
+  }
+
   mount(/*container*/) {
 
   }
 
-  unmount(/*container*/) {
+  unmount() {
+
+  }
+
+  hide() {
+
+  }
+
+  unhide() {
 
   }
 }

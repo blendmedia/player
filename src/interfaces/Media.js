@@ -9,6 +9,10 @@ class Media extends Base {
     return false;
   }
 
+  isPlaying() {
+    return false;
+  }
+
   play() {
 
   }
@@ -32,6 +36,14 @@ class Media extends Base {
 
   currentTime() {
     return null;
+  }
+
+  duration() {
+    return 0;
+  }
+
+  buffered() {
+    return [];
   }
 
   getTexture() {
