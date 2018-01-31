@@ -3,7 +3,7 @@ import UI from "../interfaces/UI";
 import { render, text, addClass, removeClass, remove } from "../util/dom";
 import * as events from "../events";
 
-class VR extends UI {
+class PlayPause extends UI {
   constructor(...args) {
     super(...args);
     this._toggle = this._toggle.bind(this);
@@ -63,10 +63,10 @@ class VR extends UI {
 
 }
 
-VR.defaultConfig = {
+PlayPause.defaultConfig = {
   section: "bottom",
 };
 
 
-register("ui:play-pause", VR);
-export default VR;
+register("ui:play-pause", PlayPause);
+export default PlayPause;

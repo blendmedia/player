@@ -134,7 +134,8 @@
 .fuse-player-play,
 .fuse-player-pause,
 .fuse-player-fullscreen-toggle,
-.fuse-player-vr-toggle {
+.fuse-player-vr-toggle,
+.fuse-player-stereo-toggle {
   width: 30px;
   height: 30px;
   outline: 0;
@@ -149,9 +150,11 @@
 .fuse-player-play:hover,
 .fuse-player-pause:hover,
 .fuse-player-fullscreen-toggle:hover,
-.fuse-player-vr-toggle:hover {
+.fuse-player-vr-toggle:hover,
+.fuse-player-stereo-toggle:hover {
   opacity: 1;
 }
+
 
 .fuse-player-play {
   background-image: svg-load("icons/play.svg", fill=none, stroke=#fff);
@@ -175,6 +178,18 @@
   margin-left:  5px;
 }
 
+.fuse-player-stereo-toggle {
+  text-indent: 0;
+  font-size:  10px;
+  font-family:  Verdana, Helvectica, Arial, sans-serif;
+  color:  #FFF;
+  font-weight:  bold;
+}
+
+.fuse-player-stereo-toggle.is-active {
+  color: #5bcde7
+}
+
 .fuse-player-time {
   font-size:  10px;
   font-family:  Verdana, Helvectica, Arial, sans-serif;
@@ -196,7 +211,8 @@
   .fuse-player-play,
   .fuse-player-pause,
   .fuse-player-fullscreen-toggle,
-  .fuse-player-vr-toggle {
+  .fuse-player-vr-toggle,
+  .fuse-player-stereo-toggle {
     width:  44px;
     height:  44px;
   }

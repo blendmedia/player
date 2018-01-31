@@ -11,6 +11,7 @@ export default {
     "ui:time",
     "ui:scrubber",
     "ui:fullscreen",
+    "ui:stereo",
     "ui:vr",
   ],
   format: 360,

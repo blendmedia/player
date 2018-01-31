@@ -471,7 +471,10 @@ class Player {
       }
     }
 
-    this._renderer.render(rot, this._correction, !!frameData, frameData);
+    this._renderer.render(
+      rot, this._correction, this._stereoView || !!frameData, frameData
+    );
+
     rot.x += rewind.x;
     rot.y += rewind.y;
     this._rotation = rot;
@@ -512,6 +515,10 @@ class Player {
         media.pause();
       }
     }
+  }
+
+  stereoView(mode = false) {
+    this._stereoView = mode;
   }
 
   resume() {
