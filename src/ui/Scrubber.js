@@ -2,6 +2,7 @@ import { register } from "../register";
 import { render, remove } from "../util/dom";
 import UI from "../interfaces/UI";
 import { round } from "../util/math";
+import { normalizeXY } from "../events";
 
 class Scrubber extends UI {
   isSupported() {
@@ -36,19 +37,14 @@ class Scrubber extends UI {
     this._target = 0;
   }
 
-  _ratio({ screenX, currentTarget }) {
-    const { left, width } = currentTarget.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, ((screenX - left) / width)));
-    return ratio;
-  }
-
   _clearTarget() {
     this._target = 0;
     this._scrubTarget.style.transform = "scaleX(0)";
   }
 
   _setTarget(e) {
-    this._target = round(this._ratio(e), 4);
+    const { x } = normalizeXY(e);
+    this._target = round(x, 4);
     this._scrubTarget.style.transform = `scaleX(${this._target})`;
   }
 
@@ -57,7 +53,7 @@ class Scrubber extends UI {
     if (!media) {
       return;
     }
-    const target = this._ratio(e) * media.duration();
+    const target = normalizeXY(e).x * media.duration();
     const buffered = media.buffered();
     let available = false;
     for (let i = 0; i < buffered.length; i++) {

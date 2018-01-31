@@ -1,6 +1,6 @@
 import { register } from "../register";
 import Controller from "../interfaces/Controller";
-import { POINTER_DOWN, POINTER_UP, POINTER_MOVE } from "../events";
+import { POINTER_DOWN, POINTER_UP, POINTER_MOVE, normalize } from "../events";
 import { accelerator } from "../util/animation";
 
 class Pointer extends Controller {
@@ -38,7 +38,7 @@ class Pointer extends Controller {
   }
 
   _onStart(e) {
-    const { currentTarget, screenX: x, screenY: y } = this._normalize(e);
+    const { currentTarget, screenX: x, screenY: y } = normalize(e);
     const lock = (
       currentTarget.requestPointerLock || currentTarget.mozRequestPointerLock
     );
@@ -51,23 +51,13 @@ class Pointer extends Controller {
     this.y.reset();
   }
 
-  _normalize(e) {
-    if (e.touches) {
-      return Object.assign(e, {
-        screenX: e.touches[0].screenX,
-        screenY: e.touches[0].screenY,
-      });
-    }
-    return e;
-  }
-
   _diff(e) {
     let diffX = 0, diffY = 0;
     if ("movementX" in e) {
       diffX = e.movementX;
       diffY = e.movementY;
     } else {
-      const { screenX: x, screenY: y } = this._normalize(e);
+      const { screenX: x, screenY: y } = normalize(e);
       diffX = x - this._last[0];
       diffY = y - this._last[1];
       this._last = [x, y];

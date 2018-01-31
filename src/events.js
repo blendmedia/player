@@ -67,3 +67,29 @@ export const VR_PRESENT_CHANGE = "vrdisplaypresentchange";
 
 // Helper listeners
 export const stop = e => e.stopPropagation();
+
+// Normalize mouse and touch events
+export const normalize = e => {
+  if (e.touches) {
+    return Object.assign(e, {
+      screenX: e.touches[0].screenX,
+      screenY: e.touches[0].screenY,
+    });
+  }
+  return e;
+};
+
+/**
+ * Gets the location of a pointer event in relation to it's target
+ * between 0 and 1 for each axis
+ * @param  {Event) e
+ * @return {Object}
+ */
+export const normalizeXY = e => {
+  e = normalize(e);
+  const { screenX, screenY, currentTarget } = e;
+  const { left, width } = currentTarget.getBoundingClientRect();
+  const x = Math.max(0, Math.min(1, ((screenX - left) / width)));
+  const y = Math.max(0, Math.min(1, ((screenY - top) / width)));
+  return { x, y };
+};
