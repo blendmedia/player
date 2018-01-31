@@ -103,6 +103,7 @@ class Player {
       console.log("Hello?");
       this._events.emit(events.TOGGLE_FULLSCREEN, !!fscreen.fullscreenElement);
     });
+
     // UI setup
     if (config.autoHideUI) {
       addDomListener(this._root, events.POINTER_MOVE, this._showUI);
@@ -336,10 +337,6 @@ class Player {
     }
   }
 
-  toggleVR() {
-
-  }
-
   _enterVR() {
     const display = hmd();
     if (!display) {
@@ -373,18 +370,24 @@ class Player {
   }
 
   _exitVR() {
+    this._vrDisplay.exitPresent();
+    this._cancelFrame(this._frame);
+    this._requestFrame = window.requestAnimationFrame.bind(window);
+    this._cancelFrame = window.cancelAnimationFrame.bind(window);
+    this._frame = null;
+    this._renderer.disableVR();
+    this._vrDisplay = null;
+    this._updateSize(true);
+    this._submit = () => {};
+    this._events.emit(events.EXIT_VR);
+    this._renderLoop();
+  }
+
+  toggleVR() {
     if (this._vrDisplay) {
-      this._vrDisplay.exitPresent();
-      this._cancelFrame(this._frame);
-      this._requestFrame = window.requestAnimationFrame.bind(window);
-      this._cancelFrame = window.cancelAnimationFrame.bind(window);
-      this._frame = null;
-      this._renderer.disableVR();
-      this._vrDisplay = null;
-      this._updateSize(true);
-      this._submit = () => {};
-      this._events.emit(events.EXIT_VR);
-      this._renderLoop();
+      this._exitVR();
+    } else {
+      this._enterVR();
     }
   }
 
@@ -399,7 +402,7 @@ class Player {
   _onVRChange() {
     // Exit VR if mode was cancelled
     if (this._vrDisplay && !this._vrDisplay.isPresenting) {
-      this._onExitVR();
+      this._exitVR();
       this._events.emit(events.EXIT_VR);
     }
     this._events.emit(events.ENTER_VR);
