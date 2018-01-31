@@ -1,12 +1,14 @@
 import { register } from "../register";
 import UI from "../interfaces/UI";
 import { ENTER_VR, EXIT_VR } from "../events";
-import { render } from "../util/dom";
+import { render, attr, text, addClass, removeClass } from "../util/dom";
 
 class VR extends UI {
   constructor(...args) {
     super(...args);
     this._toggleVR = this._toggleVR.bind(this);
+    this._onEnter = this._onEnter.bind(this);
+    this._onExit = this._onExit.bind(this);
   }
 
   isSupported() {
@@ -25,16 +27,25 @@ class VR extends UI {
       className: "fuse-player-vr-toggle",
       onClick: this._toggleVR,
     }, "Enter VR");
-    this._inVR = false;
+
+    this.on(ENTER_VR, this._onEnter);
+    this.on(EXIT_VR, this._onExit);
+  }
+
+  _onEnter() {
+    addClass(this._button, "is-active");
+    text(this._button, "Exit VR");
+    attr(this._button, "title", "Exit VR");
+  }
+
+  _onExit() {
+    removeClass(this._button, "is-active");
+    text(this._button, "Enter VR");
+    attr(this._button, "title", "Enter VR");
   }
 
   _toggleVR() {
-    if (this._inVR) {
-      this.emit(EXIT_VR);
-    } else {
-      this.emit(ENTER_VR);
-    }
-    this._inVR = !this._inVR;
+    this.$player.toggleVR();
   }
 
 }

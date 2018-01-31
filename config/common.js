@@ -41,6 +41,7 @@ export default {
       include: "**/*.js",
       exclude: [
         "node_modules/babel-runtime/**",
+        "node_modules/core-js/**",
       ],
       runtimeHelpers: true,
       presets: [["es2015", {

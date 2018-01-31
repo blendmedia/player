@@ -21,12 +21,12 @@ class Pointer extends Controller {
     this._dragging = false;
 
     this.x = accelerator(
-      this.config("deceleration"),
-      this.config("maxSpeed")
+      this.$config("deceleration"),
+      this.$config("maxSpeed")
     );
     this.y = accelerator(
-      this.config("deceleration"),
-      this.config("maxSpeed")
+      this.$config("deceleration"),
+      this.$config("maxSpeed")
     );
 
   }
@@ -42,7 +42,7 @@ class Pointer extends Controller {
     const lock = (
       currentTarget.requestPointerLock || currentTarget.mozRequestPointerLock
     );
-    if (lock && this.config("lock")) {
+    if (lock && this.$config("lock")) {
       lock.call(currentTarget);
     }
     this._last = [x, y];
@@ -73,14 +73,14 @@ class Pointer extends Controller {
       this._last = [x, y];
     }
 
-    if (e.shiftKey || (e.touches && this.config("disableVerticalTouch"))) {
+    if (e.shiftKey || (e.touches && this.$config("disableVerticalTouch"))) {
       diffY = 0;
     }
     if (e.altKey) {
       diffX = 0;
     }
 
-    const reverse = this.config("reverse") ? -1 : 1;
+    const reverse = this.$config("reverse") ? -1 : 1;
     return [diffX * reverse, diffY * reverse];
   }
 
@@ -92,18 +92,18 @@ class Pointer extends Controller {
     const unlock = (
       document.exitPointerLock || document.mozExitPointerLoc
     );
-    if (unlock && this.config("lock")) {
+    if (unlock && this.$config("lock")) {
       unlock.call(document);
     }
     this._dragging = false;
 
-    if (this.config("momentum")) {
+    if (this.$config("momentum")) {
       const [diffX, diffY] = this._lastDiff;
-      if (Math.abs(diffY) >= this.config("minSpeed")) {
-        this.x.velocity = this.config("speed") * diffY;
+      if (Math.abs(diffY) >= this.$config("minSpeed")) {
+        this.x.velocity = this.$config("speed") * diffY;
       }
-      if (Math.abs(diffX) >= this.config("minSpeed")) {
-        this.y.velocity = this.config("speed") * diffX;
+      if (Math.abs(diffX) >= this.$config("minSpeed")) {
+        this.y.velocity = this.$config("speed") * diffX;
       }
     }
     this._lastDiff = [0, 0];
@@ -117,8 +117,9 @@ class Pointer extends Controller {
     e.preventDefault();
     const [diffX, diffY] = this._diff(e);
     this._lastDiff = [diffX, diffY];
-    this.x.move(diffY * this.config("speed"));
-    this.y.move(diffX * this.config("speed"));
+
+    this.x.move(diffY * this.$config("speed"));
+    this.y.move(diffX * this.$config("speed"));
   }
 
   fixedUpdate(dt) {
@@ -139,11 +140,11 @@ class Pointer extends Controller {
 
 Pointer.defaultConfig = {
   momentum: true,
-  speed: 0.3,
+  speed: 0.2,
   lock: false,
   reverse: false,
   disableVerticalTouch: false,
-  deceleration: 0.1,
+  deceleration: 0.05,
   maxSpeed: 5,
   minSpeed: 5,
 };

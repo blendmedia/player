@@ -43,10 +43,7 @@ class Player {
     this._frame = null;
 
     // Method binding
-    this.fullscreen = this.fullscreen.bind(this);
     this._renderLoop = this._renderLoop.bind(this);
-    this._onEnterVR = this._onEnterVR.bind(this);
-    this._onExitVR = this._onExitVR.bind(this);
     this._onVRChange = this._onVRChange.bind(this);
     this._showUI = this._showUI.bind(this);
     this._checkVisible = this._checkVisible.bind(this);
@@ -101,11 +98,11 @@ class Player {
       this._renderLoop();
     }
 
-    this._events.on(events.ENTER_VR, this._onEnterVR);
-    this._events.on(events.EXIT_VR, this._onExitVR);
     this._events.on(events.VR_PRESENT_CHANGE, this._onVRChange, true);
-    this._events.on(events.TOGGLE_FULLSCREEN, this.fullscreen);
-
+    fscreen.addEventListener("fullscreenchange", () => {
+      console.log("Hello?");
+      this._events.emit(events.TOGGLE_FULLSCREEN, !!fscreen.fullscreenElement);
+    });
     // UI setup
     if (config.autoHideUI) {
       addDomListener(this._root, events.POINTER_MOVE, this._showUI);
@@ -203,7 +200,7 @@ class Player {
 
     for (const { type: Type, options } of config) {
       if (added.includes(Type)) {
-        const component = new Type(this._events);
+        const component = new Type(this._events, this);
         if (!component.isSupported(options)) {
           continue;
         }
@@ -298,7 +295,7 @@ class Player {
     this._setUpdateable();
   }
 
-  _updateSize(force) {
+  size() {
     let width, height;
     if (fscreen.fullscreenElement === this._root) {
       width = this._root.clientWidth;
@@ -308,6 +305,11 @@ class Player {
       height = this._target.clientHeight;
     }
 
+    return { width, height };
+  }
+
+  _updateSize(force) {
+    let { width, height } = this.size();
     width = Math.ceil(width);
     height = Math.ceil(height);
     const serialized = `${width}x${height}`;
@@ -317,28 +319,35 @@ class Player {
     }
   }
 
-  _onEnterVR() {
+  toggleVR() {
+
+  }
+
+  _enterVR() {
     const display = hmd();
     if (!display) {
       return;
     }
     display.requestPresent([{ source: this._renderTarget }]).then(() => {
       display.resetPose();
-
       // Set canvas size
       const right = display.getEyeParameters("right");
       const left = display.getEyeParameters("left");
 
+      // Update renderer to use VR display size
       const width = Math.max(left.renderWidth, right.renderWidth) * 2;
       const height = Math.max(left.renderHeight, right.renderHeight);
       this._renderer.setSize(width, height);
       this._vrDisplay = display;
+
+      // Cancel current animation frame and bootstrap VR displays frames
       this._cancelFrame(this._frame);
       this._requestFrame = display.requestAnimationFrame.bind(display);
       this._cancelFrame = display.cancelAnimationFrame.bind(display);
       this._submit = display.submitFrame.bind(display);
       this._frame = null;
       this._renderer.enableVR(display);
+      this._events.emit(events.ENTER_VR);
       this._renderLoop();
     }).catch(e => {
       // ignore
@@ -346,7 +355,7 @@ class Player {
     });
   }
 
-  _onExitVR() {
+  _exitVR() {
     if (this._vrDisplay) {
       this._vrDisplay.exitPresent();
       this._cancelFrame(this._frame);
@@ -357,8 +366,8 @@ class Player {
       this._vrDisplay = null;
       this._updateSize(true);
       this._submit = () => {};
+      this._events.emit(events.EXIT_VR);
       this._renderLoop();
-
     }
   }
 
@@ -374,7 +383,9 @@ class Player {
     // Exit VR if mode was cancelled
     if (this._vrDisplay && !this._vrDisplay.isPresenting) {
       this._onExitVR();
+      this._events.emit(events.EXIT_VR);
     }
+    this._events.emit(events.ENTER_VR);
   }
 
   _renderLoop(t) {
@@ -435,7 +446,7 @@ class Player {
     this._submit();
   }
 
-  fullscreen() {
+  toggleFullscreen() {
     if (!this._root.parentNode) {
       return;
     }

@@ -51,3 +51,11 @@ export function removeClass(element, className) {
   const name = _classes[className] || className;
   element.classList.remove(name);
 }
+
+export function text(element, text) {
+  element.textContent = text;
+}
+
+export function attr(element, attr, value) {
+  element.setAttribute(attr, value);
+}

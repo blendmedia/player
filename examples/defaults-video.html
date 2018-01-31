@@ -7,6 +7,7 @@
   <style>
     body {
       font-family: Verdana, Arial, sans-serif;
+      height:  500vh;
     }
     #wrapper {
       width:  75%;
@@ -33,7 +34,7 @@
     <div id="player">
 
     </div>
-    <video src="./files/example-360-mono.mp4" id="video" loop></video>
+    <video src="./files/example-blend.mp4" id="video" loop muted></video>
     <p>
       Video from
       <a href="https://github.com/SamsungInternet/examples/tree/master/360-video" target="_blank">
@@ -51,6 +52,9 @@
     const player = window.flex.create({
       target: "#player",
       src: video, //"./files/example-360-mono.mp4",
+      correction: {
+        y: -90,
+      },
     });
     player.currentMedia().load();
     player.currentMedia().play();

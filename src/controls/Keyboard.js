@@ -17,13 +17,13 @@ class Keyboard extends Controller {
     this.on(KEY_UP, this._onEnd, true, false);
 
     this.x = accelerator(
-      this.config("deceleration"),
-      this.config("maxSpeed")
+      this.$config("deceleration"),
+      this.$config("maxSpeed")
     );
 
     this.y = accelerator(
-      this.config("deceleration"),
-      this.config("maxSpeed")
+      this.$config("deceleration"),
+      this.$config("maxSpeed")
     );
 
     this._snapY = 0;
@@ -62,15 +62,15 @@ class Keyboard extends Controller {
     }
 
     e.preventDefault();
-    if (inVR() && this.config("snapInVR")) {
+    if (inVR() && this.$config("snapInVR")) {
       this.x.reset(false);
       this.y.reset(false);
       this[axis].snap(
-        this.config("snapAngle") * dir,
+        this.$config("snapAngle") * dir,
         true
       );
     } else {
-      this[axis].accelerate(this.config("speed") * dir);
+      this[axis].accelerate(this.$config("speed") * dir);
     }
   }
 
@@ -80,7 +80,7 @@ class Keyboard extends Controller {
       return;
     }
     this[axis].acceleration = 0;
-    if (inVR() && this.config("snapInVR")) {
+    if (inVR() && this.$config("snapInVR")) {
       this[axis].snap(
         0,
         false,
