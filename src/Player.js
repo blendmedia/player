@@ -427,10 +427,21 @@ class Player {
       }
     }
 
+
+    const rewind = {
+      x: 0,
+      y: 0,
+    };
     let rot = Object.assign({}, this._rotation);
     for (const controller of this._controls) {
-      const result = controller.apply(rot);
+      const result = controller.apply(Object.assign({}, rot));
       if (result) {
+        if (!controller.isAccumulator()) {
+          const diffY = rot.y - result.y;
+          const diffX = rot.x - result.x;
+          rewind.x += diffX;
+          rewind.y += diffY;
+        }
         rot = result;
       }
       rot.x = Math.max(-90, Math.min(90, rot.x));
@@ -440,8 +451,10 @@ class Player {
       }
     }
 
-    this._rotation = rot;
     this._renderer.render(rot, this._correction, !!frameData, frameData);
+    rot.x += rewind.x;
+    rot.y += rewind.y;
+    this._rotation = rot;
     this._frame = this._requestFrame(this._renderLoop);
     this._submit();
   }

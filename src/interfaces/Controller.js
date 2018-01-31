@@ -24,6 +24,15 @@ class Controller extends Base {
     return false;
   }
 
+  /**
+   * If this method returns false, it's offsets will not persist to the next
+   * frame
+   * @return {Boolean}
+   */
+  isAccumulator() {
+    return true;
+  }
+
 }
 
 export default Controller;
