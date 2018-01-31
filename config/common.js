@@ -4,7 +4,7 @@ import commonjs from "rollup-plugin-commonjs";
 import replace from "rollup-plugin-replace";
 import glsl from "rollup-plugin-glsl";
 import visualizer from "rollup-plugin-visualizer";
-import css from "rollup-plugin-css-only";
+import css from "rollup-plugin-postcss";
 
 export default {
   input: "src/main.js",
@@ -59,7 +59,12 @@ export default {
     }),
     visualizer(),
     css({
+      plugins: [
+        require("postcss-inline-svg")({
+        }),
+      ],
       output: "dist/fuse.css",
+      extract: true,
     }),
   ],
 };

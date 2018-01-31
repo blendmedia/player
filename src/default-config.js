@@ -9,8 +9,8 @@ export default {
   ui: [
     "ui:play-pause",
     "ui:scrubber",
-    "ui:vr",
     "ui:fullscreen",
+    "ui:vr",
   ],
   format: 360,
   stereo: false,

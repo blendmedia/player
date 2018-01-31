@@ -2,6 +2,7 @@ import { register } from "../register";
 import UI from "../interfaces/UI";
 import { ENTER_VR, EXIT_VR } from "../events";
 import { render, attr, text, addClass, removeClass, remove } from "../util/dom";
+import { hmd } from "../util/device";
 
 class VR extends UI {
   constructor(...args) {
@@ -21,6 +22,14 @@ class VR extends UI {
 
   unmount() {
     remove(this._button);
+  }
+
+  update() {
+    if (!hmd()) {
+      this._button.style.display = "none";
+    } else {
+      this._button.style.display = "";
+    }
   }
 
   create(config) {

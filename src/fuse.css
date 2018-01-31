@@ -79,19 +79,6 @@
   pointer-events: all;
 }
 
-.fuse-player-vr-toggle {
-  width: 44px;
-  height:  44px;
-  margin-left:  auto;
-}
-
-.fuse-player-fullscreen-toggle {
-  width: 44px;
-  height:  44px;
-  margin-left:  5px;
-}
-
-
 .fuse-player-scrubber {
   position: absolute;
   bottom: 100%;
@@ -140,3 +127,48 @@
   background:  #FFF;
   z-index:  2;
 }
+
+.fuse-player-play,
+.fuse-player-pause,
+.fuse-player-fullscreen-toggle,
+.fuse-player-vr-toggle {
+  width: 44px;
+  height: 44px;
+  outline: 0;
+  background: transparent no-repeat center / 22px 22px;
+  border: 0;
+  text-indent: -99999px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity:  0.8;
+}
+
+.fuse-player-play:hover,
+.fuse-player-pause:hover,
+.fuse-player-fullscreen-toggle:hover,
+.fuse-player-vr-toggle:hover {
+  opacity: 1;
+}
+
+.fuse-player-play {
+  background-image: svg-load("icons/play.svg", fill=none, stroke=#fff);
+}
+
+.fuse-player-pause {
+  background-image: svg-load("icons/pause.svg", fill=none, stroke=#fff);
+}
+.fuse-player-fullscreen-toggle {
+  background-image: svg-load("icons/fullscreen-enter.svg", fill=none, stroke=#fff);
+  margin-left:  auto;
+}
+
+.fuse-player-fullscreen-toggle.is-active {
+  background-image: svg-load("icons/fullscreen-exit.svg", fill=none, stroke=#fff);
+}
+
+.fuse-player-vr-toggle {
+  background-image: svg-load("icons/cardboard.svg", stroke=#FFF, fill=none);
+  background-size:  32px auto;
+  margin-left:  5px;
+}
+

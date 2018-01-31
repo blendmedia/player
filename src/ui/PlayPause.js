@@ -46,14 +46,14 @@ class VR extends UI {
   }
 
   _onPlay() {
-    addClass(this._button, "fuse-player-play");
-    removeClass(this._button, "fuse-player-pause");
+    addClass(this._button, "fuse-player-pause");
+    removeClass(this._button, "fuse-player-play");
     text(this._button, "Pause");
   }
 
   _onPause() {
-    addClass(this._button, "fuse-player-pause");
-    removeClass(this._button, "fuse-player-play");
+    addClass(this._button, "fuse-player-play");
+    removeClass(this._button, "fuse-player-pause");
     text(this._button, "Play");
   }
 
