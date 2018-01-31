@@ -13,6 +13,14 @@ class Scrubber extends UI {
     return true;
   }
 
+  hide() {
+    this._root.style.display = "none";
+  }
+
+  unhide() {
+    this._root.style.display = "";
+  }
+
   create(config) {
     super.create(config);
     this._root = render("div", {
