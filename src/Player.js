@@ -52,16 +52,16 @@ class Player {
     // DOM elements
     this._uiSections = {
       top: render("div", {
-        className: "fuse-player-ui-top",
+        className: "fuse-player-ui-bar fuse-player-ui-top",
       }),
       bottom: render("div", {
-        className: "fuse-player-ui-bottom",
+        className: "fuse-player-ui-bar fuse-player-ui-bottom",
       }),
       left: render("div", {
-        className: "fuse-player-ui-left",
+        className: "fuse-player-ui-bar fuse-player-ui-left",
       }),
       right: render("div", {
-        className: "fuse-player-ui-right",
+        className: "fuse-player-ui-bar fuse-player-ui-right",
       }),
     };
 
@@ -101,6 +101,7 @@ class Player {
       this._renderLoop();
     }
 
+    this._enableAutoHide();
     this._events.on(events.VR_PRESENT_CHANGE, this._onVRChange, true);
     fscreen.addEventListener("fullscreenchange", () => {
       console.log("Hello?");
