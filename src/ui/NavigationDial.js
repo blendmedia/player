@@ -2,6 +2,7 @@ import { register } from "../register";
 import UI from "../interfaces/UI";
 import { render, remove } from "../util/dom";
 import { round } from "../util/math";
+import { LOOK_AT } from "../events";
 
 class NavigationDial extends UI {
   isSupported() {
@@ -20,6 +21,12 @@ class NavigationDial extends UI {
     super.create(options);
     this._root = render("div", {
       className: "fuse-player-dial",
+      onClick: () => {
+        this.emit(LOOK_AT, {
+          x: 0,
+          y: 0,
+        });
+      },
     });
   }
 
