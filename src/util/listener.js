@@ -39,8 +39,10 @@ export function addDomListener(target, event, callback, passive = true) {
  */
 class Listener {
   constructor(domElement) {
+    this._suspended = false;
     this._listeners = {};
     this._domListeners = [];
+    this._windowListeners = [];
     this._domElement = domElement || document.createElement("span");
   }
 
@@ -73,7 +75,9 @@ class Listener {
     if (DOM_EVENTS.includes(event)) {
       const target = onWindow ? window : this._domElement;
       if (!onWindow) {
-        this._domListeners.push([event, callback]);
+        this._domListeners.push([event, callback, passive]);
+      } else {
+        this._windowListeners.push([event, callback, passive]);
       }
       addDomListener(target, event, callback, passive);
     } else {
@@ -101,6 +105,10 @@ class Listener {
         this._domListeners = this._domListeners.filter(([name, cb]) => (
           name !== event && cb !== callback
         ));
+      } else {
+        this._windowListeners = this._windowListeners.filter(([name, cb]) => (
+          name !== event && cb !== callback
+        ));
       }
     } else if (event in this._listeners) {
       this._listeners[event] = (
@@ -115,12 +123,36 @@ class Listener {
    * @param  {Object} [data]  Data to attach to the event
    */
   emit(event, data = {}) {
+    if (this._suspended) {
+      return;
+    }
     if (event in this._listeners) {
       for (const callback of this._listeners[event]) {
         callback(data);
       }
     }
   }
+
+  suspend() {
+    for (const [event, listener] of this._domListeners) {
+      this._domElement.removeEventListener(event, listener);
+    }
+    for (const [event, listener] of this._windowListeners) {
+      window.removeEventListener(event, listener);
+    }
+    this._suspended = true;
+  }
+
+  resume() {
+    for (const [event, listener, passive] of this._domListeners) {
+      addDomListener(this._domElement, event, listener, passive);
+    }
+    for (const [event, listener, passive] of this._windowListeners) {
+      addDomListener(window, event, listener, passive);
+    }
+    this._suspended = false;
+  }
+
 }
 
 export default Listener;

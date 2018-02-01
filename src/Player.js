@@ -525,6 +525,7 @@ class Player {
       return;
     }
     this._suspended = true;
+    this._events.suspend();
     this._cancelFrame(this._frame);
     if (this._pauseOnSuspend) {
       const media = this.currentMedia();
@@ -543,6 +544,7 @@ class Player {
     if (!this._suspended) {
       return;
     }
+    this._events.resume();
     this._suspended = false;
     this._lastTime = null;
     this._accumulator = 0;
