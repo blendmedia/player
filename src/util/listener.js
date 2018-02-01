@@ -28,6 +28,9 @@ export function addDomListener(target, event, callback, passive = true) {
     capture: false,
   } : false;
   target.addEventListener(event, callback, options);
+  return function() {
+    target.removeEventListener(event, callback);
+  };
 }
 
 /**

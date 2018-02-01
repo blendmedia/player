@@ -47,6 +47,7 @@ class Player {
     this._onVRChange = this._onVRChange.bind(this);
     this._showUI = this._showUI.bind(this);
     this._checkVisible = this._checkVisible.bind(this);
+    this._hideEvents = [];
 
     // DOM elements
     this._uiSections = {
@@ -66,11 +67,13 @@ class Player {
 
     this._uiContainer = render("div", {
       className: "fuse-player-ui fuse-player-ui-hidden",
-      // onMousedown: events.stop,
-      // onMouseup: events.stop,
-      // onTouchstart: events.stop,
-      // onTouchend: events.stop,
-      // onClick: events.stop,
+      onMousedown: events.stop,
+      onMouseup: events.stop,
+      onTouchstart: events.stop,
+      onTouchend: events.stop,
+      onClick: events.stop,
+      onMouseEnter: this._disableAutoHide.bind(this),
+      onMouseLeave: this._enableAutoHide.bind(this),
     }, [
       this._uiSections.top,
       this._uiSections.bottom,
@@ -103,13 +106,27 @@ class Player {
       console.log("Hello?");
       this._events.emit(events.TOGGLE_FULLSCREEN, !!fscreen.fullscreenElement);
     });
+  }
 
+  _enableAutoHide() {
     // UI setup
-    if (config.autoHideUI) {
-      addDomListener(this._root, events.POINTER_MOVE, this._showUI);
-      addDomListener(this._root, events.POINTER_END, this._showUI);
+    clearTimeout(this._hider);
+    if (this._config.autoHideUI) {
+      this._hideEvents = [
+        addDomListener(this._root, events.POINTER_MOVE, this._showUI),
+        addDomListener(this._root, events.POINTER_END, this._showUI),
+      ];
+      addClass(this._uiContainer, "fuse-player-ui-hidden");
     } else {
       removeClass(this._uiContainer, "fuse-player-ui-hidden");
+    }
+  }
+
+  _disableAutoHide() {
+    clearTimeout(this._hider);
+    removeClass(this._uiContainer, "fuse-player-ui-hidden");
+    for (const off of this._hideEvents) {
+      off();
     }
   }
 
