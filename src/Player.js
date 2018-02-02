@@ -471,7 +471,12 @@ class Player {
       y: 0,
     };
     let rot = Object.assign({}, this._rotation);
+    let cancel = false;
     for (const controller of this._controls) {
+      if (cancel) { // Cancel any remaining controllers when last is true
+        controller.cancel();
+        continue;
+      }
       const result = controller.apply(Object.assign({}, rot));
       if (result) {
         if (!controller.isAccumulator()) {
@@ -485,7 +490,7 @@ class Player {
       rot.x = Math.max(-90, Math.min(90, rot.x));
       rot.y = rot.y % 360;
       if (controller.isLast()) {
-        break;
+        cancel = true;
       }
     }
 

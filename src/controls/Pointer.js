@@ -117,6 +117,11 @@ class Pointer extends Controller {
     this.y.tick(dt);
   }
 
+  cancel() {
+    this.x.reset();
+    this.y.reset();
+  }
+
   apply({ x, y, z }) {
     x += this.x.apply();
     y += this.y.apply();

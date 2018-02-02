@@ -27,6 +27,11 @@ class Gamepad extends Controller {
     return normalized * sign;
   }
 
+  cancel() {
+    this.x.reset();
+    this.y.reset();
+  }
+
   update() {
     const pads = Array.from(navigator.getGamepads());
     const invertY = this.$config("invertY") ? 1 : -1;

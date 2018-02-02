@@ -67,9 +67,6 @@ class Gyro extends Controller {
     x += this._moveX;
     y += this._moveY;
 
-    // this._moveX = 0;
-    // this._moveY = 0;
-
     return { x, y, z };
   }
 }

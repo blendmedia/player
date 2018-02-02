@@ -28,7 +28,7 @@ class Video extends Media {
     video.addEventListener("waiting", this.send(events.BUFFERING));
   }
 
-  create({ src, crossOrigin, loop }) {
+  create({ src, crossOrigin, loop, autoplay }) {
     if (!src) {
       return false;
     }
@@ -45,6 +45,7 @@ class Video extends Media {
       this._video = video;
       video.preload = "auto";
       video.loop = !!loop;
+      video.autoplay = !!autoplay;
       if (crossOrigin) {
         video.crossOrigin = crossOrigin === true ? "anonymous" : crossOrigin;
       }
@@ -160,6 +161,7 @@ configure((src, original) => {
         src,
         crossOrigin: true,
         loop: original.loop,
+        autoplay: original.autoplay,
       },
     };
   }

@@ -25,6 +25,13 @@ class Controller extends Base {
   }
 
   /**
+   * Called if following a controller that returned true for isLast()
+   */
+  cancel() {
+
+  }
+
+  /**
    * If this method returns false, it's offsets will not persist to the next
    * frame
    * @return {Boolean}
