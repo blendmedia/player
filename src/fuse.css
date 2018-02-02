@@ -335,6 +335,7 @@
 
 .fuse-player-loader.is-loading {
   opacity:  1;
+  transition-delay:  0.5s;
 }
 
 @keyframes fuse-loader {
