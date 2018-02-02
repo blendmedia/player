@@ -16,11 +16,16 @@ class Video extends Media {
   }
 
   _setupVideo(video) {
+    // Ensure iPhone devices do not play video in Quicktime
     video.setAttribute("playsinline", true);
     video.setAttribute("webkit-playsinline", true);
-    video.addEventListener("pause", () => this.emit(events.PAUSED));
-    video.addEventListener("playing", () => this.emit(events.PLAYING));
-    video.addEventListener("timeupdate", () => this.emit(events.TIME_UPDATE));
+
+    video.addEventListener("pause", this.send(events.PAUSED));
+    video.addEventListener("playing", this.send(events.PLAYING));
+    video.addEventListener("timeupdate", this.send(events.TIME_UPDATE));
+    video.addEventListener("canplay", this.send(events.LOADED));
+    video.addEventListener("stalled", this.send(events.BUFFERING));
+    video.addEventListener("waiting", this.send(events.BUFFERING));
   }
 
   create({ src, crossOrigin, loop }) {

@@ -7,5 +7,6 @@ export { default as StereoToggle } from "./StereoToggle";
 export { default as NavigationDial } from "./NavigationDial";
 export { default as Repeat } from "./Repeat";
 export { default as Volume } from "./Volume";
+export { default as Loader } from "./Loader";
 
 

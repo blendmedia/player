@@ -13,6 +13,7 @@ class Base {
     this.on = listener.on.bind(listener);
     this.off = listener.off.bind(listener);
     this.emit = listener.emit.bind(listener);
+    this.send = listener.send.bind(listener);
     this.$player = player;
     this._config = {};
   }

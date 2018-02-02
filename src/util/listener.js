@@ -153,6 +153,17 @@ class Listener {
     this._suspended = false;
   }
 
+  /**
+   * Returns a function that emits the given event type
+   * @param  {String} type Event name
+   * @return {Function}
+   */
+  send(type) {
+    return e => {
+      this.emit(type, e);
+    };
+  }
+
 }
 
 export default Listener;

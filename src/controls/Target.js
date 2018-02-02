@@ -37,11 +37,21 @@ class Target extends Controller {
   update(dt) {
     if (this._timeLeft) {
       this._timeLeft = Math.max(0, this._timeLeft - dt);
-      const ratio = (this._duration - this._timeLeft) / this._duration;
-      const x = this._start.x + (this._target.x - this._start.x) * ratio;
-      const y = this._start.y + (this._target.y - this._start.y) * ratio;
-      this._setX = x;
-      this._setY = y;
+      const d = this._duration;
+      const t = d - this._timeLeft;
+      const dX = this._target.x - this._start.x;
+      const dY = this._target.y - this._start.y;
+
+      const r = t / (d / 2);
+      if (r < 1){
+        this._setX = (dX / 2) * r * r  + this._start.x;
+        this._setY = (dY / 2) * r * r  + this._start.y;
+      } else {
+        this._setX = (-dX / 2) * ((r - 1) * (r - 3) - 1) + this._start.x;
+        this._setY = (-dY / 2) * ((r - 1) * (r - 3) - 1) + this._start.y;
+      }
+
+
     } else {
       this._enabled = false;
     }

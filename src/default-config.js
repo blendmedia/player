@@ -17,6 +17,7 @@ export default {
     "ui:stereo",
     "ui:vr",
     "ui:dial",
+    "ui:loader",
   ],
   format: 360,
   stereo: false,

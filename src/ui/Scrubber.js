@@ -41,7 +41,6 @@ class Scrubber extends UI {
     ]);
 
     this._bufferBars = [];
-    this._start = 0;
     this._target = 0;
   }
 
@@ -62,20 +61,6 @@ class Scrubber extends UI {
       return;
     }
     const target = normalizeXY(e).x * media.duration();
-    const buffered = media.buffered();
-    let available = false;
-    for (let i = 0; i < buffered.length; i++) {
-      if (target >= buffered.start(i) && target <= buffered.end(i)) {
-        available = true;
-        break;
-      }
-    }
-
-    if (!available) {
-      this._start = target;
-    } else {
-      this._start = 0;
-    }
     media.seek(target);
   }
 
@@ -86,27 +71,24 @@ class Scrubber extends UI {
     }
     const duration = media.duration();
     const currentTime = media.currentTime();
-    const position = round(duration ? currentTime / duration : 0, 4);
-    if (currentTime < this._lastTime) {
-      this._start = 0; // Reset on loop
-    }
-    this._lastTime = currentTime;
-    const start = this._start / duration;
     const buffer = media.buffered();
-    this._playbackCursor.style.transform = (
-      `translateX(${start * 100}%) scaleX(${position - start})`
-    );
-    this._handle.style.left = `${position*100}%`;
+    const position = round(duration ? currentTime / duration : 0, 4);
 
+    // Clean up undeeded elements
     for (const bar of this._bufferBars.slice(buffer.length)) {
       remove(bar);
     }
+    // Determine which buffer sequence we're playing from
+    let offset = 0;
 
     if (duration) {
       this._bufferBars = this._bufferBars.slice(0, buffer.length);
       for (let i = 0; i < buffer.length; i++) {
         const start = round(buffer.start(i) / duration, 4);
         const end = round(buffer.end(i) / duration, 4);
+        if (buffer.start(i) < currentTime && buffer.end(i) >= currentTime) {
+          offset = start;
+        }
         const size = end - start;
         let bar = this._bufferBars[i];
         if (!bar) {
@@ -118,6 +100,11 @@ class Scrubber extends UI {
         }
         bar.style.transform = `translateX(${start*100}%) scaleX(${size})`;
       }
+
+      this._playbackCursor.style.transform = (
+        `translateX(${offset * 100}%) scaleX(${position - offset})`
+      );
+      this._handle.style.left = `${position*100}%`;
     }
 
   }
