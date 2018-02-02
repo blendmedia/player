@@ -2,9 +2,7 @@ import { register } from "../register";
 import UI from "../interfaces/UI";
 import { render, text, addClass, removeClass, remove } from "../util/dom";
 import { round } from "../util/math";
-import {
-  normalizeXY, POINTER_END,
-} from "../events";
+import { normalizeXY, POINTER_END } from "../events";
 
 class Volume extends UI {
 

@@ -27,7 +27,7 @@ class Scrubber extends UI {
       className: "fuse-player-scrubber",
       onMouseLeave: this._clearTarget.bind(this),
       onPointerMove: this._setTarget.bind(this),
-      onClick: this._seek.bind(this),
+      onPointerEnd: this._seek.bind(this),
     }, [
       this._scrubTarget = render("div", {
         className: "fuse-player-scrubber-target",
