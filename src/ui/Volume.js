@@ -3,7 +3,7 @@ import UI from "../interfaces/UI";
 import { render, text, addClass, removeClass, remove } from "../util/dom";
 import { round } from "../util/math";
 import {
-  normalizeXY, POINTER_START, POINTER_MOVE, POINTER_END,
+  normalizeXY, POINTER_END,
 } from "../events";
 
 class Volume extends UI {
@@ -47,9 +47,9 @@ class Volume extends UI {
       this._slider = render("div", {
         className: "fuse-player-volume-slider",
         onClick: this._setVolume.bind(this),
-        [`on${POINTER_END}`]: () => this._dragging = false,
-        [`on${POINTER_START}`]: () => this._dragging = true,
-        [`on${POINTER_MOVE}`]: e => {
+        onPointerEnd: () => this._dragging = false,
+        onPointerStart: () => this._dragging = true,
+        onPointerMove: e => {
           this._dragging && this._setVolume(e);
         },
       }, [

@@ -1,4 +1,5 @@
 import { addDomListener } from "./listener";
+import * as events from "./events";
 
 let _classes = {};
 export function classNames(classes = {}) {
@@ -28,7 +29,20 @@ export function render(type = "div", props = {}, children = []) {
 
     const handler = prop.match(/^on(.*?)$/);
     if (handler) {
-      const event = handler[1].toLowerCase();
+      let event = handler[1].toLowerCase();
+      switch (event) {
+        case "pointerstart":
+        case "pointerdown":
+          event = events.POINTER_START;
+          break;
+        case "pointerend":
+        case "pointerup":
+          event = events.POINTER_END;
+          break;
+        case "pointermove":
+          event = events.POINTER_MOVE;
+          break;
+      }
       addDomListener(element, event, value);
       continue;
     }
