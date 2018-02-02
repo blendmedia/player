@@ -9,8 +9,10 @@ export default {
   ],
   ui: [
     "ui:play-pause",
+    "ui:volume",
     "ui:time",
     "ui:scrubber",
+    "ui:repeat",
     "ui:fullscreen",
     "ui:stereo",
     "ui:vr",

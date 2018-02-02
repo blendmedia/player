@@ -567,6 +567,30 @@ class Player {
     media.pause();
   }
 
+  repeat(...args) {
+    const media = this.currentMedia();
+    if (media) {
+      return media.repeat(...args);
+    }
+    return false;
+  }
+
+  mute(...args) {
+    const media = this.currentMedia();
+    if (media) {
+      return media.mute(...args);
+    }
+    return false;
+  }
+
+  volume(...args) {
+    const media = this.currentMedia();
+    if (media) {
+      return media.volume(...args);
+    }
+    return 0;
+  }
+
   togglePlayback() {
     const media = this.currentMedia();
     if (!media) {

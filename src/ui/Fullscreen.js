@@ -27,7 +27,7 @@ class Fullscreen extends UI {
     this._button = render("button", {
       type: "button",
       title: "Enter Fullscreen",
-      className: "fuse-player-fullscreen-toggle",
+      className: "fuse-player-button fuse-player-fullscreen-toggle",
       onClick: this._toggleFullscreen,
     }, "Enter Fullscreen");
     this._inVR = false;

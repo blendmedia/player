@@ -37,7 +37,7 @@ class VR extends UI {
     this._button = render("button", {
       type: "button",
       title: "Enter VR",
-      className: "fuse-player-vr-toggle",
+      className: "fuse-player-button fuse-player-vr-toggle",
       onClick: this._toggleVR,
     }, "Enter VR");
 

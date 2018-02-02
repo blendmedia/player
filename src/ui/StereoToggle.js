@@ -32,7 +32,7 @@ class StereoToggle extends UI {
     super.create(config);
     this._button = render("button", {
       type: "button",
-      className: "fuse-player-stereo-toggle",
+      className: "fuse-player-button fuse-player-stereo-toggle",
       onClick: this._toggle,
     }, "2D");
   }

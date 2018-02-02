@@ -49,6 +49,19 @@ class Media extends Base {
   getTexture() {
     return null;
   }
+
+  volume() {
+    return 0;
+  }
+
+  mute() {
+    return false;
+  }
+
+  repeat() {
+    return false;
+  }
+
 }
 
 export default Media;

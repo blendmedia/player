@@ -212,7 +212,10 @@ export function createTexture(
   if (!media) {
     log("No media item supplied for texture");
   } else if (media instanceof HTMLVideoElement) {
-    initialized = media.readyState >= 2;
+    media.addEventListener("canplay", function() {
+      media._renderable = true;
+    });
+    initialized = !!media._renderable;
     type = "video";
   } else if (media.complete) {
     initialized = true;
@@ -236,7 +239,7 @@ export function updateTexture(gl, texture) {
   }
 
   if (!initialized) {
-    initialized = media.complete || media.readyState >= 2;
+    initialized = media.complete || media._renderable;
   }
 
   if (!initialized || (media instanceof HTMLImageElement && applied)) {

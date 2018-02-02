@@ -4,7 +4,7 @@
 }
 
 .fuse-player * {
-  -webkit-touch-highlight-color:  rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color:  rgba(91, 205, 231, 0.3);
 }
 
 .fuse-player canvas {
@@ -91,6 +91,7 @@
   transition:  transform 0.2s linear;
   cursor: pointer;
   z-index:  0;
+  overflow: hidden;
 }
 
 .fuse-player-scrubber:hover {
@@ -128,11 +129,7 @@
   z-index:  2;
 }
 
-.fuse-player-play,
-.fuse-player-pause,
-.fuse-player-fullscreen-toggle,
-.fuse-player-vr-toggle,
-.fuse-player-stereo-toggle {
+.fuse-player-button {
   width: 30px;
   height: 30px;
   outline: 0;
@@ -144,11 +141,7 @@
   opacity:  0.8;
 }
 
-.fuse-player-play:hover,
-.fuse-player-pause:hover,
-.fuse-player-fullscreen-toggle:hover,
-.fuse-player-vr-toggle:hover,
-.fuse-player-stereo-toggle:hover {
+.fuse-player-button:hover {
   opacity: 1;
 }
 
@@ -160,9 +153,9 @@
 .fuse-player-pause {
   background-image: svg-load("icons/pause.svg", fill=none, stroke=#fff);
 }
+
 .fuse-player-fullscreen-toggle {
   background-image: svg-load("icons/fullscreen-enter.svg", fill=none, stroke=#fff);
-  margin-left:  auto;
 }
 
 .fuse-player-fullscreen-toggle.is-active {
@@ -170,7 +163,7 @@
 }
 
 .fuse-player-vr-toggle {
-  background-image: svg-load("icons/cardboard.svg", stroke=#FFF, fill=none);
+ background-image: svg-load("icons/cardboard.svg", stroke=#FFF, fill=none);
   background-size:  32px auto;
   margin-left:  5px;
 }
@@ -184,13 +177,79 @@
 }
 
 .fuse-player-stereo-toggle.is-active {
-  color: #5bcde7
+  color: #5bcde7;
 }
 
 .fuse-player-time {
   font-size:  10px;
   font-family:  Verdana, Helvectica, Arial, sans-serif;
   color:  #FFF;
+  margin-right:  auto;
+}
+
+.fuse-player-repeat {
+  background-image: svg-load("icons/repeat.svg", fill=none, stroke=#fff);
+}
+
+.fuse-player-repeat.is-active {
+ background-image: svg-load("icons/repeat.svg", fill=none, stroke=#5bcde7);
+}
+
+.fuse-player-volume {
+  display: flex;
+  align-items: center;
+}
+
+.fuse-player-volume-mute {
+  margin-right: 5px;
+  background-image: svg-load("icons/volume-2.svg", fill=none, stroke=#fff);
+}
+
+.volume-level-low .fuse-player-volume-mute {
+  background-image: svg-load("icons/volume.svg", fill=none, stroke=#fff);
+}
+
+.volume-level-med .fuse-player-volume-mute {
+  background-image: svg-load("icons/volume-1.svg", fill=none, stroke=#fff);
+}
+
+.is-muted .fuse-player-volume-mute {
+  background-image: svg-load("icons/volume-x.svg", fill=none, stroke=#fff);
+}
+
+.fuse-player-volume-slider {
+  margin-right:  10px;
+  position: relative;
+  width:  80px;
+  background: rgba(255, 255, 255, 0.6);
+  height:  4px;
+  cursor:  pointer;
+}
+
+.fuse-player-volume-current {
+  position: absolute;
+  top:  -1px;
+  height:  6px;
+  width:  100%;
+  left:  0;
+  background: #5bcde7;
+  transition:  background-color 0.3s ease-in-out;
+  transform-origin:  left;
+}
+
+.fuse-player-volume-handle {
+  position: absolute;
+  width:  10px;
+  height:  10px;
+  left: 0;
+  top:  -3px;
+  margin-left:  -5px;
+  border-radius:  50%;
+  background:  #FFF;
+}
+
+.is-muted .fuse-player-volume-current {
+  background-color:  #333;
 }
 
 .fuse-player-dial {
@@ -199,24 +258,11 @@
   top:  15px;
   width:  40px;
   height:  40px;
-  border:  2px solid #FFF;
-  background: rgba(255, 255, 255, 0.2);
+  border:  2px solid #EEE;
+  background: rgba(0, 0, 0, 0.2);
   overflow: hidden;
   border-radius:  50%;
   backface-visibility: hidden;
-}
-
-.fuse-player-dial::before {
-  content:  "";
-  position: absolute;
-  width:  0;
-  height:  0;
-  border-style: solid;
-  border-width: 30px 25px 0 25px;
-  border-color: #FFF transparent transparent transparent;
-  left:  50%;
-  margin-top:  -10px;
-  margin-left:  -25px;
 }
 
 .fuse-player-dial::after {
@@ -224,12 +270,28 @@
   position: absolute;
   top:  50%;
   left:  50%;
-  width: 6px;
-  height:  6px;
+  width: 12px;
+  height:  12px;
   border-radius: 50%;
-  background: #FFF;
-  margin-left:  -3px;
-  margin-top:  -3px;
+  background: #EEE;
+  border:  1px solid #DDD;
+  margin-left:  -7px;
+  margin-top:  -7px;
+  z-index: 2;
+}
+
+.fuse-player-dial-fov {
+  position: absolute;
+  top:  -2px;
+  left:  -2px;
+  width:  44px;
+  height:  44px;
+  fill: #EEE;
+  stroke-width: 0;
+}
+
+.fuse-player-dial-fov path {
+
 }
 
 
@@ -244,12 +306,27 @@
     transform: scaleY(1);
   }
 
-  .fuse-player-play,
-  .fuse-player-pause,
-  .fuse-player-fullscreen-toggle,
-  .fuse-player-vr-toggle,
-  .fuse-player-stereo-toggle {
+  .fuse-player-button {
     width:  44px;
     height:  44px;
+  }
+
+  .fuse-player-volume-slider {
+    margin-right:  15px;
+  }
+
+  .fuse-player-volume-slider, .fuse-player-volume-current {
+    height: 16px;
+  }
+
+  .fuse-player-volume-current {
+    top:  0;
+  }
+
+  .fuse-player-volume-handle {
+    width: 18px;
+    height: 18px;
+    margin-left:  -9px;
+    top:  -1px;
   }
 }

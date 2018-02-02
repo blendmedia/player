@@ -5,5 +5,7 @@ export { default as Fullscreen } from "./Fullscreen";
 export { default as TimeDisplay } from "./TimeDisplay";
 export { default as StereoToggle } from "./StereoToggle";
 export { default as NavigationDial } from "./NavigationDial";
+export { default as Repeat } from "./Repeat";
+export { default as Volume } from "./Volume";
 
 

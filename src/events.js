@@ -25,7 +25,7 @@ export const POINTER_START = POINTER_DOWN;
 export const POINTER_UP = (
   detect.primaryInput === "touch" ? TOUCH_END : MOUSE_UP
 );
-export const POINTER_END = POINTER_DOWN;
+export const POINTER_END = POINTER_UP;
 export const POINTER_MOVE = (
   detect.primaryInput === "touch" ? TOUCH_MOVE : MOUSE_MOVE
 );

@@ -6,13 +6,23 @@ export function classNames(classes = {}) {
 }
 
 export function render(type = "div", props = {}, children = []) {
-  const element = document.createElement(type);
+  let element, isSVG = false;
+  if (type === "svg") {
+    isSVG = true;
+    element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  } else {
+    element = document.createElement(type);
+  }
 
   for (const prop in props) {
     const value = props[prop];
     if (prop === "className") {
       const names = (value || "").split(" ").map(n => _classes[n] || n);
-      element.className = names.join(" ");
+      if (isSVG) {
+        element.className.baseVal = names.join(" ");
+      } else {
+        element.className = names.join(" ");
+      }
       continue;
     }
 
@@ -26,17 +36,19 @@ export function render(type = "div", props = {}, children = []) {
     element.setAttribute(prop, value);
   }
 
-  if (!Array.isArray(children)) {
-    children = [children];
-  }
-  for (const child of children) {
-    if (child instanceof HTMLElement) {
-      element.appendChild(child);
-      continue;
+  if (children) {
+    if (!Array.isArray(children)) {
+      children = [children];
     }
+    for (const child of children) {
+      if (child instanceof Element) {
+        element.appendChild(child);
+        continue;
+      }
 
-    const text = document.createTextNode(child);
-    element.appendChild(text);
+      const text = document.createTextNode(child);
+      element.appendChild(text);
+    }
   }
 
   return element;

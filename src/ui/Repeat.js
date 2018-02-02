@@ -1,9 +1,8 @@
 import { register } from "../register";
 import UI from "../interfaces/UI";
 import { render, text, addClass, removeClass, remove } from "../util/dom";
-import * as events from "../events";
 
-class PlayPause extends UI {
+class Repeat extends UI {
   constructor(...args) {
     super(...args);
     this._toggle = this._toggle.bind(this);
@@ -37,36 +36,32 @@ class PlayPause extends UI {
     super.create(config);
     this._button = render("button", {
       type: "button",
-      className: "fuse-player-button fuse-player-play",
+      className: "fuse-player-button fuse-player-repeat",
       onClick: this._toggle,
-    }, "Play");
-
-    this.on(events.PAUSED, this._onPause.bind(this));
-    this.on(events.PLAYING, this._onPlay.bind(this));
-  }
-
-  _onPlay() {
-    addClass(this._button, "fuse-player-pause");
-    removeClass(this._button, "fuse-player-play");
-    text(this._button, "Pause");
-  }
-
-  _onPause() {
-    addClass(this._button, "fuse-player-play");
-    removeClass(this._button, "fuse-player-pause");
-    text(this._button, "Play");
+    }, "2D");
   }
 
   _toggle() {
-    this.$player.togglePlayback();
+    const mode = this.$player.repeat();
+    this.$player.repeat(!mode);
+  }
+
+  update() {
+    if (this.$player.repeat()) {
+      addClass(this._button, "is-active");
+      text(this._button, "Repeat On");
+    } else {
+      removeClass(this._button, "is-active");
+      text(this._button, "Repeat Off");
+    }
   }
 
 }
 
-PlayPause.defaultConfig = {
+Repeat.defaultConfig = {
   section: "bottom",
 };
 
 
-register("ui:play-pause", PlayPause);
-export default PlayPause;
+register("ui:repeat", Repeat);
+export default Repeat;

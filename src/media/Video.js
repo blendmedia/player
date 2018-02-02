@@ -49,6 +49,7 @@ class Video extends Media {
     }
 
     this._setupVideo(this._video);
+    this.load();
     return true;
   }
 
@@ -104,6 +105,27 @@ class Video extends Media {
       return [];
     }
     return this._video.buffered;
+  }
+
+  repeat(val) {
+    if (val !== void 0) {
+      this._video.loop = !!val;
+    }
+    return this._video.loop;
+  }
+
+  volume(val) {
+    if (val !== void 0) {
+      this._video.volume = val;
+    }
+    return this._video.volume;
+  }
+
+  mute(val) {
+    if (val !== void 0) {
+      this._video.muted = !!val;
+    }
+    return this._video.muted;
   }
 
   getTexture() {
