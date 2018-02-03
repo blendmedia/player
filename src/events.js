@@ -57,7 +57,7 @@ export const RECONFIGURE   = "reconfigure";
 export const PRE_RENDER    = "prerender";
 export const POST_RENDER   = "postrender";
 export const ERROR         = "error";
-export const RESET_ERROR   = "reset";
+export const MEDIA_CHANGE   = "mediachange";
 
 export const TOGGLE_FULLSCREEN = "fullscreen";
 

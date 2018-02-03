@@ -83,6 +83,10 @@ export function text(element, text) {
 }
 
 export function attr(element, attr, value) {
+  if (value === null) {
+    element.removeAttribute(attr);
+    return;
+  }
   element.setAttribute(attr, value);
 }
 

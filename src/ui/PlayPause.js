@@ -30,7 +30,7 @@ class PlayPause extends UI {
   }
 
   unhide() {
-    attr(this._button, "disabled", false);
+    attr(this._button, "disabled", null);
   }
 
   create(config) {

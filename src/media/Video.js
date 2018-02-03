@@ -1,6 +1,8 @@
 import Media from "../interfaces/Media";
 import { register, configure } from "../register";
 import * as events from "../events";
+import { attr, render } from "../util/dom";
+import { addDomListener } from "../util/listener";
 
 class Video extends Media {
   constructor(...args) {
@@ -17,15 +19,16 @@ class Video extends Media {
 
   _setupVideo(video) {
     // Ensure iPhone devices do not play video in Quicktime
-    video.setAttribute("playsinline", true);
-    video.setAttribute("webkit-playsinline", true);
-
-    video.addEventListener("pause", this.send(events.PAUSED));
-    video.addEventListener("playing", this.send(events.PLAYING));
-    video.addEventListener("timeupdate", this.send(events.TIME_UPDATE));
-    video.addEventListener("canplay", this.send(events.LOADED));
-    video.addEventListener("stalled", this.send(events.BUFFERING));
-    video.addEventListener("waiting", this.send(events.BUFFERING));
+    attr(video, "playsinline", true),
+    attr(video, "webkit-playsinline", true),
+    this._events = [
+      addDomListener(video, "pause", this.send(events.PAUSED)),
+      addDomListener(video, "playing", this.send(events.PLAYING)),
+      addDomListener(video, "timeupdate", this.send(events.TIME_UPDATE)),
+      addDomListener(video, "canplay", this.send(events.LOADED)),
+      addDomListener(video, "stalled", this.send(events.BUFFERING)),
+      addDomListener(video, "waiting", this.send(events.BUFFERING)),
+    ];
   }
 
   create({ src, crossOrigin, loop, autoplay }) {
@@ -41,21 +44,18 @@ class Video extends Media {
       this._video = src;
       this._src = this._video.getAttribute("src");
     } else if (typeof src === "string") {
-      const video = document.createElement("video");
+      const video = render("video", {
+        preload: "auto",
+        loop: !!loop,
+        autoplay: !!autoplay,
+        crossOrigin: crossOrigin === true ? "anonymous" : crossOrigin || null,
+      });
       this._video = video;
-      video.preload = "auto";
-      video.loop = !!loop;
-      video.autoplay = !!autoplay;
-      if (crossOrigin) {
-        video.crossOrigin = crossOrigin === true ? "anonymous" : crossOrigin;
-      }
       this._src = src;
     } else {
       return false;
     }
 
-    this._setupVideo(this._video);
-    this.load();
     return true;
   }
 
@@ -79,9 +79,19 @@ class Video extends Media {
 
   load() {
     if (this._video) {
-      this._video.src = this._src;
+      this._setupVideo(this._video);
+      attr(this._video, "src", this._src);
       this._video.load();
     }
+  }
+
+  unload() {
+    console.log();
+    for (const off of this._events) {
+      off();
+    }
+    attr(this._video, "src", null);
+    this._video.pause();
   }
 
   seek(time) {
@@ -141,33 +151,48 @@ class Video extends Media {
 
 // Register component and setup src configuration mapping
 configure((src, original) => {
-  if (src instanceof HTMLVideoElement) {
-    return {
-      type: Video,
-      options: {
-        src,
-      },
-    };
-  }
-  // Only parse string src configurations
-  if (typeof src !== "string") {
+  if (!src) {
     return null;
   }
 
-  if (/\.(mp4|webm|ogv|mov)(\?.*?)$/.test(src)) {
-    return {
-      type: Video,
-      options: {
-        src,
-        crossOrigin: true,
-        loop: original.loop,
-        autoplay: original.autoplay,
-      },
-    };
+  if (typeof src === "string" || src instanceof HTMLVideoElement) {
+    src = [src];
   }
 
-  // Do not manipulate if no match found
-  return null;
+  if (!Array.isArray(src)) {
+    return null;
+  }
+
+  return src.map(src =>  {
+    if (src instanceof HTMLVideoElement) {
+      return {
+        type: Video,
+        options: {
+          src,
+        },
+      };
+    }
+    // Only parse string src configurations
+    if (typeof src !== "string") {
+      return null;
+    }
+
+    if (/\.(mp4|webm|ogv|mov)(\?.*?)?$/.test(src)) {
+      return {
+        type: Video,
+        options: {
+          src,
+          crossOrigin: true,
+          loop: original.loop,
+          autoplay: original.autoplay,
+        },
+      };
+    }
+
+    // Do not manipulate if no match found
+    return src;
+  });
+
 }, "src");
 register("media:video", Video);
 export default Video;

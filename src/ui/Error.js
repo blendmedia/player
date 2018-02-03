@@ -14,7 +14,7 @@ class Error extends UI {
     this._on = this._on.bind(this);
 
     this.on(events.ERROR, this._on);
-    this.on(events.RESET_ERROR, this._off);
+    this.on(events.MEDIA_CHANGE, this._off);
   }
 
 

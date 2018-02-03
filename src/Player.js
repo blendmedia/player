@@ -28,7 +28,7 @@ class Player {
     this._target = null; // Main HTML container to add items to
     this._renderTarget = null; // Where the active renderer is drawing to
     this._dimensions = ""; // Serialized dimensions of the video render
-    this._current = 0; // Current media item being played
+    this._current = -1; // Current media item being played
     this._rotation = { // Current rotation in Euler degrees
       x: 0,
       y: 0,
@@ -239,27 +239,20 @@ class Player {
 
   _setRenderer(renderers) {
     renderers = this._resolve(renderers);
-    let replace = null, opts = null;
+    let replace = null;
     for (const { type: Type, options } of renderers) {
       const instance = new Type(this._events);
       if (instance.isSupported(options)) {
+        instance.create(options);
         replace = instance;
-        opts = options;
         break;
       }
     }
 
-    const existing = this._renderer ? this._renderer.constructor.name : null;
-    if (
-      replace &&
-      replace.constructor.name !== existing
-    ) {
-      if (this._renderer) {
-        this._renderer.destroy();
-      }
-      replace.create(opts);
-      this._renderer = replace;
+    if (this._renderer) {
+      this._renderer.destroy();
     }
+    this._renderer = replace;
 
     const target = this._renderer.getTarget();
     if (target !== this._renderTarget) {
@@ -268,15 +261,27 @@ class Player {
   }
 
   setCurrentMedia(n) {
+    if (n === this._current) {
+      return;
+    }
+    const prev = this.currentMedia();
+    const volume = this.volume();
+    const mute = this.mute();
+    if (prev) {
+      prev.unload();
+    }
     this._current = n;
     const current = this.currentMedia();
-    if (this._renderer) {
-      this._renderer.setSource(
-        current ? current.getTexture() : null,
-        this._stereo,
-        this._degrees,
-        this._fisheye,
-      );
+    if (current) {
+      current.load();
+      if (this._renderer) {
+        this._renderer.setSource(
+          current.getTexture(),
+          this._stereo,
+          this._degrees,
+          this._fisheye,
+        );
+      }
     }
 
     const isVideo = current ? current.isVideo() : false;
@@ -289,6 +294,13 @@ class Player {
         }
       }
     }
+
+    // Re-apply volume/mute to new source
+    if (prev) {
+      this.volume(volume);
+      this.mute(mute);
+    }
+    this._events.emit(events.MEDIA_CHANGE);
 
   }
 
@@ -329,6 +341,13 @@ class Player {
     this._setUI(config.ui);
     this._setMedia(config.src, config.stereo, config.degrees, config.fisheye);
     this._setUpdateable();
+
+    if (!this.currentMedia()) {
+      this._events.emit(events.ERROR);
+      return false;
+    }
+
+    return true;
   }
 
   size() {
@@ -583,7 +602,7 @@ class Player {
   mute(...args) {
     const media = this.currentMedia();
     if (media) {
-      return media.mute(...args);
+      return this._muteVal = media.mute(...args);
     }
     return false;
   }
@@ -591,7 +610,7 @@ class Player {
   volume(...args) {
     const media = this.currentMedia();
     if (media) {
-      return media.volume(...args);
+      return this._volume = media.volume(...args);
     }
     return 0;
   }

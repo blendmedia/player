@@ -24,7 +24,7 @@ class Repeat extends UI {
     remove(this._button);
   }
 
- hide() {
+  hide() {
     attr(this._button, "disabled", true);
   }
 

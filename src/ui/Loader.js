@@ -18,6 +18,7 @@ class Loader extends UI {
     this.on(events.PLAYING, this._off);
     this.on(events.ERROR, this._off);
     this.on(events.BUFFERING, this._on);
+    this.on(events.MEDIA_CHANGE, this._on);
   }
 
 

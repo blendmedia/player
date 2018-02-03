@@ -74,10 +74,6 @@ class Volume extends UI {
 
   update() {
     const volume = this.$player.volume();
-    removeClass(this._root, "volume-level-low");
-    removeClass(this._root, "volume-level-med");
-    removeClass(this._root, "volume-level-high");
-
     let magnitude = "";
     if (volume < 0.2) {
       magnitude = "low";
@@ -88,6 +84,9 @@ class Volume extends UI {
     }
 
     if (magnitude !== this._magnitude) {
+      removeClass(this._root, "volume-level-low");
+      removeClass(this._root, "volume-level-med");
+      removeClass(this._root, "volume-level-high");
       addClass(this._root, `volume-level-${magnitude}`);
     }
     this._magnitude = magnitude;

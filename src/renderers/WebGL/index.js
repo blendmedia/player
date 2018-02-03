@@ -178,6 +178,10 @@ class WebGLRenderer extends Renderer {
   }
 
   render(rotation, position, useStereo, vrFrame) {
+    if (!this.texture) {
+      return;
+    }
+
     const gl = this._gl;
     let view = vrFrame;
 
@@ -217,7 +221,6 @@ class WebGLRenderer extends Renderer {
 
     // Re-activate shader for frame
     this._use();
-
     webgl.useTexture(gl, this.texture, this._uniforms.media);
 
     if (useStereo) {

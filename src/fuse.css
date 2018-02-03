@@ -1,6 +1,7 @@
 .fuse-player {
   background: #000;
   position: relative;
+  overflow: hidden;
 }
 
 .fuse-player * {
@@ -91,7 +92,16 @@
   transition:  transform 0.2s linear;
   cursor: pointer;
   z-index:  0;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.fuse-player-scrubber::after {
+  content: "";
+  position: absolute;
+  bottom: -100%;
+  left:  0;
+  right:  0;
+  height:  300%;
 }
 
 .fuse-player-scrubber:hover {

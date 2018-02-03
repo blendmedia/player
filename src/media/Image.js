@@ -34,11 +34,21 @@ class Image extends Media {
       return false;
     }
 
-    addDomListener(this._image, LOADED, this.send(LOADED));
-    addDomListener(this._image, ERROR, this.send(ERROR));
 
-    // Retrigger events
+  }
+
+  load() {
+    this._events = [
+      addDomListener(this._image, LOADED, this.send(LOADED)),
+      addDomListener(this._image, ERROR, this.send(ERROR)),
+    ];
     this._image.src = this._src;
+  }
+
+  unload() {
+    for (const off of this._events) {
+      off();
+    }
   }
 
   destroy() {
@@ -54,31 +64,44 @@ class Image extends Media {
 
 // Register component and setup src configuration mapping
 configure(src => {
-  if (src instanceof HTMLImageElement) {
-    return {
-      type: Image,
-      options: {
-        src,
-      },
-    };
-  }
-  // Only parse string src configurations
-  if (typeof src !== "string") {
+  if (!src) {
     return null;
   }
 
-  if (/\.(jpe?g|webp|png|gif|bmp)(\?.*)?$/.test(src)) {
-    return {
-      type: Image,
-      options: {
-        src,
-        crossOrigin: true,
-      },
-    };
+  if (typeof src === "string" || src instanceof HTMLVideoElement) {
+    src = [src];
   }
 
-  // Do not manipulate if no match found
-  return null;
+  if (!Array.isArray(src)) {
+    return null;
+  }
+
+  return src.map(src => {
+    if (src instanceof HTMLImageElement) {
+      return {
+        type: Image,
+        options: {
+          src,
+        },
+      };
+    }
+    // Only parse string src configurations
+    if (typeof src !== "string") {
+      return src;
+    }
+
+    if (/\.(jpe?g|webp|png|gif|bmp)(\?.*)?$/.test(src)) {
+      return {
+        type: Image,
+        options: {
+          src,
+          crossOrigin: true,
+        },
+      };
+    }
+    return src;
+  });
+
 }, "src");
 register("media:image", Image);
 export default Image;
