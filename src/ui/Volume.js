@@ -86,7 +86,11 @@ class Volume extends UI {
     } else {
       magnitude = "high";
     }
-    addClass(this._root, `volume-level-${magnitude}`);
+
+    if (magnitude !== this._magnitude) {
+      addClass(this._root, `volume-level-${magnitude}`);
+    }
+    this._magnitude = magnitude;
 
     this._currentVolume.style.transform = `scaleX(${round(volume, 4)})`;
     this._currentVolumeHandle.style.left = `${round(volume*100, 4)}%`;

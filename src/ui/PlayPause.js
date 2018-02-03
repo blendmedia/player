@@ -1,6 +1,6 @@
 import { register } from "../register";
 import UI from "../interfaces/UI";
-import { render, text, addClass, removeClass, remove } from "../util/dom";
+import { render, text, addClass, removeClass, remove, attr } from "../util/dom";
 import * as events from "../events";
 
 class PlayPause extends UI {
@@ -26,11 +26,11 @@ class PlayPause extends UI {
   }
 
   hide() {
-    this._button.style.display = "none";
+    attr(this._button, "disabled", true);
   }
 
   unhide() {
-    this._button.style.display = "";
+    attr(this._button, "disabled", false);
   }
 
   create(config) {

@@ -1,6 +1,6 @@
 import { register } from "../register";
 import UI from "../interfaces/UI";
-import { render, text, addClass, removeClass, remove } from "../util/dom";
+import { render, text, addClass, removeClass, remove, attr } from "../util/dom";
 
 class StereoToggle extends UI {
   constructor(...args) {
@@ -20,12 +20,12 @@ class StereoToggle extends UI {
     remove(this._button);
   }
 
-  hide() {
-    this._button.style.display = "none";
+ hide() {
+    attr(this._button, "disabled", true);
   }
 
   unhide() {
-    this._button.style.display = "";
+    attr(this._button, "disabled", false);
   }
 
   create(config) {

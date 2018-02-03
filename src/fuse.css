@@ -141,6 +141,14 @@
   opacity:  0.8;
 }
 
+.fuse-player-button[disabled] {
+  display: none;
+}
+
+.fuse-player-button[disabled] + .fuse-player-button:not([disabled]) {
+  margin-left:  auto;
+}
+
 .fuse-player-button:hover {
   opacity: 1;
 }
