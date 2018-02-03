@@ -1,5 +1,5 @@
 import { addDomListener } from "./listener";
-import * as events from "./events";
+import * as events from "../events";
 
 let _classes = {};
 export function classNames(classes = {}) {

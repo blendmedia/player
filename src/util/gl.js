@@ -217,8 +217,11 @@ export function createTexture(
     });
     initialized = !!media._renderable;
     type = "video";
-  } else if (media.complete) {
-    initialized = true;
+  } else if (media instanceof HTMLImageElement) {
+    media.addEventListener("load", function() {
+      media._renderable = true;
+    });
+    initialized = !!media._renderable;
   }
 
   return {
@@ -239,7 +242,7 @@ export function updateTexture(gl, texture) {
   }
 
   if (!initialized) {
-    initialized = media.complete || media._renderable;
+    initialized = media._renderable;
   }
 
   if (!initialized || (media instanceof HTMLImageElement && applied)) {

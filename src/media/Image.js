@@ -1,5 +1,8 @@
 import Media from "../interfaces/Media";
 import { register, configure } from "../register";
+import { render } from "../util/dom";
+import { LOADED, ERROR } from "../events";
+import { addDomListener } from "../util/listener";
 
 class Image extends Media {
   constructor(...args) {
@@ -23,16 +26,25 @@ class Image extends Media {
       this._image = src;
       this._src = this._image.getAttribute("src");
     } else if (typeof src === "string") {
-      const image = document.createElement("img");
-      this._image = image;
-      image.src = src;
-      if (crossOrigin) {
-        image.crossOrigin = crossOrigin === true ? "anonymous" : crossOrigin;
-      }
+      this._image = render("img", {
+        crossOrigin: crossOrigin === true ? "anonymous" : crossOrigin,
+      });
       this._src = src;
-      return true;
+    } else {
+      return false;
     }
-    return false;
+
+    addDomListener(this._image, LOADED, this.send(LOADED));
+    addDomListener(this._image, ERROR, this.send(ERROR));
+
+    // Retrigger events
+    this._image.src = this._src;
+  }
+
+  destroy() {
+    if (this._originalParent) {
+      this._originalParent.appendChild(this._image);
+    }
   }
 
   getTexture() {
@@ -55,7 +67,7 @@ configure(src => {
     return null;
   }
 
-  if (/\.(jpe?g|webp|png|gif|bmp)$/.test(src)) {
+  if (/\.(jpe?g|webp|png|gif|bmp)(\?.*)?$/.test(src)) {
     return {
       type: Image,
       options: {

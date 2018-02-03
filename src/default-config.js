@@ -18,6 +18,7 @@ export default {
     "ui:vr",
     "ui:dial",
     "ui:loader",
+    "ui:error",
   ],
   format: 360,
   stereo: false,
