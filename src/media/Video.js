@@ -86,7 +86,6 @@ class Video extends Media {
   }
 
   unload() {
-    console.log();
     for (const off of this._events) {
       off();
     }

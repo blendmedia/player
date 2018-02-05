@@ -104,7 +104,6 @@ class Player {
     this._enableAutoHide();
     this._events.on(events.VR_PRESENT_CHANGE, this._onVRChange, true);
     fscreen.addEventListener("fullscreenchange", () => {
-      console.log("Hello?");
       this._events.emit(events.TOGGLE_FULLSCREEN, !!fscreen.fullscreenElement);
     });
   }
@@ -554,7 +553,6 @@ class Player {
     if (this._pauseOnSuspend) {
       const media = this.currentMedia();
       if (media) {
-        console.log("Pausing media");
         media.pause();
       }
     }

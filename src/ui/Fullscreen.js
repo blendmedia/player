@@ -39,7 +39,6 @@ class Fullscreen extends UI {
   }
 
   _onFullscreenChange(isFullscreen) {
-    console.log(isFullscreen);
     if (isFullscreen) {
       addClass(this._button, "is-active");
       text(this._button, "Exit Fullscreen");
