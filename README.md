@@ -29,7 +29,7 @@
   * [x] UO
   * [x] Mono View
   * [x] Stereo View
-* [ ] Fallback to equirecentangular
+* [ ] Fallback to equirectangular
   * [ ] Mono view
   * [ ] Warning/Help text
 * [x] Hardware Support
