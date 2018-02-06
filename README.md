@@ -2,16 +2,17 @@
 ## A tiny, minimal dependency 180/360 video/image player for the browser
 ### Features / Planned
 
-* [ ] Full Screen
+* [x] Full Screen
   * [ ] Fallback for iOS
-* [ ] 180-360° view
-* [ ] Images & Video
+* [x] 180-360° view
+* [x] Images & Video
 * [ ] Poster images
-* [ ] Support for non-standard aspect ratio (16:9 vs 2:1)
-* [ ] Multiple source/resolutions
-* [ ] Standard media controls (volume, scrub, play/pause)
-  * [ ] Navigation dial (ala youtube/facebook 360).
-  * [ ] Configurable
+* [x] Support for non-standard aspect ratio (16:9 vs 2:1)
+* [x] Multiple source/resolutions
+* [x] Standard media controls (volume, scrub, play/pause)
+  * [x] Navigation dial (ala youtube/facebook 360).
+  * [ ] Source selector
+  * [x] Configurable
 * [ ] Cross Browser Support
   * [ ] Chrome
   * [ ] IE11
@@ -23,19 +24,20 @@
   * [ ] Chrome (Android)
   * [ ] Android Browser
   * [ ] Samsung Browser
-* [ ] Stereoscopy Support
-  * [ ] SBS
-  * [ ] UO
-  * [ ] Mono View
-  * [ ] Stereo View
+* [x] Stereoscopy Support
+  * [x] SBS
+  * [x] UO
+  * [x] Mono View
+  * [x] Stereo View
 * [ ] Fallback to equirecentangular
   * [ ] Mono view
   * [ ] Warning/Help text
-* [ ] Hardware Support
-  * [ ] Mouse and touch drag
-    * [ ] Momentum
-    * [ ] Optional horizon lock
-  * [ ] Keyboard controls
-  * [ ] Phone accelerometer 
-  * [ ] VR Headset (WebVR)
-  * [ ] VR Headset (WebVR Polyfill)
+* [x] Hardware Support
+  * [x] Mouse and touch drag
+    * [x] Momentum
+    * [x] Optional horizon lock
+  * [x] Keyboard controls
+  * [x] Phone accelerometer 
+  * [x] VR Headset (WebVR)
+  * [x] VR Headset (WebVR Polyfill)
+  * [x] Gamepad
