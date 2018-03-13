@@ -78,6 +78,19 @@ export function removeClass(element, className) {
   element.classList.remove(name);
 }
 
+export function hasClass(element, className) {
+  const name = _classes[className] || className;
+  return element.classList.contains(name);
+}
+
+export function toggleClass(element, className) {
+  if (hasClass(element, className)) {
+    removeClass(element, className);
+  } else {
+    addClass(element, className);
+  }
+}
+
 export function text(element, text) {
   element.textContent = text;
 }

@@ -222,7 +222,7 @@ class Player {
         if (!component.isSupported(options)) {
           continue;
         }
-        component.create(options);
+        component.create(options, this._config);
         this[key].push(component);
       }
     }
@@ -351,7 +351,7 @@ class Player {
 
   size() {
     let width, height;
-    if (fscreen.fullscreenElement === this._root) {
+    if (this._isFullScreen || fscreen.fullscreenElement === this._root) {
       width = this._root.clientWidth;
       height = this._root.clientHeight;
     } else {
@@ -379,6 +379,9 @@ class Player {
       return;
     }
     display.requestPresent([{ source: this._renderTarget }]).then(() => {
+      if (this._isFullScreen) {
+        this.toggleFullscreen();
+      }
       display.resetPose();
       // Set canvas size
       const right = display.getEyeParameters("right");
@@ -529,6 +532,14 @@ class Player {
     }
 
     if (!fscreen.fullscreenEnabled) {
+      // iOS mode
+      if (this._isFullScreen) {
+        removeClass(this._root, "fuse-player-is-fullscreen");
+      } else {
+        addClass(this._root, "fuse-player-is-fullscreen");
+      }
+      this._isFullScreen = !this._isFullScreen;
+      this._events.emit(events.TOGGLE_FULLSCREEN, this._isFullScreen);
       return;
     }
 

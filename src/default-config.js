@@ -16,6 +16,7 @@ export default {
     "ui:fullscreen",
     "ui:stereo",
     "ui:vr",
+    "ui:source",
     "ui:dial",
     "ui:loader",
     "ui:error",

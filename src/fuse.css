@@ -4,6 +4,15 @@
   overflow: hidden;
 }
 
+.fuse-player-is-fullscreen {
+  position: fixed !important;
+  top:  0 !important;
+  left:  0 !important;
+  bottom:  0 !important;
+  right:  0 !important;
+  z-index:  3000000 !important;
+}
+
 .fuse-player * {
   -webkit-tap-highlight-color:  rgba(91, 205, 231, 0.3);
 }
@@ -196,6 +205,51 @@
 
 .fuse-player-stereo-toggle.is-active {
   color: #5bcde7;
+}
+
+.fuse-player-source-selector {
+  position: relative;
+  overflow: visible;
+  background-image: svg-load("icons/settings.svg", fill=none, stroke=#fff);
+}
+
+.fuse-player-source-selector.is-active {
+  opacity:  1;
+}
+
+.fuse-player-source-selector-menu {
+  position: absolute;
+  bottom:  100%;
+  right:  0;
+  padding:  10px;
+  background: rgba(0, 0, 0, 0.5);
+  display:  none;
+  margin-bottom:  8px;
+}
+
+.fuse-player-source-selector.is-active .fuse-player-source-selector-menu {
+  display: block;
+}
+
+.fuse-player-source-selector-menu-option {
+  white-space: nowrap;
+  display:  block;
+  background: none;
+  padding:  5px;
+  color:  #CCC;
+  font-size:  12px;
+  font-family:  Verdana, Helvectica, Arial, sans-serif;
+  border:  0;
+  cursor: pointer;
+  outline:  0;
+}
+
+.fuse-player-source-selector-menu-option:hover {
+  color:  #FFF;
+}
+
+.fuse-player-source-selector-menu-option.is-active {
+  color:  #5bcde7;
 }
 
 .fuse-player-time {
