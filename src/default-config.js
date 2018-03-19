@@ -20,6 +20,7 @@ export default {
     "ui:dial",
     "ui:loader",
     "ui:error",
+    "ui:poster",
   ],
   format: 360,
   stereo: false,

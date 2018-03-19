@@ -10,5 +10,6 @@ export { default as SourceSelector } from "./SourceSelector";
 export { default as Volume } from "./Volume";
 export { default as Loader } from "./Loader";
 export { default as Error } from "./Error";
+export { default as Poster } from "./Poster";
 
 
