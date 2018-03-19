@@ -47,7 +47,7 @@ export function render(type = "div", props = {}, children = []) {
       continue;
     }
 
-    element.setAttribute(prop, value);
+    attr(element, prop, value);
   }
 
   if (children) {

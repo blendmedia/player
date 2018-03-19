@@ -47,7 +47,7 @@ class Video extends Media {
       const video = render("video", {
         preload: "auto",
         loop: !!loop,
-        autoplay: !!autoplay,
+        autoplay: autoplay || null,
         crossOrigin: crossOrigin === true ? "anonymous" : crossOrigin || null,
       });
       this._video = video;
@@ -183,7 +183,7 @@ configure((src, original) => {
           src,
           crossOrigin: true,
           loop: original.loop,
-          autoplay: original.autoplay,
+          autoplay: original.autoplay || false,
         },
       };
     }
