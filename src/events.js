@@ -80,10 +80,10 @@ export const stop = e => e.stopPropagation();
 
 // Normalize mouse and touch events
 export const normalize = e => {
-  if (e.touches) {
+  if (e.touches && e.touches.item(0)) {
     return Object.assign(e, {
-      clientX: e.touches[0].clientX,
-      clientY: e.touches[0].clientY,
+      clientX: e.touches.item(0).clientX,
+      clientY: e.touches.item(0).clientY,
     });
   }
   return e;
