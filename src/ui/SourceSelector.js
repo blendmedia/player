@@ -48,7 +48,7 @@ class SourceSelector extends UI {
 
   _select(index) {
     return () => {
-      this.$player.setCurrentMedia(index);
+      this.$player.setCurrentMedia(index, true);
     };
   }
 
