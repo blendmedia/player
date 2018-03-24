@@ -1,6 +1,6 @@
 import Listener, { addDomListener } from "./util/listener";
 import { normalize } from "./util/config";
-import { render, removeClass, addClass } from "./util/dom";
+import { render, removeClass, addClass, attr } from "./util/dom";
 import { hmd } from "./util/device";
 import { resolve, reconfigure } from "./register";
 import { changes } from "./util/array";
@@ -422,7 +422,11 @@ class Player {
   }
 
   _exitVR() {
-    this._vrDisplay.exitPresent();
+    if (this._vrDisplay && this._vrDisplay.isPresenting) {
+      this._vrDisplay.exitPresent();
+    }
+    attr(this._renderTarget, "style", "");
+
     this._cancelFrame(this._frame);
     this._requestFrame = window.requestAnimationFrame.bind(window);
     this._cancelFrame = window.cancelAnimationFrame.bind(window);
@@ -456,8 +460,15 @@ class Player {
     if (this._vrDisplay && !this._vrDisplay.isPresenting) {
       this._exitVR();
       this._events.emit(events.EXIT_VR);
+      if (!fscreen.fullscreenEnabled) {
+        removeClass(document.documentElement, "fuse-player-is-in-vr");
+      }
+      return;
     }
     this._events.emit(events.ENTER_VR);
+    if (!fscreen.fullscreenEnabled) {
+      addClass(document.documentElement, "fuse-player-is-in-vr");
+    }
   }
 
   _renderLoop(t) {
@@ -548,8 +559,10 @@ class Player {
       // iOS mode
       if (this._isFullScreen) {
         removeClass(this._root, "fuse-player-is-fullscreen");
+        removeClass(document.documentElement, "fuse-player-is-fullscreen");
       } else {
         addClass(this._root, "fuse-player-is-fullscreen");
+        addClass(document.documentElement, "fuse-player-is-fullscreen");
       }
       this._isFullScreen = !this._isFullScreen;
       this._events.emit(events.TOGGLE_FULLSCREEN, this._isFullScreen);
