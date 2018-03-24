@@ -94,8 +94,8 @@ class Player {
     if (config.autoSuspend) {
       addDomListener(window, "scroll", debounce(this._checkVisible, 50));
       this._checkVisible();
-      this._hideDelay = config.uiHideDelay || 2000;
     }
+    this._hideDelay = config.uiHideDelay || 2000;
 
     if (!this._suspended) {
       this._renderLoop();
