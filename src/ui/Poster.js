@@ -17,7 +17,6 @@ class Poster extends UI {
   }
 
   mount(container) {
-    console.log("Mount poster", this._src);
     if (this._src) {
       container.appendChild(this._root);
     }
@@ -32,9 +31,12 @@ class Poster extends UI {
     this._src = options.poster;
     // Try to get one from the media element
     if (!this._src) {
-      const element = this.$player.currentMedia().getTexture();
-      if (element) {
-        this._src = element.getAttribute("poster");
+      const media = this.$player.currentMedia();
+      if (media) {
+        const element = media.getTexture();
+        if (element) {
+          this._src = element.getAttribute("poster");
+        }
       }
     }
 
