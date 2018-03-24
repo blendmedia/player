@@ -156,7 +156,7 @@ class WebGLRenderer extends Renderer {
     const mvp = mat4();
 
     // VR Mode
-    if (view instanceof window.VRFrameData) {
+    if (window.VRFrameData && view instanceof window.VRFrameData) {
       transpose(perspect, view[`${eye}ProjectionMatrix`]);
       transpose(view, view[`${eye}ViewMatrix`]);
       const rot = fromRotation(mat4(), degToRad(y) , Y_AXIS);
