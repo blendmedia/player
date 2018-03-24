@@ -54,6 +54,7 @@
     "karma-rollup-preprocessor": "^5.1.1",
     "karma-sinon": "^1.0.5",
     "mocha": "^4.1.0",
+    "postcss-inline-svg": "^3.0.0",
     "rollup": "^0.54.0",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^8.2.6",
@@ -72,7 +73,6 @@
     "debounce": "^1.1.0",
     "detect-it": "^3.0.4",
     "fscreen": "^1.0.2",
-    "gl-matrix": "^2.4.0",
-    "postcss-inline-svg": "^3.0.0"
+    "gl-matrix": "^2.4.0"
   }
 }
