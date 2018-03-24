@@ -23,7 +23,7 @@ export default [
   }),
   Object.assign({}, common, {
     output: {
-      file: "dist/blend-player.es6.js",
+      file: "dist/blend-player.module.js",
       format: "es",
     },
     external(id) {
