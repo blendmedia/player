@@ -42,7 +42,7 @@ class TimeDisplay extends UI {
   _format(seconds, showHours = false) {
     const secs = Math.floor(seconds) % 60;
     const minutes = Math.floor(seconds / 60) % 60;
-    const hours = Math.floor(seconds / 360);
+    const hours = Math.floor(seconds / 3600);
 
     let time = "";
     if (hours || showHours) {
@@ -66,7 +66,7 @@ class TimeDisplay extends UI {
     const time = media.currentTime();
 
     const durString = this._format(duration);
-    const timeStr = this._format(time, duration >= 360);
+    const timeStr = this._format(time, duration >= 3600);
     text(this._root, `${timeStr} / ${durString}`);
   }
 }
