@@ -669,9 +669,24 @@ class Player {
     this._events.off(events.EXIT_VR, this._onExitVR);
     this.suspend();
     this._swapRenderTarget(null);
+
+    for (const media of this._media) {
+      media.unload();
+    }
+
+    for (const ui of this._ui) {
+      ui.unmount();
+    }
+
     if (this._renderer) {
       this._renderer.destroy();
     }
+
+    // Clear interfaces
+    this._renderer = null;
+    this._controls = [];
+    this._ui = [];
+    this._media = [];
   }
 }
 

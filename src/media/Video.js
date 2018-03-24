@@ -86,7 +86,7 @@ class Video extends Media {
   }
 
   unload() {
-    for (const off of this._events) {
+    for (const off of this._events || []) {
       off();
     }
     attr(this._video, "src", null);

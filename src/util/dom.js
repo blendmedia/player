@@ -104,7 +104,7 @@ export function attr(element, attr, value) {
 }
 
 export function remove(element) {
-  if (element.parentNode) {
+  if (element && element.parentNode) {
     element.parentNode.removeChild(element);
   }
 }
