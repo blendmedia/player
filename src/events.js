@@ -17,17 +17,24 @@ export const KEY_UP = "keyup";
 // Device events
 export const DEVICE_MOTION = "devicemotion";
 
+export const IS_TOUCH = (
+  detect.primaryInput === "touch" || (
+    detect.deviceType === "hybrid" &&
+    !detect.state.detectPointer.fine
+  )
+);
+
 // Pointer events based on primary interaction mechanism
 export const POINTER_DOWN = (
-  detect.primaryInput === "touch" ? TOUCH_START : MOUSE_DOWN
+  IS_TOUCH ? TOUCH_START : MOUSE_DOWN
 );
 export const POINTER_START = POINTER_DOWN;
 export const POINTER_UP = (
-  detect.primaryInput === "touch" ? TOUCH_END : MOUSE_UP
+  IS_TOUCH ? TOUCH_END : MOUSE_UP
 );
 export const POINTER_END = POINTER_UP;
 export const POINTER_MOVE = (
-  detect.primaryInput === "touch" ? TOUCH_MOVE : MOUSE_MOVE
+  IS_TOUCH ? TOUCH_MOVE : MOUSE_MOVE
 );
 
 // Media Events
