@@ -259,20 +259,33 @@ class Player {
     }
   }
 
-  setCurrentMedia(n) {
+  setCurrentMedia(n, resume = false) {
     if (n === this._current) {
       return;
     }
     const prev = this.currentMedia();
     const volume = this.volume();
     const mute = this.mute();
+    let position = 0;
+    let playing = false;
     if (prev) {
+      position = prev.currentTime();
+      playing = prev.isPlaying();
       prev.unload();
     }
     this._current = n;
     const current = this.currentMedia();
     if (current) {
       current.load();
+      if (resume) {
+        current.seek(position);
+        if (playing) {
+          current.play();
+        }
+      } else {
+        this._events.emit(events.PAUSED);
+      }
+
       if (this._renderer) {
         this._renderer.setSource(
           current.getTexture(),
