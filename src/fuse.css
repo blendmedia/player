@@ -4,7 +4,7 @@
   overflow: hidden;
 }
 
-.fuse-player-is-fullscreen {
+.fuse-player.fuse-player-is-fullscreen {
   position: fixed !important;
   top:  0 !important;
   left:  0 !important;
