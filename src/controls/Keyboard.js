@@ -55,6 +55,12 @@ class Keyboard extends Controller {
   }
 
   _onStart(e) {
+    // Do not listen to keyboard input if we're in a form field
+    const active = document.activeElement;
+    if (active && ["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName)) {
+      return;
+    }
+
     const { key } = e;
     const [axis, dir] = this._getAxis(key);
     if (!axis) {
