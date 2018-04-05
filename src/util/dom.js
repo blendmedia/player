@@ -108,3 +108,14 @@ export function remove(element) {
     element.parentNode.removeChild(element);
   }
 }
+
+export function isInput(element) {
+  if (!element) {
+    return false;
+  }
+
+  return (
+    ["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName) ||
+    element.contentEditable === "true"
+  );
+}

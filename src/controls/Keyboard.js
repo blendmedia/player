@@ -3,6 +3,7 @@ import Controller from "../interfaces/Controller";
 import { KEY_DOWN, KEY_UP } from "../events";
 import { inVR } from "../util/device";
 import { accelerator } from "../util/animation";
+import { isInput } from "../util/dom";
 
 class Keyboard extends Controller {
   constructor(...args) {
@@ -55,9 +56,8 @@ class Keyboard extends Controller {
   }
 
   _onStart(e) {
-    // Do not listen to keyboard input if we're in a form field
-    const active = document.activeElement;
-    if (active && ["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName)) {
+    // Do not listen to keyboard input if we're in an input
+    if (isInput(document.activeElement)) {
       return;
     }
 
