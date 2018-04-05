@@ -54,6 +54,8 @@ class WebGLRenderer extends Renderer {
       gl, vert, frag, ["media", "mvp"], ["xyz", "uv"],
     );
 
+    this._vert = vert;
+    this._frag = frag;
     this._program = program;
     this._uniforms = uniforms;
     this._attributes = attributes;
@@ -232,6 +234,44 @@ class WebGLRenderer extends Renderer {
     }
     gl.disable(gl.SCISSOR_TEST);
   }
+
+  destroy() {
+    this._canvas = null;
+    if (this._gl) {
+      const g = this._gl;
+      g.deleteTexture(this.texture.pointer);
+      g.deleteProgram(this._program);
+      g.deleteShader(this._vert);
+      g.deleteShader(this._frag);
+
+      if (this._geometry) {
+        if (this._geometry.left) {
+          g.deleteBuffer(this._geometry.left.vertices.data);
+          g.deleteBuffer(this._geometry.left.indicies.data);
+          g.deleteBuffer(this._geometry.left.uvs.data);
+        }
+
+        if (this._geometry.right) {
+          g.deleteBuffer(this._geometry.right.vertices.data);
+          g.deleteBuffer(this._geometry.right.indicies.data);
+          g.deleteBuffer(this._geometry.right.uvs.data);
+        }
+      }
+
+      try {
+        g.getExtension("WEBGL_lose_context").loseContext();
+      } catch (e) {
+        console.warn("Could not force context destruction", e);
+      }
+    }
+    this._gl = null;
+    this.texture = null;
+    this._program = null;
+    this._uniforms = null;
+    this._attributes = null;
+    this._geometry = null;
+  }
+
 }
 
 register("render:webgl", WebGLRenderer);
