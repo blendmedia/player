@@ -32,8 +32,7 @@ class SourceSelector extends UI {
       const n = this._labels.length + 1;
       this._labels.push(`Source #${n}`);
     }
-    this._root = render("button", {
-      type: "button",
+    this._root = render("span", {
       className: "fuse-player-button fuse-player-source-selector",
       onClick: this._toggle,
     }, render("div", {
