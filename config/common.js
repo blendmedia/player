@@ -11,7 +11,7 @@ export default {
   output: {
     file: "dist/blend-player.dev.js",
     format: "umd",
-    name: "flex",
+    name: "fuse",
   },
   plugins: [
     glsl({
