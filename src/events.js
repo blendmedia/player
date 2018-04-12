@@ -38,6 +38,8 @@ export const POINTER_MOVE = (
 );
 
 // Media Events
+// Playback requested
+export const PLAY          = "play";
 // Playback started
 export const PLAYING       = "playing";
 // Video paused

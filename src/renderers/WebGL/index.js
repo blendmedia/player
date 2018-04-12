@@ -12,13 +12,14 @@ import {
 import { fromValues as vec3 } from "gl-matrix/vec3";
 
 
+let isSupported = null;
 const CLEAR_COLOR = [0, 0, 0];
 class WebGLRenderer extends Renderer {
   constructor(...args) {
     super(...args);
-
     this._t = 0;
-    this._canvas = null; // Canvas element used for rendering
+    // Canvas element used for rendering
+    this._canvas = document.createElement("canvas");
     this._gl = null; // WebGL canvas context
     this._program = null; // Compiled GPU program
     this._perspective = mat4();
@@ -29,15 +30,15 @@ class WebGLRenderer extends Renderer {
   }
 
   _createGL() {
-    if (!this._canvas) {
-      this._canvas = document.createElement("canvas");
-    }
+
     if (!this._gl) {
       this._gl = this._canvas.getContext("webgl");
     }
 
-    if (!this._createShaders(this._gl)) {
-      return false;
+    if (!this._program) {
+      if (!this._createShaders(this._gl)) {
+        return false;
+      }
     }
 
     return this._gl;
@@ -62,7 +63,11 @@ class WebGLRenderer extends Renderer {
     return true;
   }
 
-  _createGeometry(degrees = 360, fisheye) {
+  _createGeometry() {
+    if (this._geometry) {
+      return this._geometry;
+    }
+
     const geom = {
       left: null,
       right: null,
@@ -75,8 +80,8 @@ class WebGLRenderer extends Renderer {
       rows: this._rows,
       uScale: this._uScale,
       vScale: this._vScale,
-      PHI: degToRad(degrees),
-      fisheye,
+      PHI: degToRad(this._degrees),
+      fisheye: this._fisheye,
     };
     // Create left eye geometry
     geom.left = webgl.sphere(sphereConfig);
@@ -87,7 +92,7 @@ class WebGLRenderer extends Renderer {
       }));
     }
 
-    this._geometry = geom;
+    return this._geometry = geom;
   }
 
   _use() {
@@ -95,11 +100,13 @@ class WebGLRenderer extends Renderer {
   }
 
   isSupported() {
-    return !!this._createGL();
+    if (isSupported !== null) {
+      return isSupported;
+    }
+    return isSupported = !!this._createGL();
   }
 
   create(config) {
-    this._createGL();
     this.t = 0;
     this._segments = config.segments || 30;
     this._rows = config.rows || 30;
@@ -117,7 +124,6 @@ class WebGLRenderer extends Renderer {
 
   setSource(src, stereo, degrees = 360, fisheye = false) {
     super.setSource(src, stereo, degrees);
-    this.texture = webgl.createTexture(this._gl, src);
     let uScale = 1, vScale = 1;
     switch (stereo) {
       case "ou":
@@ -129,9 +135,12 @@ class WebGLRenderer extends Renderer {
         uScale = 0.5;
         break;
     }
+    this._texture = null;
     this._uScale = uScale;
     this._vScale = vScale;
-    this._createGeometry(degrees, fisheye);
+    this._geometry = null;
+    this._degrees = degrees;
+    this._fisheye = fisheye;
   }
 
   _renderGeom(gl, eye, stereo = false, view, model, y) {
@@ -179,13 +188,25 @@ class WebGLRenderer extends Renderer {
     gl.drawElements(gl.TRIANGLES, geom.size, gl.UNSIGNED_SHORT, 0);
   }
 
-  render(rotation, position, useStereo, vrFrame) {
-    if (!this.texture) {
-      return;
+  _createTexture() {
+    if (this.texture) {
+      return this.texture;
     }
 
-    const gl = this._gl;
+    return this.texture =  webgl.createTexture(this._gl, this._source);
+  }
+
+  render(rotation, position, useStereo, vrFrame) {
+    if (!this.texture) {
+      if (!this._source) {
+        return;
+      }
+    }
+
+    const gl = this._createGL();
     let view = vrFrame;
+    this._createGeometry();
+    this._createTexture();
 
     const model = multiply(
       mat4(),

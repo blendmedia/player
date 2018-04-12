@@ -16,6 +16,8 @@ export const MAX_UPDATE = 1000;
 class Player {
   constructor(config) {
     // Variable Init
+    this._startEvent = config.autoStart;
+    this._started = config.autoStart === true || config.autoStart === void 0;
     this._suspended = false;
     this._pauseOnSuspend = config.pauseOnSuspend;
     this._events = new Listener;
@@ -47,6 +49,7 @@ class Player {
     this._onVRChange = this._onVRChange.bind(this);
     this._showUI = this._showUI.bind(this);
     this._checkVisible = this._checkVisible.bind(this);
+    this._startPlayer = this._startPlayer.bind(this);
     this._hideEvents = [];
 
     // DOM elements
@@ -106,6 +109,25 @@ class Player {
     fscreen.addEventListener("fullscreenchange", () => {
       this._events.emit(events.TOGGLE_FULLSCREEN, !!fscreen.fullscreenElement);
     });
+
+    if (!this._started) {
+      let event = this._startEvent || [events.POINTER_UP, events.PLAY];
+      if (!Array.isArray(event)) {
+        event = [event];
+      }
+
+      for (const e of event) {
+        this._events.on(e, this._startPlayer);
+      }
+    }
+  }
+
+  _startPlayer() {
+    this._started = true;
+  }
+
+  _stopPlayer() {
+    this._started = true;
   }
 
   _enableAutoHide() {
@@ -472,6 +494,8 @@ class Player {
   }
 
   _renderLoop(t) {
+
+
     if (t === void 0) { // First pass
       this._frame = this._requestFrame(this._renderLoop);
       return;
@@ -539,9 +563,13 @@ class Player {
       }
     }
 
-    this._renderer.render(
-      rot, this._correction, this._stereoView || !!frameData, frameData
-    );
+    // Element has not been interacted with and autoStart is false
+    if (this._started) {
+      this._renderer.render(
+        rot, this._correction, this._stereoView || !!frameData, frameData
+      );
+    }
+
 
     rot.x += rewind.x;
     rot.y += rewind.y;
@@ -616,6 +644,7 @@ class Player {
       return;
     }
     media.play();
+    this._events.emit(events.PLAY);
   }
 
   pause() {
