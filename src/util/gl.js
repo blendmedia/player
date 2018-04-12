@@ -212,14 +212,14 @@ export function createTexture(
   if (!media) {
     log("No media item supplied for texture");
   } else if (media instanceof HTMLVideoElement) {
-    media._renderable = false;
+    media._renderable = !!media.videoWidth || false;
     media.addEventListener("canplay", function() {
       media._renderable = true;
     });
     initialized = !!media._renderable;
     type = "video";
   } else if (media instanceof HTMLImageElement) {
-    media._renderable = false;
+    media._renderable = media._renderable || false;
     media.addEventListener("load", function() {
       media._renderable = true;
     });

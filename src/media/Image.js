@@ -23,18 +23,20 @@ class Image extends Media {
         src.parentNode.removeChild(src);
         this._originalParent = src.parentNode;
       }
-      this._image = src;
-      this._src = this._image.getAttribute("src");
-    } else if (typeof src === "string") {
+      src = src.getAttribute("src");
+    }
+
+    if (typeof src === "string") {
       this._image = render("img", {
         crossOrigin: crossOrigin === true ? "anonymous" : crossOrigin,
+        onLoad: () => {
+          this._image._renderable = true;
+        },
       });
       this._src = src;
     } else {
       return false;
     }
-
-
   }
 
   load() {
