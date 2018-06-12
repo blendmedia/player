@@ -1,0 +1,11 @@
+# Ignored Directories
+test/
+glsl/
+examples/
+config/
+
+# Ignored files
+.gitignore
+karma.config.js
+README.md
+*.sublime-project

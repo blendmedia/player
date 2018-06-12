@@ -9,6 +9,7 @@
     "test:watch": "karma start --browsers MyChromeHeadless",
     "start": "NODE_ENV=development rollup -c config/dev.js",
     "build": "rollup -c config/prod.js",
+    "prepublish": "yarn run build",
     "examples": "yarn run build && hs -p 9000 & open http://localhost:9000/examples/",
     "lint": "yarn run lint:glsl && yarn run lint:js",
     "lint:glsl": "node glsl/lint.js",
