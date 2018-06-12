@@ -17,7 +17,7 @@
     "lint:js": "eslint src/ test/ glsl/",
     "serve": "http-server -c-1 ./",
     "preserve": "yarn run start",
-    "transpile": "rm -rf es6/ babel src/ -d es6/ --no-babelrc --presets es2015-rollup --plugins transform-runtime"
+    "transpile": "rm -rf es6/ && babel src/ -d es6/ --no-babelrc --presets es2015-rollup --plugins transform-runtime"
   },
   "repository": {
     "type": "git",
