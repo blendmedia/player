@@ -4,31 +4,14 @@
   <meta charset="UTF-8">
   <title>Blend Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, max-scale=1">
-  <style>
-    body {
-      font-family: Verdana, Arial, sans-serif;
-      height:  500vh;
-    }
-    #wrapper {
-      width:  75%;
-      margin:  30px auto;
-    }
-    #player {
-      box-sizing:  content-box;
-      width: 100%;
-      background: #888;
-      padding-bottom:  56.25%;
-      height:  0;
-    }
-
-  </style>
+  <link rel="stylesheet" href="../dist/blend-player.dev.css">
+  <link rel="stylesheet" href="example.css">
 </head>
 <body>
   <div id="wrapper">
     <div id="player">
 
     </div>
-    <img src="./files/example-360-mono.jpg" id="image"/>
     <p>
       Image from
       <a href="https://flic.kr/p/SWEadp" target="_blank">
@@ -41,15 +24,9 @@
   <script type="text/javascript">
 /* eslint-disable */
     const image = document.querySelector("#image");
-    const player = window.flex.create({
+    const player = window.fuse.create({
       target: "#player",
-      src: image, //"./files/example-360-mono.mp4",
-    });
-
-    player.currentMedia().load();
-    player.currentMedia().play();
-    window.addEventListener("touchend", function() {
-      player.currentMedia().play();
+      src: "./files/example-360-mono.jpg",
     });
   </script>
 </body>

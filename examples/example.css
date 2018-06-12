@@ -1,0 +1,40 @@
+* {
+  padding: 0;
+  margin:  0;
+}
+
+
+body {
+  font-family: Verdana, Arial, sans-serif;
+  height:  100vh;
+  width:  100vw;
+  background: #EAEAEA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wrapper {
+  width:  75%;
+  margin:  30px auto;
+}
+
+#player, .player {
+  box-sizing:  content-box;
+  width: 100%;
+  background: #888;
+  padding-bottom:  56.25%;
+  height:  0;
+  border:  6px solid #888;
+}
+
+.player {
+  margin:  25px auto;
+}
+
+
+#wrapper > p {
+  position: absolute;
+  top:  5px;
+  left:  5px;
+}
