@@ -100,7 +100,7 @@ export const normalize = e => {
 export const normalizeXY = e => {
   e = normalize(e);
   const { clientX, clientY, currentTarget } = e;
-  const { left, width } = currentTarget.getBoundingClientRect();
+  const { left, width, top } = currentTarget.getBoundingClientRect();
   const x = Math.max(0, Math.min(1, ((clientX - left) / width)));
   const y = Math.max(0, Math.min(1, ((clientY - top) / width)));
   return { x, y };
