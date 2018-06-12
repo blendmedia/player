@@ -1,21 +1,23 @@
 {
   "name": "@blendmedia/fuse",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "",
   "main": "dist/blend-player.js",
-  "module": "dist/blend-player.es6.js",
+  "module": "dist/blend-player.module.js",
+  "private": false,
   "scripts": {
     "test": "karma start --single-run",
     "test:watch": "karma start --browsers MyChromeHeadless",
     "start": "NODE_ENV=development rollup -c config/dev.js",
-    "build": "rollup -c config/prod.js",
+    "build": "rm -rf dist && rollup -c config/prod.js",
+    "prepare": "yarn run transpile && yarn run build",
     "examples": "yarn run build && hs -p 9000 & open http://localhost:9000/examples/",
     "lint": "yarn run lint:glsl && yarn run lint:js",
     "lint:glsl": "node glsl/lint.js",
     "lint:js": "eslint src/ test/ glsl/",
     "serve": "http-server -c-1 ./",
     "preserve": "yarn run start",
-    "transpile": "babel src/ -d es6/ --no-babelrc --presets es2015-rollup --plugins transform-runtime"
+    "transpile": "rm -rf es6/ && babel src/ -d es6/ --no-babelrc --presets es2015-rollup --plugins transform-runtime"
   },
   "repository": {
     "type": "git",
@@ -35,6 +37,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2015-rollup": "^3.0.0",
     "babel-register": "^6.26.0",
     "bowser": "^1.9.1",
     "chai": "^4.1.2",
