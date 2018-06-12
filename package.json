@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/blend-player.js",
   "module": "dist/blend-player.es6.js",
+  "private": false,
   "scripts": {
     "test": "karma start --single-run",
     "test:watch": "karma start --browsers MyChromeHeadless",
