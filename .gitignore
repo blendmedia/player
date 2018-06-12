@@ -1,0 +1,6 @@
+node_modules/
+dist/
+es6/
+.DS_Store
+stats.html
+*.mp4
