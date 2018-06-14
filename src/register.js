@@ -74,7 +74,8 @@ export function registerMedia(matcher, type, opts = {}, copy = []) {
     }
 
     return src.map(src => {
-      if (!matcher(src)) { // Do nothing to non-matches
+      const meta = matcher(src);
+      if (!meta) { // Do nothing to non-matches
         return src;
       }
 
@@ -82,13 +83,14 @@ export function registerMedia(matcher, type, opts = {}, copy = []) {
         type,
         options: Object.assign(
           { src },
+          typeof meta === "object" ? meta : {},
           opts,
           // Copy necessary data from original config
           copy.reduce(
             (o, key) => Object.assign(o, { [key]: original[key] }), {}
           ),
         ),
-      }
+      };
     });
   }, "src");
 }
