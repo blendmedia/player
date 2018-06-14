@@ -60,6 +60,40 @@ export function configure(fn, key = "*", replace = false) {
 }
 
 /**
+ * Configure a source detector function
+ * @param  {Function} fn
+ */
+export function registerMedia(matcher, type, opts = {}, copy = []) {
+  configure((src, original) => {
+    if (src === null) {
+      return;
+    }
+
+    if (!Array.isArray(src)) {
+      src = [src];
+    }
+
+    return src.map(src => {
+      if (!matcher(src)) { // Do nothing to non-matches
+        return src;
+      }
+
+      return {
+        type,
+        options: Object.assign(
+          { src },
+          opts,
+          // Copy necessary data from original config
+          copy.reduce(
+            (o, key) => Object.assign(o, { [key]: original[key] }), {}
+          ),
+        ),
+      }
+    });
+  }, "src");
+}
+
+/**
  * Map configuration object through registered configuration hooks
  * @param  {Object} config Configuration object to manipulate
  * @return {Object}        remapped configuration

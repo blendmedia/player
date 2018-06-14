@@ -1,5 +1,5 @@
 import Media from "../interfaces/Media";
-import { register, configure } from "../register";
+import { register, registerMedia } from "../register";
 import * as events from "../events";
 import { attr, render } from "../util/dom";
 import { addDomListener } from "../util/listener";
@@ -149,49 +149,17 @@ class Video extends Media {
 }
 
 // Register component and setup src configuration mapping
-configure((src, original) => {
-  if (!src) {
-    return null;
-  }
-
-  if (typeof src === "string" || src instanceof HTMLVideoElement) {
-    src = [src];
-  }
-
-  if (!Array.isArray(src)) {
-    return null;
-  }
-
-  return src.map(src =>  {
-    if (src instanceof HTMLVideoElement) {
-      return {
-        type: Video,
-        options: {
-          src,
-        },
-      };
-    }
-    // Only parse string src configurations
-    if (typeof src !== "string") {
-      return null;
-    }
-
-    if (/\.(mp4|webm|ogv|mov)(\?.*?)?$/.test(src)) {
-      return {
-        type: Video,
-        options: {
-          src,
-          crossOrigin: true,
-          loop: original.loop,
-          autoplay: original.autoplay || false,
-        },
-      };
-    }
-
-    // Do not manipulate if no match found
-    return src;
-  });
-
-}, "src");
+registerMedia(
+  src => (
+    src instanceof HTMLVideoElement ||
+    /\.(mp4|webm|ogv|mov)(\?.*?)?$/.test(src)
+  ),
+  Video, {
+    crossOrigin: true,
+  }, [
+    "loop",
+    "autoplay",
+  ],
+)
 register("media:video", Video);
 export default Video;

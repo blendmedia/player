@@ -1,5 +1,5 @@
 import Media from "../interfaces/Media";
-import { register, configure } from "../register";
+import { register, registerMedia } from "../register";
 import { render } from "../util/dom";
 import { LOADED, ERROR } from "../events";
 import { addDomListener } from "../util/listener";
@@ -65,45 +65,14 @@ class Image extends Media {
 }
 
 // Register component and setup src configuration mapping
-configure(src => {
-  if (!src) {
-    return null;
+registerMedia(
+  src => (
+    src instanceof HTMLImageElement ||
+    /\.(jpe?g|webp|gif|png|bmp)(\?.*?)?$/.test(src)
+  ),
+  Image, {
+    crossOrigin: true,
   }
-
-  if (typeof src === "string" || src instanceof HTMLVideoElement) {
-    src = [src];
-  }
-
-  if (!Array.isArray(src)) {
-    return null;
-  }
-
-  return src.map(src => {
-    if (src instanceof HTMLImageElement) {
-      return {
-        type: Image,
-        options: {
-          src,
-        },
-      };
-    }
-    // Only parse string src configurations
-    if (typeof src !== "string") {
-      return src;
-    }
-
-    if (/\.(jpe?g|webp|png|gif|bmp)(\?.*)?$/.test(src)) {
-      return {
-        type: Image,
-        options: {
-          src,
-          crossOrigin: true,
-        },
-      };
-    }
-    return src;
-  });
-
-}, "src");
+)
 register("media:image", Image);
 export default Image;
