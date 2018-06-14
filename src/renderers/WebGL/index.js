@@ -52,8 +52,6 @@ class WebGLRenderer extends Renderer {
       fragment = cubemapFragment;
     }
 
-    console.log(vertex.split(";").join("\n"));
-    console.log(fragment.split(";").join("\n"));
     const vert = webgl.shader(gl, vertex, webgl.VERTEX);
     const frag = webgl.shader(gl, fragment, webgl.FRAGMENT);
     const { program, uniforms, attributes } = webgl.program(
@@ -98,13 +96,13 @@ class WebGLRenderer extends Renderer {
 
     const cubeConfig = {
       gl: this._gl,
-      size: 5000,
+      size: 100,
       uScale: this._uScale,
       vScale: this._vScale,
     };
 
-    const creator = this._isCube() ? webgl.sphere : webgl.sphere;
-    const config = this._isCube() ? sphereConfig : sphereConfig;
+    const creator = this._isCube() ? webgl.cube : webgl.sphere;
+    const config = this._isCube() ? cubeConfig : sphereConfig;
 
     // Create left eye geometry
     geom.left = creator(cubeConfig);
@@ -114,8 +112,6 @@ class WebGLRenderer extends Renderer {
         vOffset: 1 - this._vScale,
       }));
     }
-
-    console.log(geom.left);
 
     return this._geometry = geom;
   }
