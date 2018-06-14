@@ -301,12 +301,16 @@ export function updateTexture(gl, texture) {
   });
 }
 
-export function useTexture(gl, { pointer }, uniform, unit = 0) {
+export function useTexture(gl, { pointer, cube }, uniform, unit = 0) {
   if (unit < 0 || unit >= 8) {
     log("WebGL only supports texture units 0 to 7");
   }
   gl.activeTexture(gl.TEXTURE0 + unit);
-  gl.bindTexture(gl.TEXTURE_2D, pointer);
+  if (cube) {
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, pointer);
+  } else {
+    gl.bindTexture(gl.TEXTURE_2D, pointer);
+  }
   gl.uniform1i(uniform, unit);
 }
 
