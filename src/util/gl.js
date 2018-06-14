@@ -182,11 +182,61 @@ export function attributeArray(
   }
 }
 
+function setTex(gl, type, width, height, data) {
+  if (
+    data instanceof HTMLImageElement ||
+    data instanceof HTMLVideoElement
+  ) {
+    gl.texImage2D(
+      type,
+      0,
+      gl.RGBA,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      data,
+    );
+
+    if (isPowerOf2(width) && isPowerOf2(height)) {
+      gl.generateMipmap(type);
+    } else {
+      gl.texParameteri(type, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(type, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+  } else {
+    gl.texImage2D(
+      type,
+      0,
+      gl.RGBA,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      data,
+    );
+  }
+}
+
+export function bindAndSetTexture(gl, pointer, cube, data, w, h) {
+  gl.bindTexture(cube ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D, pointer);
+  if (cube) {
+    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X, w, h, data.right || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_X, w, h, data.left || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, w, h, data.top || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, w, h, data.down || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, w, h, data.front || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, w, h, data.back || data);
+  } else {
+    setTex(gl, gl.TEXTURE_2D, w, h, data);
+  }
+}
 
 export function createTexture(
   gl,
   media,
   fallbackColor = new Uint8Array([0, 0, 0, 255]),
+  cube = false
 ) {
   const texture = gl.createTexture();
   if (!texture) {
@@ -194,19 +244,7 @@ export function createTexture(
   }
 
   // Setup fallback color whilst resource loads
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0, // Full resolution
-    gl.RGBA, // Pixel format
-    1, // width
-    1, // height
-    0,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    fallbackColor,
-  );
-
+  bindAndSetTexture(gl, texture, cube, fallbackColor, 1, 1);
   let initialized = false;
   let type = "image";
   if (!media) {
@@ -231,13 +269,14 @@ export function createTexture(
     media,
     initialized,
     type,
+    cube,
   };
 }
 
 export const isPowerOf2 = val => !(Math.log2(val) % 1);
 
 export function updateTexture(gl, texture) {
-  const { pointer, media, applied } = texture;
+  const { pointer, media, applied, cube } = texture;
   let { initialized } = texture;
   if (!media) {
     return;
@@ -254,23 +293,8 @@ export function updateTexture(gl, texture) {
   const width = media.naturalWidth || media.videoWidth;
   const height = media.naturalHeight || media.videoHeight;
 
-  gl.bindTexture(gl.TEXTURE_2D, pointer);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0, // Full resolution
-    gl.RGBA, // Pixel format
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    media,
-  );
+  bindAndSetTexture(gl, pointer, cube, media, width, height);
 
-  if (isPowerOf2(width) && isPowerOf2(height)) {
-    gl.generateMipmap(gl.TEXTURE_2D);
-  } else {
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  }
   return Object.assign({}, texture, {
     initialized,
     applied: true,
