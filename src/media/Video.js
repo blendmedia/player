@@ -31,7 +31,9 @@ class Video extends Media {
     ];
   }
 
-  create({ src, crossOrigin, loop, autoplay }) {
+  create(opts) {
+    super.create(opts);
+    const { src, crossOrigin, loop, autoplay } = opts;
     if (!src) {
       return false;
     }
@@ -159,6 +161,9 @@ registerMedia(
   }, [
     "loop",
     "autoplay",
+    "fov",
+    "stereo",
+    "projection",
   ],
 )
 register("media:video", Video);

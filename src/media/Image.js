@@ -13,7 +13,10 @@ class Image extends Media {
     return true;
   }
 
-  create({ src, crossOrigin }) {
+  create(opts) {
+    super.create(opts);
+    let { src } = opts;
+    const { crossOrigin } = opts;
     if (!src) {
       return false;
     }
@@ -66,13 +69,28 @@ class Image extends Media {
 
 // Register component and setup src configuration mapping
 registerMedia(
-  src => (
-    src instanceof HTMLImageElement ||
-    /\.(jpe?g|webp|gif|png|bmp)(\?.*?)?$/.test(src)
-  ),
+  src => {
+
+    if (
+      src.top &&
+      src.bottom &&
+      src.left &&
+      src.right &&
+      src.front &&
+      src.back
+    ) {
+      return { projection: "cubemap" };
+    }
+
+    return (
+      src instanceof HTMLImageElement ||
+      /\.(jpe?g|webp|gif|png|bmp)(\?.*?)?$/.test(src)
+    );
+  },
   Image, {
     crossOrigin: true,
-  }
+  },
+  ["fov", "stereo"]
 )
 register("media:image", Image);
 export default Image;

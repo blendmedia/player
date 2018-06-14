@@ -1,6 +1,12 @@
 import Base from "./Base";
 
 class Media extends Base {
+  create({ projection, stereo, fov }) {
+    this.projection(projection);
+    this.stereo(stereo);
+    this.fov(fov);
+  }
+
   isSupported() {
     return false;
   }
