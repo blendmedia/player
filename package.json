@@ -11,7 +11,7 @@
     "start": "NODE_ENV=development rollup -c config/dev.js",
     "build": "rm -rf dist && rollup -c config/prod.js",
     "prepare": "yarn run transpile && yarn run build",
-    "examples": "yarn run build && hs -p 9000 & open http://localhost:9000/examples/",
+    "examples": "yarn run start && hs -p 9000 & open http://localhost:9000/examples/",
     "lint": "yarn run lint:glsl && yarn run lint:js",
     "lint:glsl": "node glsl/lint.js",
     "lint:js": "eslint src/ test/ glsl/",
