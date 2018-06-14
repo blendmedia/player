@@ -20,11 +20,18 @@ class Media extends Base {
     return this._projection || "equirectangular";
   }
 
-  stereoMode(value) {
+  stereo(value) {
     if (value !== void 0) {
       this._stereo = value;
     }
     return this._stereo || false;
+  }
+
+  fov(value) {
+    if (value !== void 0) {
+      this._fov = value;
+    }
+    return this._fov || 360;
   }
 
   play() {

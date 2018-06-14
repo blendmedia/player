@@ -80,7 +80,7 @@ class WebGLRenderer extends Renderer {
       rows: this._rows,
       uScale: this._uScale,
       vScale: this._vScale,
-      PHI: degToRad(this._degrees),
+      PHI: degToRad(this.fov),
       fisheye: this._fisheye,
     };
     // Create left eye geometry
@@ -122,10 +122,10 @@ class WebGLRenderer extends Renderer {
     this._canvas.height = height;
   }
 
-  setSource(src, stereo, degrees = 360, fisheye = false) {
-    super.setSource(src, stereo, degrees);
+  setMedia(media) {
+    super.setMedia(media);
     let uScale = 1, vScale = 1;
-    switch (stereo) {
+    switch (this.stereo) {
       case "ou":
       case "tb":
         vScale = 0.5;
@@ -139,8 +139,7 @@ class WebGLRenderer extends Renderer {
     this._uScale = uScale;
     this._vScale = vScale;
     this._geometry = null;
-    this._degrees = degrees;
-    this._fisheye = fisheye;
+    this._fisheye = this.projection === "fisheye";
   }
 
   _renderGeom(gl, eye, stereo = false, view, model, y) {
@@ -193,14 +192,12 @@ class WebGLRenderer extends Renderer {
       return this.texture;
     }
 
-    return this.texture =  webgl.createTexture(this._gl, this._source);
+    return this.texture =  webgl.createTexture(this._gl, this.source);
   }
 
   render(rotation, position, useStereo, vrFrame) {
-    if (!this.texture) {
-      if (!this._source) {
-        return;
-      }
+    if (!this.texture && !this.source) {
+      return;
     }
 
     const gl = this._createGL();
