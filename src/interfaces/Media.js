@@ -13,6 +13,20 @@ class Media extends Base {
     return false;
   }
 
+  projection(value) {
+    if (value !== void 0) {
+      this._projection = value;
+    }
+    return this._projection || "equirectangular";
+  }
+
+  stereoMode(value) {
+    if (value !== void 0) {
+      this._stereo = value;
+    }
+    return this._stereo || false;
+  }
+
   play() {
 
   }
