@@ -165,6 +165,6 @@ registerMedia(
     "stereo",
     "projection",
   ],
-)
+);
 register("media:video", Video);
 export default Video;

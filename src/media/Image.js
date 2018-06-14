@@ -91,6 +91,6 @@ registerMedia(
     crossOrigin: true,
   },
   ["fov", "stereo"]
-)
+);
 register("media:image", Image);
 export default Image;
