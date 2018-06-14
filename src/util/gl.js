@@ -79,8 +79,9 @@ export function program(gl, vertex, fragment, uniforms = [], attributes = []) {
   const pointers = {};
   for (const varName of uniforms) {
     const location = gl.getUniformLocation(program, varName);
-    if (!location) {
+    if (location === null) {
       log("Could not get location of uniform `%s`", varName);
+      log("Error:", gl.getError());
     } else {
       pointers[varName] = location;
     }
@@ -91,6 +92,7 @@ export function program(gl, vertex, fragment, uniforms = [], attributes = []) {
     const location = gl.getAttribLocation(program, attrName);
     if (location === -1) {
       log("Could not get location of attribute `%s`", attrName);
+      log("Error:", gl.getError());
     } else {
       aPointers[attrName] = location;
     }
@@ -195,14 +197,6 @@ function setTex(gl, type, width, height, data) {
       gl.UNSIGNED_BYTE,
       data,
     );
-
-    if (isPowerOf2(width) && isPowerOf2(height)) {
-      gl.generateMipmap(type);
-    } else {
-      gl.texParameteri(type, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(type, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    }
   } else {
     gl.texImage2D(
       type,
@@ -219,7 +213,8 @@ function setTex(gl, type, width, height, data) {
 }
 
 export function bindAndSetTexture(gl, pointer, cube, data, w, h) {
-  gl.bindTexture(cube ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D, pointer);
+  const t = cube ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+  gl.bindTexture(t, pointer);
   if (cube) {
     setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X, w, h, data.right || data);
     setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_X, w, h, data.left || data);
@@ -229,6 +224,14 @@ export function bindAndSetTexture(gl, pointer, cube, data, w, h) {
     setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, w, h, data.back || data);
   } else {
     setTex(gl, gl.TEXTURE_2D, w, h, data);
+  }
+
+  if (isPowerOf2(w) && isPowerOf2(h)) {
+    gl.generateMipmap(t);
+  } else {
+    gl.texParameteri(t, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(t, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(t, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   }
 }
 
@@ -262,6 +265,8 @@ export function createTexture(
       media._renderable = true;
     });
     initialized = !!media._renderable;
+  } else if (media.top) {
+    initialized = Object.values(media).every(i => i._renderable);
   }
 
   return {
@@ -283,15 +288,23 @@ export function updateTexture(gl, texture) {
   }
 
   if (!initialized) {
-    initialized = media._renderable;
+    if (media.top) {
+      initialized = Object.values(media).every(i => i._renderable);
+    } else {
+      initialized = media._renderable;
+    }
   }
 
   if (!initialized || (media instanceof HTMLImageElement && applied)) {
     return texture;
   }
 
-  const width = media.naturalWidth || media.videoWidth;
-  const height = media.naturalHeight || media.videoHeight;
+  const width = (
+    media.naturalWidth || media.videoWidth || media.top.naturalWidth
+  );
+  const height = (
+    media.naturalHeight || media.videoHeight || media.top.naturalHeight
+  );
 
   bindAndSetTexture(gl, pointer, cube, media, width, height);
 
@@ -325,6 +338,113 @@ export const DEFAULT_SPHERE = {
   radius: 1500,
   fisheye: false,
 };
+
+const FACE_CONFIGURATIONS = {
+  facebook: { // transform360 output
+    front: 1,
+    back: 2,
+    top: 3,
+    bottom: 4,
+    left: 5,
+    right: 6,
+  },
+  webgl: null, // textureCube()
+};
+
+export function cube(config = {}) {
+  const {
+    gl,
+    size = 5000,
+    // uScale = 1,
+    // vScale = 1,
+  } = config;
+  let { faces = "facebook" } = config;
+
+  if (FACE_CONFIGURATIONS[faces]) {
+    faces = FACE_CONFIGURATIONS[faces];
+  }
+
+  const s = size / 2;
+  // Create a 24 vertex cube so that each face can have separated UVs
+  const vertex = [
+    // Front face
+    -1.0, -1.0,  1.0,
+    1.0, -1.0,  1.0,
+    1.0,  1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    // Back face
+    -1.0, -1.0, -1.0,
+    -1.0,  1.0, -1.0,
+    1.0,  1.0, -1.0,
+    1.0, -1.0, -1.0,
+    // Top face
+    -1.0,  1.0, -1.0,
+    -1.0,  1.0,  1.0,
+    1.0,  1.0,  1.0,
+    1.0,  1.0, -1.0,
+    // Bottom face
+    -1.0, -1.0, -1.0,
+    1.0, -1.0, -1.0,
+    1.0, -1.0,  1.0,
+    -1.0, -1.0,  1.0,
+    // Right face
+    1.0, -1.0, -1.0,
+    1.0,  1.0, -1.0,
+    1.0,  1.0,  1.0,
+    1.0, -1.0,  1.0,
+    // Left face
+    -1.0, -1.0, -1.0,
+    -1.0, -1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    -1.0,  1.0, -1.0,
+  ].map(v => v * s);
+  const indices = [
+    0,  1,  2,      0,  2,  3,    // front
+    4,  5,  6,      4,  6,  7,    // back
+    8,  9,  10,     8,  10, 11,   // top
+    12, 13, 14,     12, 14, 15,   // bottom
+    16, 17, 18,     16, 18, 19,   // right
+    20, 21, 22,     20, 22, 23,   // left
+  ];
+  const uvs = [
+    -1.0, -1.0,
+    1.0, -1.0,
+    1.0,  1.0,
+    -1.0,  1.0,
+    // Back face
+    -1.0, -1.0,
+    -1.0,  1.0,
+    1.0,  1.0,
+    1.0, -1.0,
+    // Top face
+    -1.0,  1.0,
+    -1.0,  1.0,
+    1.0,  1.0,
+    1.0,  1.0,
+    // Bottom face
+    -1.0, -1.0,
+    1.0, -1.0,
+    1.0, -1.0,
+    -1.0, -1.0,
+    // Right face
+    1.0, -1.0,
+    1.0,  1.0,
+    1.0,  1.0,
+    1.0, -1.0,
+    // Left face
+    -1.0, -1.0,
+    -1.0, -1.0,
+    -1.0,  1.0,
+    -1.0,  1.0,
+  ];
+
+  return {
+    vertices: buffer(gl, new Float32Array(vertex)),
+    indicies: buffer(gl, new Uint16Array(indices), gl.ELEMENT_ARRAY_BUFFER),
+    uvs:      buffer(gl, new Float32Array(uvs)),
+    size:     indices.length,
+  };
+}
 
 export function sphere(config) {
   const {
