@@ -336,6 +336,7 @@
   border-radius:  50%;
   backface-visibility: hidden;
   cursor:  pointer;
+  box-sizing:  content-box;
 }
 
 .fuse-player-dial::after {
@@ -351,6 +352,7 @@
   margin-left:  -7px;
   margin-top:  -7px;
   z-index: 2;
+  box-sizing:  content-box;
 }
 
 .fuse-player-dial-fov {
@@ -361,6 +363,7 @@
   height:  44px;
   fill: #EEE;
   stroke-width: 0;
+  box-sizing:  content-box;
 }
 
 .fuse-player-loader, .fuse-player-error {
