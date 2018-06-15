@@ -2,8 +2,10 @@ import Renderer from "../../interfaces/Renderer";
 import { register } from "../../register";
 import * as webgl from "../../util/gl";
 
-import vertex from "./shader.vert";
-import fragment from "./shader.frag";
+import equirectangularVertex from "./equirectangular.vert";
+import equirectangularFragment from "./equirectangular.frag";
+import cubemapVertex from "./cubemap.vert";
+import cubemapFragment from "./cubemap.frag";
 
 import { degToRad, X_AXIS, Y_AXIS } from "../../util/math";
 import {
@@ -35,18 +37,19 @@ class WebGLRenderer extends Renderer {
       this._gl = this._canvas.getContext("webgl");
     }
 
-    if (!this._program) {
-      if (!this._createShaders(this._gl)) {
-        return false;
-      }
-    }
-
     return this._gl;
   }
 
   _createShaders(gl) {
     if (!gl) {
       return false;
+    }
+
+    let vertex = equirectangularVertex;
+    let fragment = equirectangularFragment;
+    if (this._isCube(true)) {
+      vertex = cubemapVertex;
+      fragment = cubemapFragment;
     }
 
     const vert = webgl.shader(gl, vertex, webgl.VERTEX);
@@ -61,6 +64,13 @@ class WebGLRenderer extends Renderer {
     this._uniforms = uniforms;
     this._attributes = attributes;
     return true;
+  }
+
+  _isCube(imageOnly = false) {
+    return this.projection === "cubemap" && (
+      !imageOnly ||
+      !this._media.isVideo()
+    );
   }
 
   _createGeometry() {
@@ -80,13 +90,24 @@ class WebGLRenderer extends Renderer {
       rows: this._rows,
       uScale: this._uScale,
       vScale: this._vScale,
-      PHI: degToRad(this._degrees),
+      PHI: degToRad(this.fov),
       fisheye: this._fisheye,
     };
+
+    const cubeConfig = {
+      gl: this._gl,
+      size: 100,
+      uScale: this._uScale,
+      vScale: this._vScale,
+    };
+
+    const creator = this._isCube() ? webgl.cube : webgl.sphere;
+    const config = this._isCube() ? cubeConfig : sphereConfig;
+
     // Create left eye geometry
-    geom.left = webgl.sphere(sphereConfig);
+    geom.left = creator(cubeConfig);
     if (this._stereo) {
-      geom.right = webgl.sphere(Object.assign({}, sphereConfig, {
+      geom.right = creator(Object.assign({}, config, {
         uOffset: 1 - this._uScale,
         vOffset: 1 - this._vScale,
       }));
@@ -122,10 +143,10 @@ class WebGLRenderer extends Renderer {
     this._canvas.height = height;
   }
 
-  setSource(src, stereo, degrees = 360, fisheye = false) {
-    super.setSource(src, stereo, degrees);
+  setMedia(media) {
+    super.setMedia(media);
     let uScale = 1, vScale = 1;
-    switch (stereo) {
+    switch (this.stereo) {
       case "ou":
       case "tb":
         vScale = 0.5;
@@ -139,8 +160,8 @@ class WebGLRenderer extends Renderer {
     this._uScale = uScale;
     this._vScale = vScale;
     this._geometry = null;
-    this._degrees = degrees;
-    this._fisheye = fisheye;
+    this._fisheye = this.projection === "fisheye";
+    this._createShaders(this._gl);
   }
 
   _renderGeom(gl, eye, stereo = false, view, model, y) {
@@ -148,7 +169,6 @@ class WebGLRenderer extends Renderer {
     if (!geom) {
       return;
     }
-
     webgl.attributeArray(gl, this._attributes.xyz, geom.vertices);
     webgl.attributeArray(gl, this._attributes.uv, geom.uvs, 2);
     webgl.attributeArray(gl, null, geom.indicies, 2);
@@ -193,14 +213,17 @@ class WebGLRenderer extends Renderer {
       return this.texture;
     }
 
-    return this.texture =  webgl.createTexture(this._gl, this._source);
+    return this.texture = webgl.createTexture(
+      this._gl,
+      this.source,
+      void 0,
+      this._isCube(true),
+    );
   }
 
   render(rotation, position, useStereo, vrFrame) {
-    if (!this.texture) {
-      if (!this._source) {
-        return;
-      }
+    if (!this.texture && !this.source) {
+      return;
     }
 
     const gl = this._createGL();

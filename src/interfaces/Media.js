@@ -1,6 +1,12 @@
 import Base from "./Base";
 
 class Media extends Base {
+  create({ projection, stereo, fov }) {
+    this.projection(projection);
+    this.stereo(stereo);
+    this.fov(fov);
+  }
+
   isSupported() {
     return false;
   }
@@ -11,6 +17,27 @@ class Media extends Base {
 
   isPlaying() {
     return false;
+  }
+
+  projection(value) {
+    if (value !== void 0) {
+      this._projection = value;
+    }
+    return this._projection || "equirectangular";
+  }
+
+  stereo(value) {
+    if (value !== void 0) {
+      this._stereo = value;
+    }
+    return this._stereo || false;
+  }
+
+  fov(value) {
+    if (value !== void 0) {
+      this._fov = value;
+    }
+    return this._fov || 360;
   }
 
   play() {

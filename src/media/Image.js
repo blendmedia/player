@@ -1,5 +1,5 @@
 import Media from "../interfaces/Media";
-import { register, configure } from "../register";
+import { register, registerMedia } from "../register";
 import { render } from "../util/dom";
 import { LOADED, ERROR } from "../events";
 import { addDomListener } from "../util/listener";
@@ -13,7 +13,10 @@ class Image extends Media {
     return true;
   }
 
-  create({ src, crossOrigin }) {
+  create(opts) {
+    super.create(opts);
+    let { src } = opts;
+    const { crossOrigin } = opts;
     if (!src) {
       return false;
     }
@@ -65,45 +68,29 @@ class Image extends Media {
 }
 
 // Register component and setup src configuration mapping
-configure(src => {
-  if (!src) {
-    return null;
-  }
+registerMedia(
+  src => {
 
-  if (typeof src === "string" || src instanceof HTMLVideoElement) {
-    src = [src];
-  }
-
-  if (!Array.isArray(src)) {
-    return null;
-  }
-
-  return src.map(src => {
-    if (src instanceof HTMLImageElement) {
-      return {
-        type: Image,
-        options: {
-          src,
-        },
-      };
-    }
-    // Only parse string src configurations
-    if (typeof src !== "string") {
-      return src;
+    if (
+      src.top &&
+      src.bottom &&
+      src.left &&
+      src.right &&
+      src.front &&
+      src.back
+    ) {
+      return { projection: "cubemap" };
     }
 
-    if (/\.(jpe?g|webp|png|gif|bmp)(\?.*)?$/.test(src)) {
-      return {
-        type: Image,
-        options: {
-          src,
-          crossOrigin: true,
-        },
-      };
-    }
-    return src;
-  });
-
-}, "src");
+    return (
+      src instanceof HTMLImageElement ||
+      /\.(jpe?g|webp|gif|png|bmp)(\?.*?)?$/.test(src)
+    );
+  },
+  Image, {
+    crossOrigin: true,
+  },
+  ["fov", "stereo"]
+);
 register("media:image", Image);
 export default Image;

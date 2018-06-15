@@ -79,8 +79,9 @@ export function program(gl, vertex, fragment, uniforms = [], attributes = []) {
   const pointers = {};
   for (const varName of uniforms) {
     const location = gl.getUniformLocation(program, varName);
-    if (!location) {
+    if (location === null) {
       log("Could not get location of uniform `%s`", varName);
+      log("Error:", gl.getError());
     } else {
       pointers[varName] = location;
     }
@@ -91,6 +92,7 @@ export function program(gl, vertex, fragment, uniforms = [], attributes = []) {
     const location = gl.getAttribLocation(program, attrName);
     if (location === -1) {
       log("Could not get location of attribute `%s`", attrName);
+      log("Error:", gl.getError());
     } else {
       aPointers[attrName] = location;
     }
@@ -182,11 +184,62 @@ export function attributeArray(
   }
 }
 
+function setTex(gl, type, width, height, data) {
+  if (
+    data instanceof HTMLImageElement ||
+    data instanceof HTMLVideoElement
+  ) {
+    gl.texImage2D(
+      type,
+      0,
+      gl.RGBA,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      data,
+    );
+  } else {
+    gl.texImage2D(
+      type,
+      0,
+      gl.RGBA,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      data,
+    );
+  }
+}
+
+export function bindAndSetTexture(gl, pointer, cube, data, w, h) {
+  const t = cube ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+  gl.bindTexture(t, pointer);
+  if (cube) {
+    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X, w, h, data.right || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_X, w, h, data.left || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, w, h, data.top || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, w, h, data.down || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, w, h, data.front || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, w, h, data.back || data);
+  } else {
+    setTex(gl, gl.TEXTURE_2D, w, h, data);
+  }
+
+  if (isPowerOf2(w) && isPowerOf2(h)) {
+    gl.generateMipmap(t);
+  } else {
+    gl.texParameteri(t, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(t, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(t, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  }
+}
 
 export function createTexture(
   gl,
   media,
   fallbackColor = new Uint8Array([0, 0, 0, 255]),
+  cube = false
 ) {
   const texture = gl.createTexture();
   if (!texture) {
@@ -194,19 +247,7 @@ export function createTexture(
   }
 
   // Setup fallback color whilst resource loads
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0, // Full resolution
-    gl.RGBA, // Pixel format
-    1, // width
-    1, // height
-    0,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    fallbackColor,
-  );
-
+  bindAndSetTexture(gl, texture, cube, fallbackColor, 1, 1);
   let initialized = false;
   let type = "image";
   if (!media) {
@@ -224,6 +265,8 @@ export function createTexture(
       media._renderable = true;
     });
     initialized = !!media._renderable;
+  } else if (media.top) {
+    initialized = Object.values(media).every(i => i._renderable);
   }
 
   return {
@@ -231,58 +274,56 @@ export function createTexture(
     media,
     initialized,
     type,
+    cube,
   };
 }
 
 export const isPowerOf2 = val => !(Math.log2(val) % 1);
 
 export function updateTexture(gl, texture) {
-  const { pointer, media, applied } = texture;
+  const { pointer, media, applied, cube } = texture;
   let { initialized } = texture;
   if (!media) {
     return;
   }
 
   if (!initialized) {
-    initialized = media._renderable;
+    if (media.top) {
+      initialized = Object.values(media).every(i => i._renderable);
+    } else {
+      initialized = media._renderable;
+    }
   }
 
   if (!initialized || (media instanceof HTMLImageElement && applied)) {
     return texture;
   }
 
-  const width = media.naturalWidth || media.videoWidth;
-  const height = media.naturalHeight || media.videoHeight;
-
-  gl.bindTexture(gl.TEXTURE_2D, pointer);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0, // Full resolution
-    gl.RGBA, // Pixel format
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    media,
+  const width = (
+    media.naturalWidth || media.videoWidth || media.top.naturalWidth
+  );
+  const height = (
+    media.naturalHeight || media.videoHeight || media.top.naturalHeight
   );
 
-  if (isPowerOf2(width) && isPowerOf2(height)) {
-    gl.generateMipmap(gl.TEXTURE_2D);
-  } else {
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  }
+  bindAndSetTexture(gl, pointer, cube, media, width, height);
+
   return Object.assign({}, texture, {
     initialized,
     applied: true,
   });
 }
 
-export function useTexture(gl, { pointer }, uniform, unit = 0) {
+export function useTexture(gl, { pointer, cube }, uniform, unit = 0) {
   if (unit < 0 || unit >= 8) {
     log("WebGL only supports texture units 0 to 7");
   }
   gl.activeTexture(gl.TEXTURE0 + unit);
-  gl.bindTexture(gl.TEXTURE_2D, pointer);
+  if (cube) {
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, pointer);
+  } else {
+    gl.bindTexture(gl.TEXTURE_2D, pointer);
+  }
   gl.uniform1i(uniform, unit);
 }
 
@@ -297,6 +338,116 @@ export const DEFAULT_SPHERE = {
   radius: 1500,
   fisheye: false,
 };
+
+const FACE_CONFIGURATIONS = {
+  facebook: { // transform360 output
+    front: 1,
+    back: 2,
+    top: 3,
+    bottom: 4,
+    left: 5,
+    right: 6,
+  },
+  webgl: null, // textureCube()
+};
+
+export function cube(config = {}) {
+  const {
+    gl,
+    size = 5000,
+    // uScale = 1,
+    // vScale = 1,
+  } = config;
+  let { faces = "facebook" } = config;
+
+  if (FACE_CONFIGURATIONS[faces]) {
+    faces = FACE_CONFIGURATIONS[faces];
+  }
+
+  const s = size / 2;
+  // Create a 24 vertex cube so that each face can have separated UVs
+  const vertex = [
+    // Front face
+    -1.0, -1.0,  1.0,
+    1.0, -1.0,  1.0,
+    1.0,  1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    // Back face
+    -1.0, -1.0,  -1.0,
+    1.0, -1.0,  -1.0,
+    1.0,  1.0,  -1.0,
+    -1.0,  1.0,  -1.0,
+    // Top face
+    -1.0,  1.0, -1.0,
+    -1.0,  1.0,  1.0,
+    1.0,  1.0,  1.0,
+    1.0,  1.0, -1.0,
+    // Bottom face
+    1.0, -1.0, -1.0,
+    1.0, -1.0,  1.0,
+    -1.0, -1.0,  1.0,
+    -1.0, -1.0, -1.0,
+    // Left face
+    -1.0,  1.0, -1.0,
+    -1.0,  1.0,  1.0,
+    -1.0, -1.0,  1.0,
+    -1.0, -1.0, -1.0,
+    // Right face
+    1.0,  1.0, -1.0,
+    1.0,  1.0,  1.0,
+    1.0, -1.0,  1.0,
+    1.0, -1.0, -1.0,
+  ].map(v => v * s);
+  const indices = [
+    0,  1,  2,      0,  2,  3,    // front
+    4,  5,  6,      4,  6,  7,    // back
+    8,  9,  10,     8,  10, 11,   // top
+    12, 13, 14,     12, 14, 15,   // bottom
+    16, 17, 18,     16, 18, 19,   // right
+    20, 21, 22,     20, 22, 23,   // left
+  ];
+
+  const u = v => (v / 3);
+  const uvs = [
+    // Front face
+    u(1), 0.5,
+    0, 0.5,
+    0, 0,
+    u(1),  0,
+    // Back face
+    u(1), 0.5,
+    u(2), 0.5,
+    u(2),  0,
+    u(1),  0,
+    // Top face
+    u(2), 0,
+    1, 0,
+    1, 0.5,
+    u(2), 0.5,
+    // Bottom face
+    0, 0.5,
+    u(1), 0.5,
+    u(1),  1,
+    0,  1,
+    // Left face
+    1, 0.5,
+    u(2), 0.5,
+    u(2),  1,
+    1,  1,
+    // Right face
+    u(1), 0.5,
+    u(2), 0.5,
+    u(2),  1,
+    u(1),  1,
+  ];
+
+  return {
+    vertices: buffer(gl, new Float32Array(vertex)),
+    indicies: buffer(gl, new Uint16Array(indices), gl.ELEMENT_ARRAY_BUFFER),
+    uvs:      buffer(gl, new Float32Array(uvs)),
+    size:     indices.length,
+  };
+}
 
 export function sphere(config) {
   const {

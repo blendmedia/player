@@ -309,12 +309,7 @@ class Player {
       }
 
       if (this._renderer) {
-        this._renderer.setSource(
-          current.getTexture(),
-          this._stereo,
-          this._degrees,
-          this._fisheye,
-        );
+        this._renderer.setMedia(current);
       }
     }
 

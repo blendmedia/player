@@ -4,9 +4,13 @@ export default function(type) {
   }
 
   let time = Date.now();
-  return function(string) {
+  return function(string, ...vars) {
     const dTime = Date.now() - time;
     time = Date.now();
+    let count = 0;
+    string = string.split("%s").reduce((str, part) => {
+      return str + part + (vars[count++] || "");
+    }, "");
     console.log(`[${type}] ${string} (+${dTime}ms)`);
   };
 }

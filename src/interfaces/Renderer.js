@@ -37,14 +37,26 @@ class Renderer extends Base {
 
   /**
    * Set source texture (video or image)
-   * @param {HTMLMediaElement} source
-   * @param {String|Boolean} stereo Stereo format of media (if any)
-   * @param {Number} degrees Number of degrees that the media takes up
+   * @param {Media} source
    */
-  setSource(source, stereo, degrees = 360) {
-    this._source = source;
-    this._stereo = stereo;
-    this._degrees = degrees;
+  setMedia(media) {
+    this._media = media;
+  }
+
+  get source() {
+    return this._media ? this._media.getTexture() : null;
+  }
+
+  get stereo() {
+    return this._media ? this._media.stereo() : null;
+  }
+
+  get fov() {
+    return this._media ? this._media.fov() : null;
+  }
+
+  get projection() {
+    return this._media ? this._media.projection() : null;
   }
 
   /**
