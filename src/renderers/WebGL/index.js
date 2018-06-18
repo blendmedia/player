@@ -161,6 +161,7 @@ class WebGLRenderer extends Renderer {
     this._vScale = vScale;
     this._geometry = null;
     this._fisheye = this.projection === "fisheye";
+    this._createGL();
     this._createShaders(this._gl);
   }
 
