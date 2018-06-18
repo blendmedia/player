@@ -156,7 +156,7 @@ class WebGLRenderer extends Renderer {
         uScale = 0.5;
         break;
     }
-    this._texture = null;
+    this.texture = null;
     this._uScale = uScale;
     this._vScale = vScale;
     this._geometry = null;
