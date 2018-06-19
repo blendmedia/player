@@ -218,7 +218,7 @@ export function bindAndSetTexture(gl, pointer, cube, data, w, h) {
   if (cube) {
     setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X, w, h, data.right || data);
     setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_X, w, h, data.left || data);
-    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, w, h, data.top || data);
+    setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_Y, w, h, data.up || data);
     setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, w, h, data.down || data);
     setTex(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, w, h, data.front || data);
     setTex(gl, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, w, h, data.back || data);
@@ -265,7 +265,7 @@ export function createTexture(
       media._renderable = true;
     });
     initialized = !!media._renderable;
-  } else if (media.top) {
+  } else if (media.up) {
     initialized = Object.values(media).every(i => i._renderable);
   }
 
@@ -288,7 +288,7 @@ export function updateTexture(gl, texture) {
   }
 
   if (!initialized) {
-    if (media.top) {
+    if (media.up) {
       initialized = Object.values(media).every(i => i._renderable);
     } else {
       initialized = media._renderable;
@@ -300,10 +300,10 @@ export function updateTexture(gl, texture) {
   }
 
   const width = (
-    media.naturalWidth || media.videoWidth || media.top.naturalWidth
+    media.naturalWidth || media.videoWidth || media.up.naturalWidth
   );
   const height = (
-    media.naturalHeight || media.videoHeight || media.top.naturalHeight
+    media.naturalHeight || media.videoHeight || media.up.naturalHeight
   );
 
   bindAndSetTexture(gl, pointer, cube, media, width, height);
@@ -343,7 +343,7 @@ const FACE_CONFIGURATIONS = {
   facebook: { // transform360 output
     front: 1,
     back: 2,
-    top: 3,
+    up: 3,
     bottom: 4,
     left: 5,
     right: 6,
@@ -401,7 +401,7 @@ export function cube(config = {}) {
   const indices = [
     0,  1,  2,      0,  2,  3,    // front
     4,  5,  6,      4,  6,  7,    // back
-    8,  9,  10,     8,  10, 11,   // top
+    8,  9,  10,     8,  10, 11,   // up
     12, 13, 14,     12, 14, 15,   // bottom
     16, 17, 18,     16, 18, 19,   // right
     20, 21, 22,     20, 22, 23,   // left

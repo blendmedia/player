@@ -25,7 +25,7 @@ class ImageCubemap extends Media {
     super.create(opts);
     const { src } = opts;
     this._images = {
-      top: null,
+      up: null,
       down: null,
       left: null,
       right: null,
@@ -70,7 +70,7 @@ class ImageCubemap extends Media {
 registerMedia(
   src => {
     if (
-      src.top &&
+      src.up &&
       src.down &&
       src.left &&
       src.right &&
