@@ -422,7 +422,9 @@ class Player {
       // Update renderer to use VR display size
       const width = Math.max(left.renderWidth, right.renderWidth) * 2;
       const height = Math.max(left.renderHeight, right.renderHeight);
-      this._renderer.setSize(width, height);
+      if (this._renderer) {
+        this._renderer.setSize(width, height);
+      }
       this._vrDisplay = display;
 
       // Cancel current animation frame and bootstrap VR displays frames
@@ -431,7 +433,10 @@ class Player {
       this._cancelFrame = display.cancelAnimationFrame.bind(display);
       this._submit = display.submitFrame.bind(display);
       this._frame = null;
-      this._renderer.enableVR(display);
+
+      if (this._renderer) {
+        this._renderer.enableVR(display);
+      }
       this._events.emit(events.ENTER_VR);
       this._renderLoop();
     }).catch(e => {
@@ -450,7 +455,9 @@ class Player {
     this._requestFrame = window.requestAnimationFrame.bind(window);
     this._cancelFrame = window.cancelAnimationFrame.bind(window);
     this._frame = null;
-    this._renderer.disableVR();
+    if (this._renderer) {
+      this._renderer.disableVR();
+    }
     this._vrDisplay = null;
     this._updateSize(true);
     this._submit = () => {};
@@ -561,7 +568,7 @@ class Player {
     }
 
     // Element has not been interacted with and autoStart is false
-    if (this._started) {
+    if (this._started && this._renderer) {
       this._renderer.render(
         rot, this._correction, this._stereoView || !!frameData, frameData
       );
