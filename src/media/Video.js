@@ -28,6 +28,7 @@ class Video extends Media {
       addDomListener(video, "canplay", this.send(events.LOADED)),
       addDomListener(video, "stalled", this.send(events.BUFFERING)),
       addDomListener(video, "waiting", this.send(events.BUFFERING)),
+      addDomListener(video, events.ERROR, this.send(events.ERROR)),
     ];
   }
 
