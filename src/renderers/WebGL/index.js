@@ -284,7 +284,9 @@ class WebGLRenderer extends Renderer {
     this._canvas = null;
     if (this._gl) {
       const g = this._gl;
-      g.deleteTexture(this.texture.pointer);
+      if (this.texture) {
+        g.deleteTexture(this.texture.pointer);
+      }
       g.deleteProgram(this._program);
       g.deleteShader(this._vert);
       g.deleteShader(this._frag);

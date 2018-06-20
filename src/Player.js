@@ -399,7 +399,9 @@ class Player {
     const serialized = `${width}x${height}`;
     if (force || serialized !== this._dimensions) {
       this._dimensions = serialized;
-      this._renderer.setSize(width, height);
+      if (this._renderer) {
+        this._renderer.setSize(width, height);
+      }
     }
   }
 
