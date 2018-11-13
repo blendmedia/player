@@ -106,7 +106,7 @@ class WebGLRenderer extends Renderer {
 
     // Create left eye geometry
     geom.left = creator(cubeConfig);
-    if (this._stereo) {
+    if (this.stereo) {
       geom.right = creator(Object.assign({}, config, {
         uOffset: 1 - this._uScale,
         vOffset: 1 - this._vScale,
