@@ -578,7 +578,9 @@ class Player {
     rot.x += rewind.x;
     rot.y += rewind.y;
     this._rotation = rot;
-    this._frame = this._requestFrame(this._renderLoop);
+    if (!this._suspended) {
+      this._frame = this._requestFrame(this._renderLoop);
+    }
     this._submit();
   }
 
@@ -703,16 +705,20 @@ class Player {
     this.suspend();
     this._swapRenderTarget(null);
 
-    for (const media of this._media) {
-      media.unload();
-    }
+    try {
+       for (const media of this._media) {
+        media.unload();
+      }
 
-    for (const ui of this._ui) {
-      ui.unmount();
-    }
+      for (const ui of this._ui) {
+        ui.unmount();
+      }
 
-    if (this._renderer) {
-      this._renderer.destroy();
+      if (this._renderer) {
+        this._renderer.destroy();
+      }
+    } catch (e) {
+      // ignore
     }
 
     // Clear interfaces
