@@ -706,7 +706,7 @@ class Player {
     this._swapRenderTarget(null);
 
     try {
-       for (const media of this._media) {
+      for (const media of this._media) {
         media.unload();
       }
 
