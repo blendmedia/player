@@ -299,6 +299,7 @@ class Player {
     const current = this.currentMedia();
     if (current) {
       current.load();
+      current.fov(this._degrees);
       if (resume) {
         current.seek(position);
         if (playing) {

@@ -105,7 +105,7 @@ class WebGLRenderer extends Renderer {
     const config = this._isCube() ? cubeConfig : sphereConfig;
 
     // Create left eye geometry
-    geom.left = creator(cubeConfig);
+    geom.left = creator(config);
     if (this.stereo) {
       geom.right = creator(Object.assign({}, config, {
         uOffset: 1 - this._uScale,
